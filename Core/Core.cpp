@@ -3,9 +3,8 @@
 template<int ColNum, int RowNum>
 inline bool ChessDataImpl<ColNum, RowNum>::init()
 {
-	for (auto row : data) {
-		for (auto grid : row) {
-			grid
+	for (RowType row : data) {
+		for (ChessGrid* grid : row) {
 		}
 	}
 	return false;
@@ -14,5 +13,11 @@ inline bool ChessDataImpl<ColNum, RowNum>::init()
 template<int ColNum, int RowNum>
 Player ChessDataImpl<ColNum, RowNum>::WhoWins()
 {
-	return Player();
+	return Player::None;
+}
+
+template<int ColNum, int RowNum>
+bool ChessDataImpl<ColNum, RowNum>::AddMirror(int col, int row, Player whose)
+{
+	return false;
 }

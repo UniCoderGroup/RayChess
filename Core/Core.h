@@ -52,6 +52,7 @@ public:
 public:
 	virtual bool init() = 0;
 	virtual Player WhoWins() = 0;
+	virtual bool AddMirror(int col, int row, Player whose) = 0;
 };
 
 template <int ColNum, int RowNum>
@@ -63,5 +64,9 @@ protected:
 public:
 	virtual bool init() override;
 	virtual Player WhoWins() override;
-
+	virtual bool AddMirror(int col, int row, Player whose) override;
 };
+
+int main() {
+	ChessDataImpl<3, 3> c;
+}
