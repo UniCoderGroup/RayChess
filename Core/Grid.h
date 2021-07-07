@@ -32,24 +32,31 @@ public:
 class GridHome :public Grid {
 public:
 	GridHome() = default;
+	GridHome(Player _whose) : whose(_whose), direction(Direction::Unknow) {};
 protected:
 	Player whose = Player::None;
 	Direction direction;
 public:
 	virtual GridType GetGridType()override;
+	bool SetDirection(Direction _direction) {
+		direction = _direction;
+		return true;
+	}
 };
 
 
 
 class GridNormal :public Grid {
+public:
+	GridNormal() = default;
 protected:
 	struct {
 		struct {
-			Player whose;
+			Player whose = Player::None;
 		}Left, Top, Right, Bottom;
 		struct {
-			TypeOfCross type;
-			Player whose;
+			TypeOfCross type = TypeOfCross::None;
+			Player whose = Player::None;
 		}Cross;
 	}Mirror;
 public:
@@ -57,4 +64,22 @@ public:
 	bool AddMirror(int x, int y, MirrorType type, Player whose);
 };
 
+
+class PGrid {
+public:
+	PGrid() :p(nullptr) {};
+	PGrid(Grid* pGrid) :p(pGrid) {};
+protected:
+	Grid* p;
+public:
+	operator Grid* () {
+		return p;
+	}
+	operator Grid& () {
+		return *p;
+	}
+	Grid* GetPointer() {
+		return p;
+	}
+};
 

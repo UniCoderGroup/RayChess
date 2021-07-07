@@ -9,32 +9,36 @@ class Map {
 public:
 	Map() = default;
 protected:
-	using RowType = std::array<Grid*, XNum>;
+	using RowType = std::array<PGrid, XNum>;
 	using DataType = std::array<RowType, YNum>;
 	DataType data;
 public:
 	bool init() {
 		for (RowType row : data) {
 			for (Grid* grid : row) {
-				// TODO: init every grid
+				grid = new GridNormal;
 			}
 		}
 		return true;
 	}
-	Grid*& GetPGrid(int x, int y) {
+	PGrid& GetPGrid(int x, int y) {
 		return data[y][x];
 	}
 	Grid& GetGrid(int x, int y) {
 		return *GetPGrid(x, y);
 	}
-	bool PlaceHome(int x, int y, Player whose) {
-		Grid*& pGrid = GetPGrid(x, y);
+	GridHome& CreateHome(int x, int y, Player whose) {
+		t("1.2");
+		PGrid pGrid = GetPGrid(x, y);
+		t("1.3");
 		if (pGrid != nullptr) {
-			delete GetPGrid;
+			t("1.4");
+			delete pGrid;
+			t("1.5");
 		}
-		Grid* newGrid = new GridHome;
-
-		pGrid = newGrid;
+		pGrid = new GridHome(whose);
+		t("1.6");
+		return *static_cast<GridHome*>(pGrid.GetPointer());
 	}
 };
 

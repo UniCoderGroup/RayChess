@@ -13,8 +13,9 @@ public:
 	bool init() {
 		return map.init();
 	}
-	bool PlaceHome(int x, int y, Player whose) {
-		return map.PlaceHome(x, y, whose);
+	GridHome& CreateHome(int x, int y, Player whose) {
+		t("1.1");
+		return map.CreateHome(x, y, whose);
 	}
 	Player WhoWins() {
 		return Player::None;
