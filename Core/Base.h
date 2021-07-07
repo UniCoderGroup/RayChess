@@ -1,4 +1,5 @@
 #pragma once
+#include<exception>
 
 enum class Player {
 	None,
@@ -12,5 +13,7 @@ enum class Direction {
 	Top = 4,
 	Bottom = 8
 };
+
+
 
 

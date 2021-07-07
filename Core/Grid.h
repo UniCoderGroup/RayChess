@@ -22,16 +22,16 @@ enum class GridType {
 };
 
 
-class ChessGrid {
+class Grid {
 public:
-	ChessGrid() = default;
+	Grid() = default;
 public:
 	virtual GridType GetGridType() = 0;
 };
 
-class ChessGridHome :public ChessGrid {
+class GridHome :public Grid {
 public:
-	ChessGridHome() = default;
+	GridHome() = default;
 protected:
 	Player whose = Player::None;
 	Direction direction;
@@ -41,7 +41,7 @@ public:
 
 
 
-class ChessGridNormal :public ChessGrid {
+class GridNormal :public Grid {
 protected:
 	struct {
 		struct {

@@ -1,17 +1,17 @@
 #include "Grid.h"
 
 
-GridType ChessGridHome::GetGridType()
+GridType GridHome::GetGridType()
 {
 	return GridType::Home;
 }
 
-GridType ChessGridNormal::GetGridType()
+GridType GridNormal::GetGridType()
 {
 	return GridType::Normal;
 }
 
-bool ChessGridNormal::AddMirror(int x, int y, MirrorType type, Player whose)
+bool GridNormal::AddMirror(int x, int y, MirrorType type, Player whose)
 {
 	switch (type) {
 		case MirrorType::Left:

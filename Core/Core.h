@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Map.h"
+#include "Game.h"
 
 
 
 int main() {
-	ChessDataImpl<3, 3> c;
+	Game<3, 3> c;
 }
