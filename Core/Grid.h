@@ -42,6 +42,9 @@ public:
 		direction = _direction;
 		return true;
 	}
+	Direction GetDirection() {
+		return direction;
+	}
 };
 
 
@@ -77,6 +80,12 @@ public:
 	}
 	operator Grid& () {
 		return *p;
+	}
+	Grid& operator*()const {
+		return *p;
+	}
+	Grid* operator->()const { // 箭头符号作用下去的结果，箭头符号会继续作用下去
+		return p;
 	}
 	Grid* GetPointer() {
 		return p;

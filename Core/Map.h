@@ -1,25 +1,37 @@
 #pragma once
 
-#include <array>
+#include <vector>
 #include "Base.h"
 #include "Grid.h"
 
-template <int XNum, int YNum>
+
 class Map {
 public:
 	Map() = default;
 protected:
-	using RowType = std::array<PGrid, XNum>;
-	using DataType = std::array<RowType, YNum>;
+	using RowType = std::vector<PGrid>;
+	using DataType = std::vector<RowType>;
 	DataType data;
+	int x = 0;
+	int y = 0;
 public:
-	bool init() {
+	bool init(int XNum, int YNum) {
+		x = XNum;
+		y = YNum;
+		data.resize(YNum);
 		for (RowType row : data) {
+			row.resize(XNum);
 			for (Grid* grid : row) {
 				grid = new GridNormal;
 			}
 		}
 		return true;
+	}
+	int GetXNum() {
+		return x;
+	}
+	int GetYNum() {
+		return y;
 	}
 	PGrid& GetPGrid(int x, int y) {
 		return data[y][x];
@@ -27,18 +39,31 @@ public:
 	Grid& GetGrid(int x, int y) {
 		return *GetPGrid(x, y);
 	}
+	Grid& GetGrid(const Coord& coord) {
+		return GetGrid(coord.x, coord.y);
+	}
 	GridHome& CreateHome(int x, int y, Player whose) {
-		t("1.2");
 		PGrid pGrid = GetPGrid(x, y);
-		t("1.3");
 		if (pGrid != nullptr) {
-			t("1.4");
 			delete pGrid;
-			t("1.5");
 		}
 		pGrid = new GridHome(whose);
-		t("1.6");
 		return *static_cast<GridHome*>(pGrid.GetPointer());
+	}
+	Coord GetHomeCoord(Player whose) {
+		for (DataType::iterator i = data.begin(); i < data.end(); ++i) {
+			RowType::iterator iterHome = std::find_if(i->begin(), i->end(), [whose](PGrid* another) {
+					if (GridType::Home == (*another)->GetGridType()) {
+						return true;
+					}
+					return false;
+				});
+			if (iterHome != i->end()) {
+				return { iterHome - i->begin() , i - data.begin() };
+			}
+		}
+		throw std::exception("Home not found");
+		return Coord();
 	}
 };
 
