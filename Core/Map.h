@@ -8,6 +8,10 @@
 class Map {
 public:
 	Map() = default;
+	Map(int XNum, int YNum) : data(YNum,RowType(XNum,new GridNormal)){
+		x = XNum;
+		y = YNum;
+	}
 protected:
 	using RowType = std::vector<PGrid>;
 	using DataType = std::vector<RowType>;

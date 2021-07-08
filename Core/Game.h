@@ -3,6 +3,9 @@
 class Game {
 public:
 	Game() = default;
+	Game(int XNum, int YNum) :map(XNum, YNum) {
+
+	}
 protected:
 	Map map;
 public:
@@ -20,10 +23,9 @@ public:
 	}
 	class SearchData {
 	public:
-		SearchData(Game& game) {
-			XNum = game.map.GetXNum();
-			YNum = game.map.GetYNum();
-			g = game;
+		SearchData(Game& game) : g(game) {
+			XNum = g.map.GetXNum();
+			YNum = g.map.GetYNum();
 			data.resize(YNum);
 			for (std::vector<RayData> row : data) {
 				row.resize(XNum);
