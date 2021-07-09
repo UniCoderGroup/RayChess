@@ -38,6 +38,9 @@ protected:
 	Direction direction;
 public:
 	virtual GridType GetGridType()override;
+	Player GetWhose() {
+		return whose;
+	}
 	bool SetDirection(Direction _direction) {
 		direction = _direction;
 		return true;
@@ -65,6 +68,73 @@ protected:
 public:
 	virtual GridType GetGridType()override;
 	bool AddMirror(int x, int y, MirrorType type, Player whose);
+	decltype(Mirror)& GetMirror() {
+		return Mirror;
+	}
+	RayData TestOutput(Direction d, Player p) {
+#pragma warning unfinished!
+		RayData o = 0;
+		switch (d) {
+			case Direction::Left:
+				if (Mirror.Right.whose != Player::None) {
+					if (Mirror.Right.whose == p) {
+						o &= static_cast<RayData>(Direction::Right);//LR
+					}
+					else if (Mirror.Right.whose != p) {
+						o &= static_cast<RayData>(Direction::Right);//R
+						goto end;
+					}
+				}
+				if (Mirror.Cross.type != TypeOfCross::None) {
+					switch (Mirror.Cross.type) {
+						case TypeOfCross::Slash:
+							if (Mirror.Cross.whose != Player::None) {
+								if (Mirror.Cross.whose == p) {
+									if (Mirror.Bottom.whose != Player::None) {
+										if (Mirror.Bottom.whose == p) {
+											o &= static_cast<RayData>(Direction::Bottom);
+										}
+										else if (Mirror.Bottom.whose != p) {
+											o &= static_cast<RayData>(Direction::Right);
+											if (Mirror.Top.whose != Player::None) {
+												if (Mirror.Top.whose == p) {
+													o &= static_cast<RayData>(Direction::Top);
+
+												}
+											}
+											o &= static_cast<RayData>(Direction::Top);
+											goto end;
+										}
+									}
+									else {
+										o &= static_cast<RayData>(Direction::Bottom);
+									}
+								}
+								else if (Mirror.Right.whose != p) {
+									o &= static_cast<RayData>(Direction::Bottom);
+
+								}
+							}
+							break;
+						case TypeOfCross::BackSlash:
+							if (Mirror.Cross.whose != Player::None) {
+								if (Mirror.Cross.whose == p) {
+									o &= static_cast<RayData>(Direction::Top);
+								}
+								else if (Mirror.Right.whose != p) {
+									o &= static_cast<RayData>(Direction::Top);
+									goto end;
+								}
+							}
+							break;
+
+					}
+				}
+				break;
+		}
+	end:
+		return o;
+	} 
 };
 
 

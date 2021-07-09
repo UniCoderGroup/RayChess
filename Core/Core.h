@@ -6,8 +6,8 @@
 
 
 int main() {
-	Game<50, 50> g;
-	g.init();
+	Game g;
+	g.init(30,30);
 	GridHome& home1 = g.CreateHome(2, 2, Player::P1);
 	home1.SetDirection(Direction::Top);
 

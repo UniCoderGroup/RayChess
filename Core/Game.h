@@ -32,7 +32,6 @@ public:
 			}
 		}
 	public:
-		using RayData = int;
 		RayData TestRange(int x, int y) {
 			RayData r = 0;
 			if (!(x - 1 < 0)) {
@@ -58,31 +57,72 @@ public:
 		Game& g;
 		std::vector<std::vector<RayData>> data;
 	};
-	bool CheckNode(SearchData& s, int x, int y) {
-		SearchData::RayData r = s.GetRayData(x, y);
-		SearchData::RayData b = s.TestRange(x, y);
-		if (r & static_cast<int>(Direction::Left)
-			&& b & static_cast<int>(Direction::Left)) {
-			CheckNode(s, x - 1, y);
+	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) {
+		Grid& g = map.GetGrid(x, y);
+		if (g.GetGridType() == GridType::Home) {
+			GridHome gh = static_cast<GridHome&>(g);
+			if (gh.GetWhose() != p && gh.GetWhose() != Player::None) {
+				return true;
+			}
 		}
-		if (r & static_cast<int>(Direction::Right)
-			&& b & static_cast<int>(Direction::Right)) {
-			CheckNode(s, x + 1, y);
-		}
-		if (r & static_cast<int>(Direction::Top)
-			&& b & static_cast<int>(Direction::Top)) {
-			CheckNode(s, x, y - 1);
-		}
-		if (r & static_cast<int>(Direction::Bottom)
-			&& b & static_cast<int>(Direction::Bottom)) {
-			CheckNode(s, x, y + 1);
+		else if (g.GetGridType() == GridType::Normal) {
+			GridNormal& gn = static_cast<GridNormal&>(g);
+			RayData o = gn.TestOutput(d, p);
+			RayData r = s.GetRayData(x, y);
+			RayData b = s.TestRange(x, y);
+			if (r & static_cast<int>(Direction::Left)
+				&& b & static_cast<int>(Direction::Left)) {
+				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
+					return true;
+				}
+			}
+			if (r & static_cast<int>(Direction::Right)
+				&& b & static_cast<int>(Direction::Right)) {
+				if (CheckNode(s, x + 1, y, p, Direction::Right)) {
+					return true;
+				}
+			}
+			if (r & static_cast<int>(Direction::Top)
+				&& b & static_cast<int>(Direction::Top)) {
+				if (CheckNode(s, x, y - 1, p, Direction::Top)) {
+					return true;
+				}
+			}
+			if (r & static_cast<int>(Direction::Bottom)
+				&& b & static_cast<int>(Direction::Bottom)) {
+				if (CheckNode(s, x, y + 1, p, Direction::Bottom)) {
+					return true;
+				}
+			}
 		}
 	}
 	bool CheckIfWin(Player p) {
 		Coord cHome = map.GetHomeCoord(p);
 		GridHome& gHome = static_cast<GridHome&>(map.GetGrid(cHome));
 		SearchData s(*this);
-		CheckNode(s, cHome.x, cHome.y);
+		int x = cHome.x;
+		int y = cHome.y;
+		RayData b = s.TestRange(x, y);
+		if (b & static_cast<int>(Direction::Left)) {
+			if (CheckNode(s, x - 1, y, p, Direction::Left)) {
+				return true;
+			}
+		}
+		if (b & static_cast<int>(Direction::Right)) {
+			if (CheckNode(s, x + 1, y, p, Direction::Right)) {
+				return true;
+			}
+		}
+		if (b & static_cast<int>(Direction::Top)) {
+			if (CheckNode(s, x, y - 1, p, Direction::Top)) {
+				return true;
+			}
+		}
+		if (b & static_cast<int>(Direction::Bottom)) {
+			if (CheckNode(s, x, y + 1, p, Direction::Bottom)) {
+				return true;
+			}
+		}
 	}
 	Player WhoWins() {
 		if (CheckIfWin(Player::P1)) {
