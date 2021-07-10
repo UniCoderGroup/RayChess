@@ -9,6 +9,40 @@ enum class Player {
 	P2
 };
 
+class RelativePlayer {
+public:
+	enum RelativePlayerData {
+		None,
+		This,
+		Another
+	};
+	RelativePlayer() = default;
+	RelativePlayer(RelativePlayerData data) :data(data) {}
+	RelativePlayer(Player PlayerThis, Player PlayerThat) :data(GetRelativePlayer(PlayerThis, PlayerThat)) {}
+	static RelativePlayer GetRelativePlayer(Player PlayerThis, Player PlayerThat) {
+		if (PlayerThis != Player::None) {
+			if (PlayerThat == Player::None) {
+				return None;
+			}
+			else if (PlayerThis == PlayerThat) {
+				return This;
+			}
+			else {
+				return Another;
+			}
+		}
+		else {
+			return None;
+		}
+	}
+	operator RelativePlayerData() {
+		return data;
+	}
+protected:
+	RelativePlayerData data = None;
+
+};
+
 enum class Direction {
 	Unknow = 0,
 	Left = 1,
@@ -16,6 +50,21 @@ enum class Direction {
 	Top = 4,
 	Bottom = 8
 };
+
+Direction OppositeDirection(Direction d) {
+	switch (d) {
+		case Direction::Unknow:
+			return Direction::Unknow;
+		case Direction::Left:
+			return Direction::Right;
+		case Direction::Right:
+			return Direction::Left;
+		case Direction::Top:
+			return Direction::Bottom;
+		case Direction::Bottom:
+			return Direction::Top;
+	}
+}
 
 struct Coord {
 	int x = -1;
@@ -26,7 +75,7 @@ using RayData = int;
 
 class _tag_logger {
 public:
-	int log(char const* const _Format,...) {
+	int log(char const* const _Format, ...) {
 		int _Result;
 		va_list _ArgList;
 		__crt_va_start(_ArgList, _Format);

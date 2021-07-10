@@ -50,7 +50,96 @@ public:
 	}
 };
 
-
+namespace TestOutput {
+	class TestData;
+	class TestMirror {
+	protected:
+		TestData& data;
+		RelativePlayer whose;
+	public:
+		TestMirror(TestData& data, RelativePlayer whose) :data(data), whose(whose) {};
+	};
+	class TestMirrorLeft :public TestMirror {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestMirrorRight :public TestMirror {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestMirrorTop :public TestMirror {
+	public:
+		bool TopIn();
+		bool BottomIn();
+	};
+	class TestMirrorBottom :public TestMirror {
+	public:
+		bool TopIn();
+		bool BottomIn();
+	};
+	class TestMirrorCross :public TestMirror {
+	protected:
+		TypeOfCross type;
+	public:
+		bool LeftIn();
+		bool RightIn();
+		bool TopIn();
+		bool BottomIn();
+	};
+	class TestArea {
+	protected:
+		TestData& data;
+	public:
+		TestArea(TestData& data) :data(data) {};
+	};
+	class TestAreaLeftRight :public TestArea {
+	protected:
+		bool left = false;
+		bool right = false;
+	};
+	class TestAreaInnerLeft :public TestAreaLeftRight {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestAreaOuterLeft :public TestAreaLeftRight {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestAreaInnerRight :public TestAreaLeftRight {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestAreaOuterRight :public TestAreaLeftRight {
+	public:
+		bool LeftIn();
+		bool RightIn();
+	};
+	class TestData {
+	public:
+		TestMirrorLeft LeftMirror;
+		TestMirrorRight RightMirror;
+		TestMirrorTop TopMirror;
+		TestMirrorBottom BottomMirror;
+		TestMirrorCross CrossMirror;
+		TestAreaInnerLeft LeftInnerArea;
+		TestAreaOuterLeft LeftOuterArea;
+		TestAreaInnerRight RightInnerArea;
+		TestAreaOuterRight RightOuterArea;
+		TestAreaInnerTop TopInnerArea;
+		TestAreaOuterTop TopOuterArea;
+		TestAreaInnerBottom BottomInnerArea;
+		TestAreaOuterBottom BottomOuterArea;
+		bool LeftOut();
+		bool RightOut();
+		bool TopOut();
+		bool BottomOut();
+	};
+}
 
 class GridNormal :public Grid {
 public:
@@ -72,69 +161,66 @@ public:
 		return Mirror;
 	}
 	RayData TestOutput(Direction d, Player p) {
-#pragma warning unfinished!
-		RayData o = 0;
-		switch (d) {
-			case Direction::Left:
-				if (Mirror.Right.whose != Player::None) {
-					if (Mirror.Right.whose == p) {
-						o &= static_cast<RayData>(Direction::Right);//LR
-					}
-					else if (Mirror.Right.whose != p) {
-						o &= static_cast<RayData>(Direction::Right);//R
-						goto end;
-					}
-				}
-				if (Mirror.Cross.type != TypeOfCross::None) {
-					switch (Mirror.Cross.type) {
-						case TypeOfCross::Slash:
-							if (Mirror.Cross.whose != Player::None) {
-								if (Mirror.Cross.whose == p) {
-									if (Mirror.Bottom.whose != Player::None) {
-										if (Mirror.Bottom.whose == p) {
-											o &= static_cast<RayData>(Direction::Bottom);
-										}
-										else if (Mirror.Bottom.whose != p) {
-											o &= static_cast<RayData>(Direction::Right);
-											if (Mirror.Top.whose != Player::None) {
-												if (Mirror.Top.whose == p) {
-													o &= static_cast<RayData>(Direction::Top);
-
-												}
-											}
-											o &= static_cast<RayData>(Direction::Top);
-											goto end;
-										}
-									}
-									else {
-										o &= static_cast<RayData>(Direction::Bottom);
-									}
-								}
-								else if (Mirror.Right.whose != p) {
-									o &= static_cast<RayData>(Direction::Bottom);
-
-								}
-							}
-							break;
-						case TypeOfCross::BackSlash:
-							if (Mirror.Cross.whose != Player::None) {
-								if (Mirror.Cross.whose == p) {
-									o &= static_cast<RayData>(Direction::Top);
-								}
-								else if (Mirror.Right.whose != p) {
-									o &= static_cast<RayData>(Direction::Top);
-									goto end;
-								}
-							}
-							break;
-
-					}
-				}
-				break;
-		}
-	end:
-		return o;
-	} 
+		//#pragma warning unfinished!
+			//	RayData o = 0;
+			//	switch (d) {
+			//		case Direction::Left:
+			//			if (Mirror.Right.whose != Player::None) {
+			//				if (Mirror.Right.whose == p) {
+			//					o &= static_cast<RayData>(Direction::Right);//LR
+			//				}
+			//				else if (Mirror.Right.whose != p) {
+			//					o &= static_cast<RayData>(Direction::Right);//data.RightInnerArea.LeftIn
+			//					goto end;
+			//				}
+			//			}
+			//			if (Mirror.Cross.type != TypeOfCross::None) {
+			//				switch (Mirror.Cross.type) {
+			//					case TypeOfCross::Slash:
+			//						if (Mirror.Cross.whose != Player::None) {
+			//							if (Mirror.Cross.whose == p) {
+			//								if (Mirror.Bottom.whose != Player::None) {
+			//									if (Mirror.Bottom.whose == p) {
+			//										o &= static_cast<RayData>(Direction::Bottom);
+			//									}
+			//									else if (Mirror.Bottom.whose != p) {
+			//										o &= static_cast<RayData>(Direction::Right);
+			//										if (Mirror.Top.whose != Player::None) {
+			//											if (Mirror.Top.whose == p) {
+			//												o &= static_cast<RayData>(Direction::Top);
+			//											}
+			//										}
+			//										o &= static_cast<RayData>(Direction::Top);
+			//										goto end;
+			//									}
+			//								}
+			//								else {
+			//									o &= static_cast<RayData>(Direction::Bottom);
+			//								}
+			//							}
+			//							else if (Mirror.Right.whose != p) {
+			//								o &= static_cast<RayData>(Direction::Bottom);
+			//							}
+			//						}
+			//						break;
+			//					case TypeOfCross::BackSlash:
+			//						if (Mirror.Cross.whose != Player::None) {
+			//							if (Mirror.Cross.whose == p) {
+			//								o &= static_cast<RayData>(Direction::Top);
+			//							}
+			//							else if (Mirror.Right.whose != p) {
+			//								o &= static_cast<RayData>(Direction::Top);
+			//								goto end;
+			//							}
+			//						}
+			//						break;
+			//				}
+			//			}
+			//			break;
+			//	}
+			//end:
+			//	return o;
+	}
 };
 
 

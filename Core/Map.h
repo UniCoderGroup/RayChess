@@ -23,13 +23,11 @@ public:
 		x = XNum;
 		y = YNum;
 		logger().log("init map: x=%d y=%d \n", XNum, YNum);
-
 		logger().log("init map: [COL] resize=%d (&data=%p)\n",YNum, &data);
 		data.resize(YNum);
 		logger().log("init map: [COL]   -->size=%d (&data=%p)\n", data.size(), &data);
 		int i = 0;
 		for (RowType& row : data) {
-
 			logger().log("init map: [ROW %d] resize=%d (&row=%p)\n",i, XNum,&row);
 			row.resize(XNum);
 			for (Grid* grid : row) {
