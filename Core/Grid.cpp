@@ -49,312 +49,6 @@ therehasbeen:
 	return false;
 }
 
-bool TestOutput::TestMirrorLeft::LeftIn()
-{
-	switch (whose) {
-		case RelativePlayer::None:
-			data.LeftInnerArea.LeftIn();
-			break;
-		case RelativePlayer::This:
-			data.LeftOuterArea.RightIn();
-			data.LeftInnerArea.LeftIn();
-			break;
-		case RelativePlayer::Another:
-			data.LeftOuterArea.RightIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorLeft::RightIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.LeftOuterArea.RightIn();
-			break;
-		case RelativePlayer::This:
-			data.LeftOuterArea.RightIn();
-			data.LeftInnerArea.LeftIn();
-			break;
-		case RelativePlayer::Another:
-			data.LeftInnerArea.LeftIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorRight::LeftIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.RightOuterArea.LeftIn();
-			break;
-		case RelativePlayer::This:
-			data.RightOuterArea.LeftIn();
-			data.RightInnerArea.RightIn();
-			break;
-		case RelativePlayer::Another:
-			data.RightInnerArea.RightIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorRight::RightIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.RightInnerArea.RightIn();
-			break;
-		case RelativePlayer::This:
-			data.RightOuterArea.LeftIn();
-			data.RightInnerArea.RightIn();
-			break;
-		case RelativePlayer::Another:
-			data.RightOuterArea.LeftIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorTop::TopIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.TopInnerArea.TopIn();
-			break;
-		case RelativePlayer::This:
-			data.TopOuterArea.BottomIn();
-			data.TopInnerArea.TopIn();
-			break;
-		case RelativePlayer::Another:
-			data.TopOuterArea.BottomIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorTop::BottomIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.TopOuterArea.BottomIn();
-			break;
-		case RelativePlayer::This:
-			data.TopInnerArea.TopIn();
-			data.TopOuterArea.BottomIn();
-			break;
-		case RelativePlayer::Another:
-			data.TopInnerArea.TopIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorBottom::TopIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.BottomOuterArea.TopIn();
-			break;
-		case RelativePlayer::This:
-			data.BottomInnerArea.BottomIn();
-			data.BottomOuterArea.TopIn();
-			break;
-		case RelativePlayer::Another:
-			data.BottomInnerArea.BottomIn();
-			break;
-	}
-}
-bool TestOutput::TestMirrorBottom::BottomIn() {
-	switch (whose) {
-		case RelativePlayer::None:
-			data.BottomInnerArea.BottomIn();
-			break;
-		case RelativePlayer::This:
-			data.BottomInnerArea.BottomIn();
-			data.BottomOuterArea.TopIn();
-			break;
-		case RelativePlayer::Another:
-			data.BottomOuterArea.TopIn();
-			break;
-	}
-}
-
-bool TestOutput::TestMirrorCross::LeftIn()
-{
-	switch (type) {
-		case TypeOfCross::Slash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.RightInnerArea.LeftIn();
-					break;
-				case RelativePlayer::This:
-					data.RightInnerArea.LeftIn();
-					data.TopInnerArea.BottomIn();
-					break;
-				case RelativePlayer::Another:
-					data.TopInnerArea.BottomIn();
-					break;
-			}
-			break;
-		case TypeOfCross::BackSlash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.RightInnerArea.LeftIn();
-					break;
-				case RelativePlayer::This:
-					data.RightInnerArea.LeftIn();
-					data.BottomInnerArea.TopIn();
-					break;
-				case RelativePlayer::Another:
-					data.BottomInnerArea.TopIn();
-					break;
-			}
-			break;
-	}
-}
-
-bool TestOutput::TestMirrorCross::RightIn()
-{
-	switch (type) {
-		case TypeOfCross::Slash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.LeftInnerArea.RightIn();
-					break;
-				case RelativePlayer::This:
-					data.LeftInnerArea.RightIn();
-					data.BottomInnerArea.TopIn();
-					break;
-				case RelativePlayer::Another:
-					data.BottomInnerArea.TopIn();
-					break;
-			}
-			break;
-		case TypeOfCross::BackSlash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.LeftInnerArea.RightIn();
-					break;
-				case RelativePlayer::This:
-					data.LeftInnerArea.RightIn();
-					data.TopInnerArea.BottomIn();
-					break;
-				case RelativePlayer::Another:
-					data.TopInnerArea.BottomIn();
-					break;
-			}
-			break;
-	}
-}
-
-bool TestOutput::TestMirrorCross::TopIn()
-{
-	switch (type) {
-		case TypeOfCross::Slash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.BottomInnerArea.TopIn();
-					break;
-				case RelativePlayer::This:
-					data.BottomInnerArea.TopIn();
-					data.LeftInnerArea.RightIn();
-					break;
-				case RelativePlayer::Another:
-					data.LeftInnerArea.RightIn();
-					break;
-			}
-			break;
-		case TypeOfCross::BackSlash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.BottomInnerArea.TopIn();
-					break;
-				case RelativePlayer::This:
-					data.BottomInnerArea.TopIn();
-					data.RightInnerArea.LeftIn();
-					break;
-				case RelativePlayer::Another:
-					data.RightInnerArea.LeftIn();
-					break;
-			}
-			break;
-	}
-}
-
-bool TestOutput::TestMirrorCross::BottomIn()
-{
-	switch (type) {
-		case TypeOfCross::Slash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.TopInnerArea.BottomIn();
-					break;
-				case RelativePlayer::This:
-					data.TopInnerArea.BottomIn();
-					data.RightInnerArea.LeftIn();
-					break;
-				case RelativePlayer::Another:
-					data.RightInnerArea.LeftIn();
-					break;
-			}
-			break;
-		case TypeOfCross::BackSlash:
-			switch (whose) {
-				case RelativePlayer::None:
-					data.TopInnerArea.BottomIn();
-					break;
-				case RelativePlayer::This:
-					data.TopInnerArea.BottomIn();
-					data.LeftInnerArea.RightIn();
-					break;
-				case RelativePlayer::Another:
-					data.LeftInnerArea.RightIn();
-					break;
-			}
-			break;
-	}
-}
-
-bool TestOutput::TestAreaInnerLeft::LeftIn()
-{
-	if(!left){
-		data.CrossMirror.LeftIn();
-	}
-}
-
-bool TestOutput::TestAreaInnerLeft::RightIn()
-{
-	if (!right) {
-		data.LeftMirror.RightIn();
-	}
-}
-
-bool TestOutput::TestAreaOuterRight::LeftIn()
-{
-	if (!left) {
-		data.LeftMirror.LeftIn();
-	}
-}
-
-bool TestOutput::TestAreaOuterRight::RightIn()
-{
-	if (!right) {
-		data.LeftOut();
-	}
-}
-
-bool TestOutput::TestAreaInnerRight::LeftIn()
-{
-	if (!left) {
-		data.RightMirror.LeftIn();
-	}
-}
-
-bool TestOutput::TestAreaInnerRight::RightIn()
-{
-	if (!right) {
-		data.CrossMirror.RightIn();
-	}
-}
-
-bool TestOutput::TestAreaOuterLeft::LeftIn()
-{
-	if (!left) {
-		data.RightOut();
-	}
-}
-
-bool TestOutput::TestAreaOuterLeft::RightIn()
-{
-	if (!right) {
-		data.RightMirror.RightIn();
-	}
-}
-
 TestOutput::TestArea& TestOutput::TestMirrorLeft::GetOuterArea()
 {
 	return data.LeftOuterArea;
@@ -392,5 +86,289 @@ TestOutput::TestArea& TestOutput::TestMirrorBottom::GetOuterArea()
 
 TestOutput::TestArea& TestOutput::TestMirrorBottom::GetInnerArea()
 {
-	return data.TopBottomArea;
+	return data.BottomInnerArea;
+}
+
+bool TestOutput::TestMirrorCross::LeftIn()
+{
+	switch (type) {
+		case TypeOfCross::Slash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.RightInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.RightInnerArea.Outward();
+					data.TopInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.TopInnerArea.Outward();
+					break;
+			}
+			break;
+		case TypeOfCross::BackSlash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.RightInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.RightInnerArea.Outward();
+					data.BottomInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.BottomInnerArea.Outward();
+					break;
+			}
+			break;
+	}
+}
+
+bool TestOutput::TestMirrorCross::RightIn()
+{
+	switch (type) {
+		case TypeOfCross::Slash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.LeftInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.LeftInnerArea.Outward();
+					data.BottomInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.BottomInnerArea.Outward();
+					break;
+			}
+			break;
+		case TypeOfCross::BackSlash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.LeftInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.LeftInnerArea.Outward();
+					data.TopInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.TopInnerArea.Outward();
+					break;
+			}
+			break;
+	}
+}
+
+bool TestOutput::TestMirrorCross::TopIn()
+{
+	switch (type) {
+		case TypeOfCross::Slash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.BottomInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.BottomInnerArea.Outward();
+					data.LeftInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.LeftInnerArea.Outward();
+					break;
+			}
+			break;
+		case TypeOfCross::BackSlash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.BottomInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.BottomInnerArea.Outward();
+					data.RightInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.RightInnerArea.Outward();
+					break;
+			}
+			break;
+	}
+}
+
+bool TestOutput::TestMirrorCross::BottomIn()
+{
+	switch (type) {
+		case TypeOfCross::Slash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.TopInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.TopInnerArea.Outward();
+					data.RightInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.RightInnerArea.Outward();
+					break;
+			}
+			break;
+		case TypeOfCross::BackSlash:
+			switch (whose) {
+				case RelativePlayer::None:
+					data.TopInnerArea.Outward();
+					break;
+				case RelativePlayer::This:
+					data.TopInnerArea.Outward();
+					data.LeftInnerArea.Outward();
+					break;
+				case RelativePlayer::Another:
+					data.LeftInnerArea.Outward();
+					break;
+			}
+			break;
+	}
+}
+
+bool TestOutput::TestAreaInnerLeft::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.CrossMirror.LeftIn();
+}
+
+bool TestOutput::TestAreaInnerLeft::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.LeftMirror.Outward();
+}
+
+bool TestOutput::TestAreaOuterLeft::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.LeftMirror.Inward();
+}
+
+bool TestOutput::TestAreaOuterLeft::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.LeftOut();
+}
+
+bool TestOutput::TestAreaInnerRight::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.CrossMirror.RightIn();
+}
+
+bool TestOutput::TestAreaInnerRight::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.RightMirror.Outward();
+}
+
+bool TestOutput::TestAreaOuterRight::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.RightMirror.Inward();
+}
+
+bool TestOutput::TestAreaOuterRight::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.RightOut();
+}
+
+bool TestOutput::TestAreaInnerTop::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.CrossMirror.TopIn();
+}
+
+bool TestOutput::TestAreaInnerTop::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.TopMirror.Outward();
+}
+
+bool TestOutput::TestAreaOuterTop::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.TopMirror.Inward();
+}
+
+bool TestOutput::TestAreaOuterTop::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.TopOut();
+}
+
+bool TestOutput::TestAreaInnerBottom::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.CrossMirror.BottomIn();
+}
+
+bool TestOutput::TestAreaInnerBottom::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.BottomMirror.Outward();
+}
+
+bool TestOutput::TestAreaOuterBottom::Inward()
+{
+	if (in) {
+		return true;
+	}
+	return data.BottomMirror.Inward();
+}
+
+bool TestOutput::TestAreaOuterBottom::Outward()
+{
+	if (in) {
+		return true;
+	}
+	return data.BottomOut();
+}
+
+bool TestOutput::TestData::LeftOut()
+{
+	return false;
+}
+
+bool TestOutput::TestData::RightOut()
+{
+	return false;
+}
+
+bool TestOutput::TestData::TopOut()
+{
+	return false;
+}
+
+bool TestOutput::TestData::BottomOut()
+{
+	return false;
 }

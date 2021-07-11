@@ -79,7 +79,7 @@ namespace TestOutput {
 					break;
 			}
 		}
-		bool OutWard() {
+		bool Outward() {
 			switch (whose) {
 				case RelativePlayer::None:
 					GetOuterArea().Outward();
@@ -126,33 +126,52 @@ namespace TestOutput {
 	class TestArea {
 	protected:
 		TestData& data;
+		bool in = false;
+		bool out = false;
 	public:
 		TestArea(TestData& data) :data(data) {};
+		virtual bool  Inward() = 0;
+		virtual bool  Outward() = 0;
 	};
-	class TestAreaLeftRight :public TestArea {
-	protected:
-		bool left = false;
-		bool right = false;
-	};
-	class TestAreaInnerLeft :public TestAreaLeftRight {
+	class TestAreaInnerLeft :public TestArea {
 	public:
-		bool LeftIn();
-		bool RightIn();
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
 	};
-	class TestAreaOuterLeft :public TestAreaLeftRight {
+	class TestAreaOuterLeft :public TestArea {
 	public:
-		bool LeftIn();
-		bool RightIn();
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
 	};
-	class TestAreaInnerRight :public TestAreaLeftRight {
+	class TestAreaInnerRight :public TestArea {
 	public:
-		bool LeftIn();
-		bool RightIn();
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
 	};
-	class TestAreaOuterRight :public TestAreaLeftRight {
+	class TestAreaOuterRight :public TestArea {
 	public:
-		bool LeftIn();
-		bool RightIn();
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
+	};
+	class TestAreaInnerTop :public TestArea {
+	public:
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
+	};
+	class TestAreaOuterTop :public TestArea {
+	public:
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
+	};
+	class TestAreaInnerBottom :public TestArea {
+	public:
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
+	};
+	class TestAreaOuterBottom :public TestArea {
+	public:
+		virtual bool  Inward() override;
+		virtual bool  Outward() override;
 	};
 	class TestData {
 	public:
