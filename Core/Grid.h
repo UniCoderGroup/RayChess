@@ -52,32 +52,67 @@ public:
 
 namespace TestOutput {
 	class TestData;
+	class TestArea;
 	class TestMirror {
 	protected:
 		TestData& data;
 		RelativePlayer whose;
 	public:
 		TestMirror(TestData& data, RelativePlayer whose) :data(data), whose(whose) {};
-	};
-	class TestMirrorLeft :public TestMirror {
+	}; 
+	class TestMirrorBorder :public TestMirror {
+	protected:
+		virtual TestArea& GetOuterArea() = 0;
+		virtual TestArea& GetInnerArea() = 0;
 	public:
-		bool LeftIn();
-		bool RightIn();
+		bool Inward() {
+			switch (whose) {
+				case RelativePlayer::None:
+					GetInnerArea().Inward();
+					break;
+				case RelativePlayer::This:
+					GetInnerArea().Inward();
+					GetOuterArea().Outward();
+					break;
+				case RelativePlayer::Another:
+					GetOuterArea().Outward();
+					break;
+			}
+		}
+		bool OutWard() {
+			switch (whose) {
+				case RelativePlayer::None:
+					GetOuterArea().Outward();
+					break;
+				case RelativePlayer::This:
+					GetInnerArea().Inward();
+					GetOuterArea().Outward();
+					break;
+				case RelativePlayer::Another:
+					GetInnerArea().Inward();
+					break;
+			}
+		}
 	};
-	class TestMirrorRight :public TestMirror {
-	public:
-		bool LeftIn();
-		bool RightIn();
+	class TestMirrorLeft :public TestMirrorBorder {
+	protected:
+		virtual TestArea& GetOuterArea()override;
+		virtual TestArea& GetInnerArea()override;
 	};
-	class TestMirrorTop :public TestMirror {
-	public:
-		bool TopIn();
-		bool BottomIn();
+	class TestMirrorRight :public TestMirrorBorder {
+	protected:
+		virtual TestArea& GetOuterArea()override;
+		virtual TestArea& GetInnerArea()override;
 	};
-	class TestMirrorBottom :public TestMirror {
-	public:
-		bool TopIn();
-		bool BottomIn();
+	class TestMirrorTop :public TestMirrorBorder {
+	protected:
+		virtual TestArea& GetOuterArea()override;
+		virtual TestArea& GetInnerArea()override;
+	};
+	class TestMirrorBottom :public TestMirrorBorder {
+	protected:
+		virtual TestArea& GetOuterArea()override;
+		virtual TestArea& GetInnerArea()override;
 	};
 	class TestMirrorCross :public TestMirror {
 	protected:

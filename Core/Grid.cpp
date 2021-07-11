@@ -354,3 +354,43 @@ bool TestOutput::TestAreaOuterLeft::RightIn()
 		data.RightMirror.RightIn();
 	}
 }
+
+TestOutput::TestArea& TestOutput::TestMirrorLeft::GetOuterArea()
+{
+	return data.LeftOuterArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorLeft::GetInnerArea()
+{
+	return data.LeftInnerArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorRight::GetOuterArea()
+{
+	return data.RightOuterArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorRight::GetInnerArea()
+{
+	return data.RightInnerArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorTop::GetOuterArea()
+{
+	return data.TopOuterArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorTop::GetInnerArea()
+{
+	return data.TopInnerArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorBottom::GetOuterArea()
+{
+	return data.BottomOuterArea;
+}
+
+TestOutput::TestArea& TestOutput::TestMirrorBottom::GetInnerArea()
+{
+	return data.TopBottomArea;
+}
