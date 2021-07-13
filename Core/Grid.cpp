@@ -11,31 +11,31 @@ GridType GridNormal::GetGridType()
 	return GridType::Normal;
 }
 
-bool GridNormal::AddMirror(int x, int y, MirrorType type, Player whose)
+bool GridNormal::AddMirror(int x, int y, TypeOfMirror type, Player whose)
 {
 	switch (type) {
-		case MirrorType::Left:
+		case TypeOfMirror::Left:
 			if (Mirror.Left.whose != Player::None) goto therehasbeen;
 			Mirror.Left.whose = whose;
 			break;
-		case MirrorType::Right:
+		case TypeOfMirror::Right:
 			if (Mirror.Right.whose != Player::None) goto therehasbeen;
 			Mirror.Right.whose = whose;
 			break;
-		case MirrorType::Top:
+		case TypeOfMirror::Top:
 			if (Mirror.Top.whose != Player::None) goto therehasbeen;
 			Mirror.Top.whose = whose;
 			break;
-		case MirrorType::Bottom:
+		case TypeOfMirror::Bottom:
 			if (Mirror.Bottom.whose != Player::None) goto therehasbeen;
 			Mirror.Bottom.whose = whose;
 			break;
-		case MirrorType::Slash:
+		case TypeOfMirror::Slash:
 			if (Mirror.Cross.type != TypeOfCross::None) goto therehasbeen;
 			Mirror.Cross.type = TypeOfCross::Slash;
 			Mirror.Cross.whose = whose;
 			break;
-		case MirrorType::BackSlash:
+		case TypeOfMirror::BackSlash:
 			if (Mirror.Cross.type != TypeOfCross::None) goto therehasbeen;
 			Mirror.Cross.type = TypeOfCross::BackSlash;
 			Mirror.Cross.whose = whose;
@@ -395,22 +395,51 @@ namespace TestOutput {
 
 	bool TestData::LeftOut()
 	{
-		return false;
+		Output &= static_cast<RayData>(Direction::Left);
+		return true;
 	}
 
 	bool TestData::RightOut()
 	{
-		return false;
+		Output &= static_cast<RayData>(Direction::Right);
+		return true;
 	}
 
 	bool TestData::TopOut()
 	{
-		return false;
+		Output &= static_cast<RayData>(Direction::Top);
+		return true;
 	}
 
 	bool TestData::BottomOut()
 	{
-		return false;
+		Output &= static_cast<RayData>(Direction::Bottom);
+		return true;
+	}
+
+	bool TestData::LeftIn()
+	{
+		return LeftOuterArea.Inward();
+	}
+
+	bool TestData::RightIn()
+	{
+		return RightOuterArea.Inward();
+	}
+
+	bool TestData::TopIn()
+	{
+		return TopOuterArea.Inward();
+	}
+
+	bool TestData::BottomIn()
+	{
+		return BottomOuterArea.Inward();
+	}
+
+	RayData TestData::GetOutput()
+	{
+		return Output;
 	}
 
 }

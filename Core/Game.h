@@ -140,7 +140,7 @@ public:
 		}
 		return Player::None;
 	}
-	bool AddMirror(int x, int y, MirrorType type, Player whose) {
+	bool AddMirror(int x, int y, TypeOfMirror type, Player whose) {
 		GridType t = GetGrid(x, y).GetGridType();
 		switch (t) {
 			case GridType::Home:

@@ -1,7 +1,7 @@
 #pragma once
 #include "Base.h"
 
-enum class MirrorType {
+enum class TypeOfMirror {
 	Left,
 	Right,
 	Top,
@@ -19,6 +19,16 @@ enum class TypeOfCross {
 enum class GridType {
 	Home,
 	Normal
+};
+
+struct MirrorStruct {
+	struct {
+		Player whose = Player::None;
+	}Left, Top, Right, Bottom;
+	struct {
+		TypeOfCross type = TypeOfCross::None;
+		Player whose = Player::None;
+	}Cross;
 };
 
 
@@ -55,14 +65,16 @@ namespace TestOutput {
 	class TestArea;
 
 	class TestMirror {
+	public:
+		TestMirror(TestData& data, RelativePlayer whose) :data(data), whose(whose) {};
 	protected:
 		TestData& data;
 		RelativePlayer whose;
-	public:
-		TestMirror(TestData& data, RelativePlayer whose) :data(data), whose(whose) {};
 	};
 
 	class TestMirrorBorder :public TestMirror {
+	public:
+		using TestMirror::TestMirror;
 	protected:
 		virtual TestOutput::TestArea* GetOuterArea() = 0;
 		virtual TestOutput::TestArea* GetInnerArea() = 0;
@@ -72,30 +84,40 @@ namespace TestOutput {
 	};
 
 	class TestMirrorLeft :public TestMirrorBorder {
+	public:
+		using TestMirrorBorder::TestMirrorBorder;
 	protected:
 		virtual TestArea* GetOuterArea()override;
 		virtual TestArea* GetInnerArea()override;
 	};
 
 	class TestMirrorRight :public TestMirrorBorder {
+	public:
+		using TestMirrorBorder::TestMirrorBorder;
 	protected:
 		virtual TestArea* GetOuterArea()override;
 		virtual TestArea* GetInnerArea()override;
 	};
 
 	class TestMirrorTop :public TestMirrorBorder {
+	public:
+		using TestMirrorBorder::TestMirrorBorder;
 	protected:
 		virtual TestArea* GetOuterArea()override;
 		virtual TestArea* GetInnerArea()override;
 	};
 
 	class TestMirrorBottom :public TestMirrorBorder {
+	public:
+		using TestMirrorBorder::TestMirrorBorder;
 	protected:
 		virtual TestArea* GetOuterArea()override;
 		virtual TestArea* GetInnerArea()override;
 	};
 
 	class TestMirrorCross :public TestMirror {
+	public:
+		TestMirrorCross(TestData& data, RelativePlayer p, TypeOfCross type) :TestMirror(data, p), type(type) {};
 	protected:
 		TypeOfCross type;
 	public:
@@ -106,17 +128,20 @@ namespace TestOutput {
 	};
 
 	class TestArea {
+	public:
+		TestArea(TestData& data) :data(data) {};
 	protected:
 		TestData& data;
 		bool in = false;
 		bool out = false;
 	public:
-		TestArea(TestData& data) :data(data) {};
 		virtual bool  Inward() = 0;
 		virtual bool  Outward() = 0;
 	};
 
 	class TestAreaInnerLeft :public TestArea {
+	public:
+		using TestArea::TestArea;
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
@@ -124,11 +149,15 @@ namespace TestOutput {
 
 	class TestAreaOuterLeft :public TestArea {
 	public:
+		using TestArea::TestArea;
+	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
 
 	class TestAreaInnerRight :public TestArea {
+	public:
+		using TestArea::TestArea;
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
@@ -136,11 +165,15 @@ namespace TestOutput {
 
 	class TestAreaOuterRight :public TestArea {
 	public:
+		using TestArea::TestArea;
+	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
 
 	class TestAreaInnerTop :public TestArea {
+	public:
+		using TestArea::TestArea;
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
@@ -148,11 +181,15 @@ namespace TestOutput {
 
 	class TestAreaOuterTop :public TestArea {
 	public:
+		using TestArea::TestArea;
+	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
 
 	class TestAreaInnerBottom :public TestArea {
+	public:
+		using TestArea::TestArea;
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
@@ -160,11 +197,29 @@ namespace TestOutput {
 
 	class TestAreaOuterBottom :public TestArea {
 	public:
+		using TestArea::TestArea;
+	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
 
 	class TestData {
+	public:
+		TestData(Player p, MirrorStruct& m) :
+			LeftMirror(*this, RelativePlayer(p, m.Left.whose)),
+			RightMirror(*this, RelativePlayer(p, m.Right.whose)),
+			TopMirror(*this, RelativePlayer(p, m.Top.whose)),
+			BottomMirror(*this, RelativePlayer(p, m.Bottom.whose)),
+			CrossMirror(*this, RelativePlayer(p, m.Cross.whose), m.Cross.type),
+			LeftInnerArea(*this),
+			LeftOuterArea(*this),
+			RightInnerArea(*this),
+			RightOuterArea(*this),
+			TopInnerArea(*this),
+			TopOuterArea(*this),
+			BottomInnerArea(*this),
+			BottomOuterArea(*this)
+		{};
 	public:
 		TestMirrorLeft LeftMirror;
 		TestMirrorRight RightMirror;
@@ -183,6 +238,14 @@ namespace TestOutput {
 		bool RightOut();
 		bool TopOut();
 		bool BottomOut();
+	protected:
+		RayData Output = 0;
+	public:
+		bool LeftIn();
+		bool RightIn();
+		bool TopIn();
+		bool BottomIn();
+		RayData GetOutput();
 	};
 }
 
@@ -190,81 +253,33 @@ class GridNormal :public Grid {
 public:
 	GridNormal() = default;
 protected:
-	struct {
-		struct {
-			Player whose = Player::None;
-		}Left, Top, Right, Bottom;
-		struct {
-			TypeOfCross type = TypeOfCross::None;
-			Player whose = Player::None;
-		}Cross;
-	}Mirror;
+	MirrorStruct Mirror;
 public:
 	virtual GridType GetGridType()override;
-	bool AddMirror(int x, int y, MirrorType type, Player whose);
+	bool AddMirror(int x, int y, TypeOfMirror type, Player whose);
 	decltype(Mirror)& GetMirror() {
 		return Mirror;
 	}
 	RayData TestOutput(Direction d, Player p) {
-		//#pragma warning unfinished!
-			//	RayData o = 0;
-			//	switch (d) {
-			//		case Direction::Left:
-			//			if (Mirror.Right.whose != Player::None) {
-			//				if (Mirror.Right.whose == p) {
-			//					o &= static_cast<RayData>(Direction::Right);//LR
-			//				}
-			//				else if (Mirror.Right.whose != p) {
-			//					o &= static_cast<RayData>(Direction::Right);//data.RightInnerArea.LeftIn
-			//					goto end;
-			//				}
-			//			}
-			//			if (Mirror.Cross.type != TypeOfCross::None) {
-			//				switch (Mirror.Cross.type) {
-			//					case TypeOfCross::Slash:
-			//						if (Mirror.Cross.whose != Player::None) {
-			//							if (Mirror.Cross.whose == p) {
-			//								if (Mirror.Bottom.whose != Player::None) {
-			//									if (Mirror.Bottom.whose == p) {
-			//										o &= static_cast<RayData>(Direction::Bottom);
-			//									}
-			//									else if (Mirror.Bottom.whose != p) {
-			//										o &= static_cast<RayData>(Direction::Right);
-			//										if (Mirror.Top.whose != Player::None) {
-			//											if (Mirror.Top.whose == p) {
-			//												o &= static_cast<RayData>(Direction::Top);
-			//											}
-			//										}
-			//										o &= static_cast<RayData>(Direction::Top);
-			//										goto end;
-			//									}
-			//								}
-			//								else {
-			//									o &= static_cast<RayData>(Direction::Bottom);
-			//								}
-			//							}
-			//							else if (Mirror.Right.whose != p) {
-			//								o &= static_cast<RayData>(Direction::Bottom);
-			//							}
-			//						}
-			//						break;
-			//					case TypeOfCross::BackSlash:
-			//						if (Mirror.Cross.whose != Player::None) {
-			//							if (Mirror.Cross.whose == p) {
-			//								o &= static_cast<RayData>(Direction::Top);
-			//							}
-			//							else if (Mirror.Right.whose != p) {
-			//								o &= static_cast<RayData>(Direction::Top);
-			//								goto end;
-			//							}
-			//						}
-			//						break;
-			//				}
-			//			}
-			//			break;
-			//	}
-			//end:
-			//	return o;
+		TestOutput::TestData t(p, Mirror);
+		switch (d) {
+			case Direction::Left:
+				t.LeftIn();
+				break;
+			case Direction::Right:
+				t.RightIn();
+				break;
+			case Direction::Top:
+				t.TopIn();
+				break;
+			case Direction::Bottom:
+				t.BottomIn();
+				break;
+			default:
+				throw std::exception("Unknow direction!");
+				break;
+		}
+		return t.GetOutput();
 	}
 };
 
