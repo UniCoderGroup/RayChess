@@ -53,67 +53,48 @@ public:
 namespace TestOutput {
 	class TestData;
 	class TestArea;
+
 	class TestMirror {
 	protected:
 		TestData& data;
 		RelativePlayer whose;
 	public:
 		TestMirror(TestData& data, RelativePlayer whose) :data(data), whose(whose) {};
-	}; 
+	};
+
 	class TestMirrorBorder :public TestMirror {
 	protected:
-		virtual TestArea& GetOuterArea() = 0;
-		virtual TestArea& GetInnerArea() = 0;
+		virtual TestOutput::TestArea* GetOuterArea() = 0;
+		virtual TestOutput::TestArea* GetInnerArea() = 0;
 	public:
-		bool Inward() {
-			switch (whose) {
-				case RelativePlayer::None:
-					GetInnerArea().Inward();
-					break;
-				case RelativePlayer::This:
-					GetInnerArea().Inward();
-					GetOuterArea().Outward();
-					break;
-				case RelativePlayer::Another:
-					GetOuterArea().Outward();
-					break;
-			}
-		}
-		bool Outward() {
-			switch (whose) {
-				case RelativePlayer::None:
-					GetOuterArea().Outward();
-					break;
-				case RelativePlayer::This:
-					GetInnerArea().Inward();
-					GetOuterArea().Outward();
-					break;
-				case RelativePlayer::Another:
-					GetInnerArea().Inward();
-					break;
-			}
-		}
+		bool Inward();
+		bool Outward();
 	};
+
 	class TestMirrorLeft :public TestMirrorBorder {
 	protected:
-		virtual TestArea& GetOuterArea()override;
-		virtual TestArea& GetInnerArea()override;
+		virtual TestArea* GetOuterArea()override;
+		virtual TestArea* GetInnerArea()override;
 	};
+
 	class TestMirrorRight :public TestMirrorBorder {
 	protected:
-		virtual TestArea& GetOuterArea()override;
-		virtual TestArea& GetInnerArea()override;
+		virtual TestArea* GetOuterArea()override;
+		virtual TestArea* GetInnerArea()override;
 	};
+
 	class TestMirrorTop :public TestMirrorBorder {
 	protected:
-		virtual TestArea& GetOuterArea()override;
-		virtual TestArea& GetInnerArea()override;
+		virtual TestArea* GetOuterArea()override;
+		virtual TestArea* GetInnerArea()override;
 	};
+
 	class TestMirrorBottom :public TestMirrorBorder {
 	protected:
-		virtual TestArea& GetOuterArea()override;
-		virtual TestArea& GetInnerArea()override;
+		virtual TestArea* GetOuterArea()override;
+		virtual TestArea* GetInnerArea()override;
 	};
+
 	class TestMirrorCross :public TestMirror {
 	protected:
 		TypeOfCross type;
@@ -123,6 +104,7 @@ namespace TestOutput {
 		bool TopIn();
 		bool BottomIn();
 	};
+
 	class TestArea {
 	protected:
 		TestData& data;
@@ -133,46 +115,55 @@ namespace TestOutput {
 		virtual bool  Inward() = 0;
 		virtual bool  Outward() = 0;
 	};
+
 	class TestAreaInnerLeft :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaOuterLeft :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaInnerRight :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaOuterRight :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaInnerTop :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaOuterTop :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaInnerBottom :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestAreaOuterBottom :public TestArea {
 	public:
 		virtual bool  Inward() override;
 		virtual bool  Outward() override;
 	};
+
 	class TestData {
 	public:
 		TestMirrorLeft LeftMirror;

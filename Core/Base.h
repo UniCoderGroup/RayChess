@@ -11,6 +11,7 @@ enum class Player {
 
 class RelativePlayer {
 public:
+#pragma warning(disable:26812)
 	enum RelativePlayerData {
 		None,
 		This,
@@ -51,7 +52,7 @@ enum class Direction {
 	Bottom = 8
 };
 
-Direction OppositeDirection(Direction d) {
+inline Direction OppositeDirection(Direction d) {
 	switch (d) {
 		case Direction::Unknow:
 			return Direction::Unknow;
@@ -63,6 +64,8 @@ Direction OppositeDirection(Direction d) {
 			return Direction::Bottom;
 		case Direction::Bottom:
 			return Direction::Top;
+		default:
+			return Direction::Unknow;
 	}
 }
 

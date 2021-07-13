@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Map.h"
+
 class Game {
 public:
 	Game() = default;
