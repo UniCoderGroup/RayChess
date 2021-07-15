@@ -22,12 +22,12 @@ public:
 		x = XNum;
 		y = YNum;
 		logger().log("init map: x=%d y=%d \n", XNum, YNum);
-		logger().log("init map: [COL] resize=%d (&data=%p)\n",YNum, &data);
+		logger().log("init map: [COL] resize=%d (&data=%p)\n", YNum, &data);
 		data.resize(YNum);
 		logger().log("init map: [COL]   -->size=%d (&data=%p)\n", data.size(), &data);
 		int i = 0;
 		for (RowType& row : data) {
-			logger().log("init map: [ROW %d] resize=%d (&row=%p)\n",i, XNum,&row);
+			logger().log("init map: [ROW %d] resize=%d (&row=%p)\n", i, XNum, &row);
 			row.resize(XNum);
 			for (Grid* grid : row) {
 				grid = new GridNormal;
@@ -44,7 +44,7 @@ public:
 		return y;
 	}
 	PGrid& GetPGrid(int x, int y) {
-		logger().log("GetPGrid %d %d , sizex=%d,sizey=%d (&row=%p)\n", x, y, data.size(), data[y].size(),&data[y]);
+		logger().log("GetPGrid %d %d , sizex=%d,sizey=%d (&row=%p)\n", x, y, data.size(), data[y].size(), &data[y]);
 		return data[y][x];
 	}
 	Grid& GetGrid(int x, int y) {
@@ -59,7 +59,7 @@ public:
 			delete pGrid;
 		}
 		pGrid = new GridHome(whose);
-		return *static_cast<GridHome*>(pGrid.GetPointer());
+		return *dynamic_cast<GridHome*>(pGrid.GetPointer());
 	}
 	Coord GetHomeCoord(Player whose) {
 		for (DataType::iterator i = data.begin(); i < data.end(); ++i) {
@@ -70,11 +70,10 @@ public:
 				return false;
 				});
 			if (iterHome != i->end()) {
-				return { iterHome - i->begin() , i - data.begin() };
+				return { static_cast<int>(iterHome - i->begin()),static_cast<int>(i - data.begin()) };
 			}
 		}
 		throw std::exception("Home not found");
 		return Coord();
 	}
 };
-

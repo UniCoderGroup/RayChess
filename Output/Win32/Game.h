@@ -62,13 +62,13 @@ public:
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) {
 		Grid& g = map.GetGrid(x, y);
 		if (g.GetGridType() == GridType::Home) {
-			GridHome gh = static_cast<GridHome&>(g);
+			GridHome gh = dynamic_cast<GridHome&>(g);
 			if (gh.GetWhose() != p && gh.GetWhose() != Player::None) {
 				return true;
 			}
 		}
 		else if (g.GetGridType() == GridType::Normal) {
-			GridNormal& gn = static_cast<GridNormal&>(g);
+			GridNormal& gn = dynamic_cast<GridNormal&>(g);
 			RayData o = gn.TestOutput(d, p);
 			RayData r = s.GetRayData(x, y);
 			RayData b = s.TestRange(x, y);
@@ -100,7 +100,7 @@ public:
 	}
 	bool CheckIfWin(Player p) {
 		Coord cHome = map.GetHomeCoord(p);
-		GridHome& gHome = static_cast<GridHome&>(map.GetGrid(cHome));
+		GridHome& gHome = dynamic_cast<GridHome&>(map.GetGrid(cHome));
 		SearchData s(*this);
 		int x = cHome.x;
 		int y = cHome.y;
@@ -148,7 +148,7 @@ public:
 				throw std::exception("Can not place mirror on home!");
 				return false;
 			case GridType::Normal:
-				return static_cast<GridNormal&>(GetGrid(x, y)).AddMirror(x, y, type, whose);
+				return dynamic_cast<GridNormal&>(GetGrid(x, y)).AddMirror(x, y, type, whose);
 		}
 		return true;
 	}
