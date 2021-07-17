@@ -5,12 +5,13 @@
 class Game {
 public:
 	Game() = default;
-	Game(int XNum, int YNum) :map(XNum, YNum) {
-
-	}
+	Game(int XNum, int YNum) :map(XNum, YNum) {	};
 protected:
 	Map map;
 public:
+	Map& GetMap() {
+		return map;
+	}
 	Grid& GetGrid(int x, int y) {
 		return map.GetGrid(x, y);
 	}

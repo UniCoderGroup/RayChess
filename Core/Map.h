@@ -11,13 +11,17 @@ public:
 		x = XNum;
 		y = YNum;
 	}
-protected:
+public:
 	using RowType = std::vector<PGrid>;
 	using DataType = std::vector<RowType>;
+protected:
 	DataType data;
 	int x = 0;
 	int y = 0;
 public:
+	DataType& GetData() {
+		return data;
+	}
 	bool init(int XNum, int YNum) {
 		x = XNum;
 		y = YNum;
