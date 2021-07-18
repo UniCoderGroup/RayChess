@@ -14,4 +14,9 @@
 #include <memory.h>
 #include <tchar.h>
 // Core
-#include <Core.h>
+#include "../Core/Core.h"
+#if _DEBUG
+#pragma comment(lib,"../Debug/Core.lib")
+#else
+#pragma comment(lib,"../Release/Core.lib")
+#endif

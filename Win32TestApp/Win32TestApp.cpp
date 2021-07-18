@@ -5,14 +5,15 @@
 #include "Win32TestApp.h"
 
 #define MAX_LOADSTRING 100
-#define X 50
-#define Y 50
+#define Y 30
+#define X 25
+#define W 15
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-Game game(X, Y);
+Game game(Y, X);
 
 
 // 此代码模块中包含的函数的前向声明:
@@ -151,12 +152,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
-			for (int i = 0; i < X; i++) {
-				MoveToEx(hdc, 10, 10+i*10, NULL);
-				LineTo(hdc, 10 + Y * 10, 10 + i * 10);
-				for (int j = 0; j < Y; j++) {
-					//Unfinished
-				}
+			HPEN hpen = CreatePen(PS_SOLID, 2, RGB(150, 150, 150));
+			SelectObject(hdc, hpen);
+			for (int i = 0; i <= Y; i++) {
+				MoveToEx(hdc, W, W + i * W, NULL);
+				LineTo(hdc, W + X * W, W + i * W);
+			}
+			for (int j = 0; j <= X; j++) {
+				MoveToEx(hdc, W + j * W, W, NULL);
+				LineTo(hdc, W + j * W, W + Y * W);
 			}
 			EndPaint(hWnd, &ps);
 		}

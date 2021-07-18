@@ -15,19 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="Core.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Grid.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Map.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Game.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,16 +35,16 @@
     <ClCompile Include="Core.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Grid.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Base.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Map.cpp">
+    <ClCompile Include="Game.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
+    <ClCompile Include="Grid.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
