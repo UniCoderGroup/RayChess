@@ -5,15 +5,15 @@
 #include "Win32TestApp.h"
 
 #define MAX_LOADSTRING 100
-#define Y 30
 #define X 25
+#define Y 30
 #define W 15
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-Game game(Y, X);
+Game game(X, Y);
 
 
 // 此代码模块中包含的函数的前向声明:
@@ -105,6 +105,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	AllocConsole();
+	game.AddMirror(1, 1, TypeOfMirror::Left, Player::P1);
+	game.AddMirror(1, 1, TypeOfMirror::Top, Player::P2);
 
 	if (!hWnd)
 	{
@@ -153,6 +155,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
 			HPEN hpen = CreatePen(PS_SOLID, 2, RGB(150, 150, 150));
+			HPEN pen1 = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+			HPEN pen2 = CreatePen(PS_SOLID, 2, RGB(0, 0, 255));
 			SelectObject(hdc, hpen);
 			for (int i = 0; i <= Y; i++) {
 				MoveToEx(hdc, W, W + i * W, NULL);
@@ -161,6 +165,62 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			for (int j = 0; j <= X; j++) {
 				MoveToEx(hdc, W + j * W, W, NULL);
 				LineTo(hdc, W + j * W, W + Y * W);
+			}
+			for (int i = 0; i < X; i++) {
+				for (int j = 0; j < Y; j++) {
+					Grid& g0 = game.GetGrid(i, j);
+					switch (g0.GetGridType()) {
+						case GridType::Normal:
+							GridNormal& g = dynamic_cast<GridNormal&>(g0);
+							switch (g.GetMirror().Left.whose) {
+								case Player::P1:
+									SelectObject(hdc, pen1);
+									MoveToEx(hdc, W + i * W, W + j * W, NULL);
+									LineTo(hdc, W + i * W, W + j * W + W);
+									break;
+								case Player::P2:
+									SelectObject(hdc, pen2);
+									MoveToEx(hdc, W + i * W, W + j * W, NULL);
+									LineTo(hdc, W + i * W, W + j * W + W);
+									break;
+							}switch (g.GetMirror().Right.whose) {
+								case Player::P1:
+									SelectObject(hdc, pen1);
+									MoveToEx(hdc, W + i * W + W, W + j * W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W + W);
+									break;
+								case Player::P2:
+									SelectObject(hdc, pen2);
+									MoveToEx(hdc, W + i * W, W + j * W, NULL);
+									LineTo(hdc, W + i * W, W + j * W + W);
+									break;
+							}switch (g.GetMirror().Top.whose) {
+								case Player::P1:
+									SelectObject(hdc, pen1);
+									MoveToEx(hdc, W + i * W, W + j * W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W);
+									break;
+								case Player::P2:
+									SelectObject(hdc, pen2);
+									MoveToEx(hdc, W + i * W, W + j * W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W);
+									break;
+							}switch (g.GetMirror().Bottom.whose) {
+								case Player::P1:
+									SelectObject(hdc, pen1);
+									MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W + W);
+									break;
+								case Player::P2:
+									SelectObject(hdc, pen2);
+									MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W + W);
+									break;
+							}
+							break;
+					}
+
+				}
 			}
 			EndPaint(hWnd, &ps);
 		}
