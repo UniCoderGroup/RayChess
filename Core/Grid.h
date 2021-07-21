@@ -256,7 +256,7 @@ protected:
 	MirrorStruct Mirror;
 public:
 	virtual GridType GetGridType()override;
-	bool AddMirror(int x, int y, TypeOfMirror type, Player whose);
+	bool AddMirror(TypeOfMirror type, Player whose);
 	decltype(Mirror)& GetMirror() {
 		return Mirror;
 	}

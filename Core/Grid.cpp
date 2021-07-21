@@ -11,7 +11,7 @@ GridType GridNormal::GetGridType()
 	return GridType::Normal;
 }
 
-bool GridNormal::AddMirror(int x, int y, TypeOfMirror type, Player whose)
+bool GridNormal::AddMirror(TypeOfMirror type, Player whose)
 {
 	switch (type) {
 		case TypeOfMirror::Left:
@@ -395,25 +395,25 @@ namespace TestOutput {
 
 	bool TestData::LeftOut()
 	{
-		Output &= static_cast<RayData>(Direction::Left);
+		Output |= static_cast<RayData>(Direction::Left);
 		return true;
 	}
 
 	bool TestData::RightOut()
 	{
-		Output &= static_cast<RayData>(Direction::Right);
+		Output |= static_cast<RayData>(Direction::Right);
 		return true;
 	}
 
 	bool TestData::TopOut()
 	{
-		Output &= static_cast<RayData>(Direction::Top);
+		Output |= static_cast<RayData>(Direction::Top);
 		return true;
 	}
 
 	bool TestData::BottomOut()
 	{
-		Output &= static_cast<RayData>(Direction::Bottom);
+		Output |= static_cast<RayData>(Direction::Bottom);
 		return true;
 	}
 

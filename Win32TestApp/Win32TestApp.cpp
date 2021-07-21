@@ -8,12 +8,14 @@
 #define X 25
 #define Y 30
 #define W 15
+void GameThread();
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
-Game game(X, Y);
+Game game/*(X, Y)*/;
+HWND g_hWnd;
 
 
 // 此代码模块中包含的函数的前向声明:
@@ -104,9 +106,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	g_hWnd = hWnd;
+	game.init(X, Y);
 	AllocConsole();
-	game.AddMirror(1, 1, TypeOfMirror::Left, Player::P1);
-	game.AddMirror(1, 1, TypeOfMirror::Top, Player::P2);
+	FILE* oldf;
+	freopen_s(&oldf, "CONOUT$", "w+t", stdout);
+	freopen_s(&oldf, "CONIN$", "r+t", stdin);
+	std::thread t(GameThread);
+	t.detach();
 
 	if (!hWnd)
 	{
@@ -119,16 +126,41 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
-//
-//  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  目标: 处理主窗口的消息。
-//
-//  WM_COMMAND  - 处理应用程序菜单
-//  WM_PAINT    - 绘制主窗口
-//  WM_DESTROY  - 发送退出消息并返回
-//
-//
+void FinishStep(char const* const _Format, ...) {
+	va_list _ArgList;
+	__crt_va_start(_ArgList, _Format);
+	_vfprintf_l(stdout, _Format, NULL, _ArgList);
+	__crt_va_end(_ArgList);
+
+	InvalidateRect(g_hWnd, NULL, FALSE);
+
+	Sleep(100);
+}
+
+void GameThread() {
+	game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
+	FinishStep("CreateHome(5, 5, Player::P1)\n .SetDirection(Direction::Top)\n");
+	game.CreateHome(15, 15, Player::P2).SetDirection(Direction::Left);
+	FinishStep("CreateHome(15, 15, Player::P2)\n .SetDirection(Direction::Left)\n");
+	for (int i = 0; i < 3; i++) {
+		game.AddMirror(i, 1, TypeOfMirror::Left, Player::P1);
+		game.AddMirror(i, 1, TypeOfMirror::Top, Player::P2);
+		game.AddMirror(i, 1, TypeOfMirror::Right, Player::P1);
+		game.AddMirror(i, 1, TypeOfMirror::Bottom, Player::P2);
+		if (i % 2 == 0) {
+			game.AddMirror(i, 1, TypeOfMirror::Slash, Player::P1);
+		}
+		else {
+			game.AddMirror(i, 1, TypeOfMirror::BackSlash, Player::P2);
+		}
+		//FinishStep("AddMirror %d times\n", i);
+	}
+	for (int i = 0; i < 5; i++) {
+		FinishStep("Wait To Test WhoWins... (%d)\n", i);
+	}
+	FinishStep("-->Winner = %d\n", game.WhoWins());
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -170,9 +202,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				for (int j = 0; j < Y; j++) {
 					Grid& g0 = game.GetGrid(i, j);
 					switch (g0.GetGridType()) {
-						case GridType::Normal:
-							GridNormal& g = dynamic_cast<GridNormal&>(g0);
-							switch (g.GetMirror().Left.whose) {
+						case GridType::Normal: {
+							GridNormal& gn = dynamic_cast<GridNormal&>(g0);
+							switch (gn.GetMirror().Cross.type) {
+								case TypeOfCross::Slash:
+									switch (gn.GetMirror().Cross.whose) {
+										case Player::P1:
+											SelectObject(hdc, pen1);
+											MoveToEx(hdc, W + i * W, W + j * W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W + W);
+											break;
+										case Player::P2:
+											SelectObject(hdc, pen2);
+											MoveToEx(hdc, W + i * W, W + j * W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W + W);
+											break;
+									}
+									break;
+								case TypeOfCross::BackSlash:
+									switch (gn.GetMirror().Cross.whose) {
+										case Player::P1:
+											SelectObject(hdc, pen1);
+											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W);
+											break;
+										case Player::P2:
+											SelectObject(hdc, pen2);
+											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W);
+											break;
+									}
+									break;
+							}
+							switch (gn.GetMirror().Left.whose) {
 								case Player::P1:
 									SelectObject(hdc, pen1);
 									MoveToEx(hdc, W + i * W, W + j * W, NULL);
@@ -183,7 +245,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									MoveToEx(hdc, W + i * W, W + j * W, NULL);
 									LineTo(hdc, W + i * W, W + j * W + W);
 									break;
-							}switch (g.GetMirror().Right.whose) {
+							}
+							switch (gn.GetMirror().Right.whose) {
 								case Player::P1:
 									SelectObject(hdc, pen1);
 									MoveToEx(hdc, W + i * W + W, W + j * W, NULL);
@@ -194,7 +257,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									MoveToEx(hdc, W + i * W, W + j * W, NULL);
 									LineTo(hdc, W + i * W, W + j * W + W);
 									break;
-							}switch (g.GetMirror().Top.whose) {
+							}
+							switch (gn.GetMirror().Top.whose) {
 								case Player::P1:
 									SelectObject(hdc, pen1);
 									MoveToEx(hdc, W + i * W, W + j * W, NULL);
@@ -205,7 +269,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									MoveToEx(hdc, W + i * W, W + j * W, NULL);
 									LineTo(hdc, W + i * W + W, W + j * W);
 									break;
-							}switch (g.GetMirror().Bottom.whose) {
+							}
+							switch (gn.GetMirror().Bottom.whose) {
 								case Player::P1:
 									SelectObject(hdc, pen1);
 									MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
@@ -218,6 +283,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									break;
 							}
 							break;
+						}
+						case GridType::Home: {
+							GridHome& gh = dynamic_cast<GridHome&>(g0);
+							if (gh.GetWhose() == Player::None) {
+								break;
+							}
+							else if (gh.GetWhose() == Player::P1) {
+								SelectObject(hdc, pen1);
+							}
+							else {
+								SelectObject(hdc, pen2);
+							}
+							Rectangle(hdc,
+								W + i * W + W / 2 - 1,
+								W + j * W + W / 2 - 1,
+								W + i * W + W / 2 + 1,
+								W + j * W + W / 2 + 1);
+							auto Left = [&]() {
+								MoveToEx(hdc, W + i * W, W + j * W, NULL);
+								LineTo(hdc, W + i * W, W + j * W + W);
+							};
+							auto Right = [&]() {
+								MoveToEx(hdc, W + i * W + W, W + j * W, NULL);
+								LineTo(hdc, W + i * W + W, W + j * W + W);
+							};
+							auto Top = [&]() {
+								MoveToEx(hdc, W + i * W, W + j * W, NULL);
+								LineTo(hdc, W + i * W + W, W + j * W);
+							};
+							auto Bottom = [&]() {
+								MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+								LineTo(hdc, W + i * W + W, W + j * W + W);
+							};
+							switch (gh.GetDirection()) {
+								case Direction::Left:
+									Right(); Top(); Bottom();
+									break;
+								case Direction::Right:
+									Left();  Top(); Bottom();
+									break;
+								case Direction::Top:
+									Left(); Right();  Bottom();
+									break;
+								case Direction::Bottom:
+									Left(); Right(); Top();
+									break;
+							}
+							break;
+						}
 					}
 
 				}

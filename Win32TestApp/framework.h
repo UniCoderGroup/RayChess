@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <thread>
 // Core
 #include "../Core/Core.h"
 #if _DEBUG
