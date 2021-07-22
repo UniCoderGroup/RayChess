@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include "Map.h"
 
 class Game {
@@ -65,41 +66,51 @@ public:
 		Grid& g = map.GetGrid(x, y);
 		if (g.GetGridType() == GridType::Home) {
 			GridHome gh = dynamic_cast<GridHome&>(g);
-			if (gh.GetWhose() != p && gh.GetWhose() != Player::None) {
+			if (gh.GetWhose() != p &&
+				gh.GetWhose() != Player::None &&
+				gh.GetDirection() == d
+				) {
 				return true;
 			}
 		}
 		else if (g.GetGridType() == GridType::Normal) {
-#pragma warning unfinished!
+#pragma warning unfinished
 			GridNormal& gn = dynamic_cast<GridNormal&>(g);
-			RayData o = gn.TestOutput(d, p);
-			RayData r = s.GetRayData(x, y);
-			RayData b = s.TestRange(x, y);
-			if (r & static_cast<int>(Direction::Left)
-				&& b & static_cast<int>(Direction::Left)) {
+			RayData b = s.TestRange(x, y);//未出界的方向
+			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向
+			RayData r = s.GetRayData(x, y);//当前格子的输出方向
+			std::map<Direction, bool> NextDirection;
+			for (int i = 0; i < 4; i++) {
+				int direction = 0x1 << i;
+				printf("direction[%d]=%d\n", i, direction);
+				NextDirection[static_cast<Direction>(direction)] =
+					direction & o &&
+					direction & b &&
+					!(direction & r);
+
+			}
+			if (NextDirection[Direction::Left]) {
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
 					return true;
 				}
 			}
-			if (r & static_cast<int>(Direction::Right)
-				&& b & static_cast<int>(Direction::Right)) {
+			if (NextDirection[Direction::Right]) {
 				if (CheckNode(s, x + 1, y, p, Direction::Right)) {
 					return true;
 				}
 			}
-			if (r & static_cast<int>(Direction::Top)
-				&& b & static_cast<int>(Direction::Top)) {
+			if (NextDirection[Direction::Top]) {
 				if (CheckNode(s, x, y - 1, p, Direction::Top)) {
 					return true;
 				}
 			}
-			if (r & static_cast<int>(Direction::Bottom)
-				&& b & static_cast<int>(Direction::Bottom)) {
+			if (NextDirection[Direction::Bottom]) {
 				if (CheckNode(s, x, y + 1, p, Direction::Bottom)) {
 					return true;
 				}
 			}
 		}
+		return false;
 	}
 	bool CheckIfWin(Player p) {
 		Coord cHome = map.GetHomeCoord(p);

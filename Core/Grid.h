@@ -264,16 +264,16 @@ public:
 		TestOutput::TestData t(p, Mirror);
 		switch (d) {
 			case Direction::Left:
-				t.LeftIn();
-				break;
-			case Direction::Right:
 				t.RightIn();
 				break;
+			case Direction::Right:
+				t.LeftIn();
+				break;
 			case Direction::Top:
-				t.TopIn();
+				t.BottomIn();
 				break;
 			case Direction::Bottom:
-				t.BottomIn();
+				t.TopIn();
 				break;
 			default:
 				throw std::exception("Unknow direction!");

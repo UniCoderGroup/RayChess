@@ -155,10 +155,7 @@ void GameThread() {
 		}
 		//FinishStep("AddMirror %d times\n", i);
 	}
-	for (int i = 0; i < 5; i++) {
-		FinishStep("Wait To Test WhoWins... (%d)\n", i);
-	}
-	FinishStep("-->Winner = %d\n", game.WhoWins());
+	FinishStep("Winner = %d\n", game.WhoWins());
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
