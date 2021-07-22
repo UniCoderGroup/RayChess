@@ -137,7 +137,7 @@ void FinishStep(char const* const _Format, ...) {
 	Sleep(100);
 }
 
-void GameThread() {
+void GameThread() {//这里是测试代码的部分
 	game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
 	FinishStep("CreateHome(5, 5, Player::P1)\n .SetDirection(Direction::Top)\n");
 	game.CreateHome(15, 15, Player::P2).SetDirection(Direction::Left);

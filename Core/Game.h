@@ -25,7 +25,8 @@ public:
 	GridHome& CreateHome(int x, int y, Player whose) {
 		return map.CreateHome(x, y, whose);
 	}
-	class SearchData {
+
+	class SearchData { //这个class用来临时存储搜索所用的data
 	public:
 		SearchData(Game& game) : g(game) {
 			XNum = g.map.GetXNum();
@@ -62,9 +63,13 @@ public:
 		Game& g;
 		std::vector<std::vector<RayData>*> data;
 	};
-	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) {
-		Grid& g = map.GetGrid(x, y);
-		if (g.GetGridType() == GridType::Home) {
+	//还有什么问题吗？___查找节点干什么用的_____dfs啊 要查找什么_看看这个格子能不能通向对方基地
+	// d是1-4吗不是
+	// 	   枚举类static_cast<int>(Direction::Top)=1？对。必须类型转换
+	//                  data         zuobiao      wanjia     进入方向
+	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
+		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
+		if (g.GetGridType() == GridType::Home) {//如果是基地类型
 			GridHome gh = dynamic_cast<GridHome&>(g);
 			if (gh.GetWhose() != p &&
 				gh.GetWhose() != Player::None &&
@@ -73,16 +78,15 @@ public:
 				return true;
 			}
 		}
-		else if (g.GetGridType() == GridType::Normal) {
+		else if (g.GetGridType() == GridType::Normal) {//如果是一般类型
 #pragma warning unfinished
 			GridNormal& gn = dynamic_cast<GridNormal&>(g);
-			RayData b = s.TestRange(x, y);//未出界的方向
-			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向
-			RayData r = s.GetRayData(x, y);//当前格子的输出方向
+			RayData b = s.TestRange(x, y);//未出界的方向 - 这个放心
+			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向 - 这个很难写，但我测试了有效 （格子里的事情你不用管，交给这个函数）
+			RayData r = s.GetRayData(x, y);//当前格子的输出方向 - 即已经搜索过的方向
 			std::map<Direction, bool> NextDirection;
 			for (int i = 0; i < 4; i++) {
 				int direction = 0x1 << i;
-				printf("direction[%d]=%d\n", i, direction);
 				NextDirection[static_cast<Direction>(direction)] =
 					direction & o &&
 					direction & b &&
@@ -90,29 +94,37 @@ public:
 
 			}
 			if (NextDirection[Direction::Left]) {
+				stk[++top] = ...;
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
-					return true;
+					return true; //我这里都没有保存路径
 				}
+				--top;
 			}
 			if (NextDirection[Direction::Right]) {
+				stk[++top] = ...;
 				if (CheckNode(s, x + 1, y, p, Direction::Right)) {
 					return true;
 				}
+				--top;
 			}
 			if (NextDirection[Direction::Top]) {
+				stk[++top] = ...;
 				if (CheckNode(s, x, y - 1, p, Direction::Top)) {
 					return true;
 				}
+				--top;
 			}
 			if (NextDirection[Direction::Bottom]) {
+				stk[++top] = ...;
 				if (CheckNode(s, x, y + 1, p, Direction::Bottom)) {
 					return true;
 				}
+				--top;
 			}
 		}
 		return false;
 	}
-	bool CheckIfWin(Player p) {
+	bool CheckIfWin(Player p) { //关键 判断谁获胜
 		Coord cHome = map.GetHomeCoord(p);
 		GridHome& gHome = dynamic_cast<GridHome&>(map.GetGrid(cHome));
 		SearchData s(*this);
