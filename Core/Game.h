@@ -63,9 +63,8 @@ public:
 		Game& g;
 		std::vector<std::vector<RayData>*> data;
 	};
-	//还有什么问题吗？___查找节点干什么用的_____dfs啊 要查找什么_看看这个格子能不能通向对方基地
-	// d是1-4吗不是
-	// 	   枚举类static_cast<int>(Direction::Top)=1？对。必须类型转换
+	std::pair<int, int> stk[1000005];
+	int top;
 	//                  data         zuobiao      wanjia     进入方向
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
@@ -93,34 +92,28 @@ public:
 					!(direction & r);
 
 			}
+			stk[++top] = std::make_pair(x,y);
 			if (NextDirection[Direction::Left]) {
-				stk[++top] = ...;
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
 					return true; //我这里都没有保存路径
 				}
-				--top;
 			}
 			if (NextDirection[Direction::Right]) {
-				stk[++top] = ...;
 				if (CheckNode(s, x + 1, y, p, Direction::Right)) {
 					return true;
 				}
-				--top;
 			}
 			if (NextDirection[Direction::Top]) {
-				stk[++top] = ...;
 				if (CheckNode(s, x, y - 1, p, Direction::Top)) {
 					return true;
 				}
-				--top;
 			}
 			if (NextDirection[Direction::Bottom]) {
-				stk[++top] = ...;
 				if (CheckNode(s, x, y + 1, p, Direction::Bottom)) {
 					return true;
 				}
-				--top;
 			}
+			--top;
 		}
 		return false;
 	}
