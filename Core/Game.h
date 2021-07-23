@@ -65,9 +65,10 @@ public:
 	};
 	std::pair<int, int> stk[1000005];
 	int top;
-	//                  data         zuobiao      wanjia     进入方向
+	//                  数据          坐标      玩家     进入方向
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
+		stk[++top] = std::make_pair(x,y);
 		if (g.GetGridType() == GridType::Home) {//如果是基地类型
 			GridHome gh = dynamic_cast<GridHome&>(g);
 			if (gh.GetWhose() != p &&
@@ -92,7 +93,6 @@ public:
 					!(direction & r);
 
 			}
-			stk[++top] = std::make_pair(x,y);
 			if (NextDirection[Direction::Left]) {
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
 					return true; //我这里都没有保存路径
@@ -113,8 +113,8 @@ public:
 					return true;
 				}
 			}
-			--top;
 		}
+		--top;
 		return false;
 	}
 	bool CheckIfWin(Player p) { //关键 判断谁获胜
