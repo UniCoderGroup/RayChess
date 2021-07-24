@@ -38,7 +38,7 @@ public:
 			}
 		}
 	public:
-		RayData TestRange(int x, int y) {
+		RayData TestSurrounding(int x, int y) {
 			RayData r = 0;
 			if (!(x - 1 < 0)) {
 				r |= static_cast<RayData>(Direction::Left);
@@ -63,17 +63,17 @@ public:
 		Game& g;
 		std::vector<std::vector<RayData>*> data;
 	};
-	std::pair<int, int> stk[1000005];
-	int top;
+	//std::pair<int, int> stk[1000005];
+	//int top;
 	//                  数据          坐标      玩家     进入方向
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
-		stk[++top] = std::make_pair(x,y);
+		//stk[++top] = std::make_pair(x,y);
 		if (g.GetGridType() == GridType::Home) {//如果是基地类型
 			GridHome gh = dynamic_cast<GridHome&>(g);
 			if (gh.GetWhose() != p &&
 				gh.GetWhose() != Player::None &&
-				gh.GetDirection() == d
+				gh.GetDirection() == OppositeDirection(d)
 				) {
 				return true;
 			}
@@ -81,7 +81,7 @@ public:
 		else if (g.GetGridType() == GridType::Normal) {//如果是一般类型
 #pragma warning unfinished
 			GridNormal& gn = dynamic_cast<GridNormal&>(g);
-			RayData b = s.TestRange(x, y);//未出界的方向 - 这个放心
+			RayData b = s.TestSurrounding(x, y);//未出界的方向 - 这个放心
 			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向 - 这个很难写，但我测试了有效 （格子里的事情你不用管，交给这个函数）
 			RayData r = s.GetRayData(x, y);//当前格子的输出方向 - 即已经搜索过的方向
 			std::map<Direction, bool> NextDirection;
@@ -95,7 +95,7 @@ public:
 			}
 			if (NextDirection[Direction::Left]) {
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
-					return true; //我这里都没有保存路径
+					return true;
 				}
 			}
 			if (NextDirection[Direction::Right]) {
@@ -114,7 +114,7 @@ public:
 				}
 			}
 		}
-		--top;
+		//--top;
 		return false;
 	}
 	bool CheckIfWin(Player p) { //关键 判断谁获胜
@@ -123,7 +123,7 @@ public:
 		SearchData s(*this);
 		int x = cHome.x;
 		int y = cHome.y;
-		RayData b = s.TestRange(x, y);
+		RayData b = s.TestSurrounding(x, y);
 		if (b & static_cast<int>(Direction::Left)) {
 			if (CheckNode(s, x - 1, y, p, Direction::Left)) {
 				return true;
@@ -144,6 +144,7 @@ public:
 				return true;
 			}
 		}
+		return false;
 	}
 	Player WhoWins() {
 		if (CheckIfWin(Player::P1)) {

@@ -71,7 +71,13 @@ inline Direction OppositeDirection(Direction d) {
 struct Coord {
 	int x = -1;
 	int y = -1;
+
+	bool operator==(const Coord& other)
+	{
+		return x == other.x && y == other.y;
+	}
 };
+constexpr Coord EOFCoord{ -1,-1 };
 
 using RayData = int;
 

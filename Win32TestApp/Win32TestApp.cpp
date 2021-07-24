@@ -137,25 +137,40 @@ void FinishStep(char const* const _Format, ...) {
 	Sleep(100);
 }
 
-void GameThread() {//这里是测试代码的部分
-	game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
-	FinishStep("CreateHome(5, 5, Player::P1)\n .SetDirection(Direction::Top)\n");
-	game.CreateHome(15, 15, Player::P2).SetDirection(Direction::Left);
-	FinishStep("CreateHome(15, 15, Player::P2)\n .SetDirection(Direction::Left)\n");
-	for (int i = 0; i < 3; i++) {
-		game.AddMirror(i, 1, TypeOfMirror::Left, Player::P1);
-		game.AddMirror(i, 1, TypeOfMirror::Top, Player::P2);
-		game.AddMirror(i, 1, TypeOfMirror::Right, Player::P1);
-		game.AddMirror(i, 1, TypeOfMirror::Bottom, Player::P2);
-		if (i % 2 == 0) {
-			game.AddMirror(i, 1, TypeOfMirror::Slash, Player::P1);
+void GameThread() {
+	try {
+		game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
+		game.CreateHome(9, 7, Player::P2).SetDirection(Direction::Left);
+		//game.AddMirror(7, 5, TypeOfMirror::BackSlash, Player::P1);
+		game.AddMirror(7, 7, TypeOfMirror::Slash, Player::P1);
+		game.AddMirror(7, 7, TypeOfMirror::Bottom, Player::P1);
+		for (int i = 6; i < X; i++) {
+			game.AddMirror(i, 5, TypeOfMirror::Slash, Player::P1);/*
+			game.AddMirror(i, 5, TypeOfMirror::Bottom, Player::P1);*/
+			game.AddMirror(i, 5, TypeOfMirror::Top, Player::P1);
+
+			//game.AddMirror(11, i, TypeOfMirror::Slash, Player::P1);
+			//game.AddMirror(11, i, TypeOfMirror::Left, Player::P1);
+			//game.AddMirror(11, i, TypeOfMirror::Right, Player::P1);
 		}
-		else {
-			game.AddMirror(i, 1, TypeOfMirror::BackSlash, Player::P2);
-		}
-		//FinishStep("AddMirror %d times\n", i);
+		LARGE_INTEGER nFreq;
+		LARGE_INTEGER nBeginTime;
+		LARGE_INTEGER nEndTime;
+		double time;
+		QueryPerformanceFrequency(&nFreq);
+		QueryPerformanceCounter(&nBeginTime);
+
+		Player w = game.WhoWins();
+
+		QueryPerformanceCounter(&nEndTime);
+
+		time = (double)(nEndTime.QuadPart - nBeginTime.QuadPart) / (double)nFreq.QuadPart;
+
+		FinishStep("Winner = P%d\t\tusingTime=%lf\n", w, time);
 	}
-	FinishStep("Winner = %d\n", game.WhoWins());
+	catch (std::exception& e) {
+		logger().log(e.what());
+	}
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -206,13 +221,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									switch (gn.GetMirror().Cross.whose) {
 										case Player::P1:
 											SelectObject(hdc, pen1);
-											MoveToEx(hdc, W + i * W, W + j * W, NULL);
-											LineTo(hdc, W + i * W + W, W + j * W + W);
+											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W);
 											break;
 										case Player::P2:
 											SelectObject(hdc, pen2);
-											MoveToEx(hdc, W + i * W, W + j * W, NULL);
-											LineTo(hdc, W + i * W + W, W + j * W + W);
+											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W);
 											break;
 									}
 									break;
@@ -220,13 +235,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									switch (gn.GetMirror().Cross.whose) {
 										case Player::P1:
 											SelectObject(hdc, pen1);
-											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
-											LineTo(hdc, W + i * W + W, W + j * W);
+											MoveToEx(hdc, W + i * W, W + j * W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W + W);
 											break;
 										case Player::P2:
 											SelectObject(hdc, pen2);
-											MoveToEx(hdc, W + i * W, W + j * W + W, NULL);
-											LineTo(hdc, W + i * W + W, W + j * W);
+											MoveToEx(hdc, W + i * W, W + j * W, NULL);
+											LineTo(hdc, W + i * W + W, W + j * W + W);
 											break;
 									}
 									break;

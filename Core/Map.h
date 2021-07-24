@@ -54,6 +54,10 @@ public:
 		return GetGrid(coord.x, coord.y);
 	}
 	GridHome& CreateHome(int x, int y, Player whose) {
+		if (!(GetHomeCoord(whose) == EOFCoord)) {
+			throw std::exception("There has been a grid of home!");
+			return *(static_cast<GridHome*>(0)); // I think I'm wrong.
+		}
 		PGrid& pGrid = GetPGrid(x, y);
 		if (pGrid.GetPointer() != nullptr) {
 			delete pGrid.GetPointer();
@@ -65,7 +69,9 @@ public:
 		for (DataType::iterator i = data.begin(); i < data.end(); ++i) {
 			RowType::iterator iterHome = std::find_if((*i)->begin(), (*i)->end(), [whose](PGrid another) {
 				if (GridType::Home == another->GetGridType()) {
-					return true;
+					if (dynamic_cast<GridHome&>(*another).GetWhose() == whose) {
+						return true;
+					}
 				}
 				return false;
 				});
@@ -73,7 +79,6 @@ public:
 				return { static_cast<int>(iterHome - (*i)->begin()),static_cast<int>(i - data.begin()) };
 			}
 		}
-		throw std::exception("Home not found");
-		return Coord();
+		return EOFCoord;
 	}
 };

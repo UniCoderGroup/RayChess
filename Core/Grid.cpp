@@ -156,6 +156,9 @@ namespace TestOutput {
 						break;
 				}
 				break;
+			case TypeOfCross::None:
+				data.RightInnerArea.Outward();
+				break;
 		}
 		return true;
 	}
@@ -190,6 +193,9 @@ namespace TestOutput {
 						data.TopInnerArea.Outward();
 						break;
 				}
+				break;
+			case TypeOfCross::None:
+				data.LeftInnerArea.Outward();
 				break;
 		}
 		return true;
@@ -226,6 +232,9 @@ namespace TestOutput {
 						break;
 				}
 				break;
+			case TypeOfCross::None:
+				data.BottomInnerArea.Outward();
+				break;
 		}
 		return true;
 	}
@@ -260,6 +269,9 @@ namespace TestOutput {
 						data.LeftInnerArea.Outward();
 						break;
 				}
+				break;
+			case TypeOfCross::None:
+				data.TopInnerArea.Outward();
 				break;
 		}
 		return true;
