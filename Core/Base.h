@@ -2,6 +2,13 @@
 #include<exception>
 #include<cstdio>
 
+#pragma region BuildConfigurations
+
+#define BUILD_CHECKRANGE 1
+
+#pragma endregion
+
+
 enum class Player {
 	None,
 	P1,

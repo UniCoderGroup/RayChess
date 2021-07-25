@@ -282,14 +282,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.CrossMirror.LeftIn();
 	}
 
 	bool TestAreaInnerLeft::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.LeftMirror.Outward();
 	}
 
@@ -298,14 +300,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.LeftMirror.Inward();
 	}
 
 	bool TestAreaOuterLeft::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.LeftOut();
 	}
 
@@ -314,14 +318,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.CrossMirror.RightIn();
 	}
 
 	bool TestAreaInnerRight::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.RightMirror.Outward();
 	}
 
@@ -330,14 +336,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.RightMirror.Inward();
 	}
 
 	bool TestAreaOuterRight::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.RightOut();
 	}
 
@@ -346,14 +354,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.CrossMirror.TopIn();
 	}
 
 	bool TestAreaInnerTop::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.TopMirror.Outward();
 	}
 
@@ -362,14 +372,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.TopMirror.Inward();
 	}
 
 	bool TestAreaOuterTop::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.TopOut();
 	}
 
@@ -378,14 +390,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.CrossMirror.BottomIn();
 	}
 
 	bool TestAreaInnerBottom::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.BottomMirror.Outward();
 	}
 
@@ -394,14 +408,16 @@ namespace TestOutput {
 		if (in) {
 			return true;
 		}
+		in = true;
 		return data.BottomMirror.Inward();
 	}
 
 	bool TestAreaOuterBottom::Outward()
 	{
-		if (in) {
+		if (out) {
 			return true;
 		}
+		out = true;
 		return data.BottomOut();
 	}
 

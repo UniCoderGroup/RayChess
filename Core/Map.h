@@ -7,24 +7,24 @@
 class Map {
 public:
 	Map() = default;
-	Map(int XNum, int YNum) : data(YNum, new RowType(XNum, new GridNormal)) {
-		x = XNum;
-		y = YNum;
-	}
+	/*Map(int XNum, int YNum) : data(YNum, new RowType(XNum, new GridNormal)) {
+		nx = XNum;
+		ny = YNum;
+	}*/
 public:
 	using RowType = std::vector<PGrid>;
 	using DataType = std::vector<RowType*>;
 protected:
 	DataType data;
-	int x = 0;
-	int y = 0;
+	int nx = 0;
+	int ny = 0;
 public:
 	DataType& GetData() {
 		return data;
 	}
 	bool init(int XNum, int YNum) {
-		x = XNum;
-		y = YNum;
+		nx = XNum;
+		ny = YNum;
 		data.resize(YNum);
 		int i = 0;
 		for (RowType*& prow : data) {
@@ -39,12 +39,18 @@ public:
 		return true;
 	}
 	int GetXNum() {
-		return x;
+		return nx;
 	}
 	int GetYNum() {
-		return y;
+		return ny;
 	}
 	PGrid& GetPGrid(int x, int y) {
+#if BUILD_CHECKRANGE
+		if (x < 0 || x >= nx || y < 0 || y >= ny) {
+			throw std::exception("The coordinate of a grid is out of range!");
+			return *(static_cast<PGrid*>(0)); // I think I'm wrong.
+		}
+#endif
 		return (*data[y])[x];
 	}
 	Grid& GetGrid(int x, int y) {

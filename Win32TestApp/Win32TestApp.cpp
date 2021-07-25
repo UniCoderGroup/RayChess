@@ -139,19 +139,23 @@ void FinishStep(char const* const _Format, ...) {
 
 void GameThread() {
 	try {
+		logger().log("[begin]\n");
 		game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
 		game.CreateHome(9, 7, Player::P2).SetDirection(Direction::Left);
-		//game.AddMirror(7, 5, TypeOfMirror::BackSlash, Player::P1);
+		/*game.AddMirror(6, 5, TypeOfMirror::Top, Player::P1);
+		game.AddMirror(6, 5, TypeOfMirror::Slash, Player::P1);
+		game.AddMirror(6, 5, TypeOfMirror::Bottom, Player::P1);*/
+		/*game.AddMirror(7, 5, TypeOfMirror::BackSlash, Player::P1);
 		game.AddMirror(7, 7, TypeOfMirror::Slash, Player::P1);
-		game.AddMirror(7, 7, TypeOfMirror::Bottom, Player::P1);
+		game.AddMirror(7, 7, TypeOfMirror::Bottom, Player::P1);*/
 		for (int i = 6; i < X; i++) {
-			game.AddMirror(i, 5, TypeOfMirror::Slash, Player::P1);/*
-			game.AddMirror(i, 5, TypeOfMirror::Bottom, Player::P1);*/
+			game.AddMirror(i, 5, TypeOfMirror::Slash, Player::P1);
+			game.AddMirror(i, 5, TypeOfMirror::Bottom, Player::P1);
 			game.AddMirror(i, 5, TypeOfMirror::Top, Player::P1);
 
-			//game.AddMirror(11, i, TypeOfMirror::Slash, Player::P1);
-			//game.AddMirror(11, i, TypeOfMirror::Left, Player::P1);
-			//game.AddMirror(11, i, TypeOfMirror::Right, Player::P1);
+			game.AddMirror(11, i, TypeOfMirror::Slash, Player::P1);
+			game.AddMirror(11, i, TypeOfMirror::Left, Player::P1);
+			game.AddMirror(11, i, TypeOfMirror::Right, Player::P1);
 		}
 		LARGE_INTEGER nFreq;
 		LARGE_INTEGER nBeginTime;

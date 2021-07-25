@@ -6,7 +6,7 @@
 class Game {
 public:
 	Game() = default;
-	Game(int XNum, int YNum) :map(XNum, YNum) {	};
+	//Game(int XNum, int YNum) :map(XNum, YNum) {	};
 protected:
 	Map map;
 public:
@@ -54,7 +54,7 @@ public:
 			}
 			return r;
 		}
-		RayData GetRayData(int x, int y) {
+		RayData& GetRayData(int x, int y) {
 			return (*data[y])[x];
 		}
 	protected:
@@ -67,6 +67,7 @@ public:
 	//int top;
 	//                  数据          坐标      玩家     进入方向
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
+		logger().log("CheckNode at (\t%d\t%d\t),\tdirection = \t%d\n", x, y, d);
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
 		//stk[++top] = std::make_pair(x,y);
 		if (g.GetGridType() == GridType::Home) {//如果是基地类型
@@ -79,21 +80,23 @@ public:
 			}
 		}
 		else if (g.GetGridType() == GridType::Normal) {//如果是一般类型
-#pragma warning unfinished
 			GridNormal& gn = dynamic_cast<GridNormal&>(g);
 			RayData b = s.TestSurrounding(x, y);//未出界的方向 - 这个放心
 			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向 - 这个很难写，但我测试了有效 （格子里的事情你不用管，交给这个函数）
 			RayData r = s.GetRayData(x, y);//当前格子的输出方向 - 即已经搜索过的方向
-			std::map<Direction, bool> NextDirection;
+			std::map<Direction, int> NextDirection;
 			for (int i = 0; i < 4; i++) {
 				int direction = 0x1 << i;
 				NextDirection[static_cast<Direction>(direction)] =
 					direction & o &&
 					direction & b &&
 					!(direction & r);
-
+				if (NextDirection[static_cast<Direction>(direction)]) {
+					s.GetRayData(x, y) &= direction;
+				}
 			}
 			if (NextDirection[Direction::Left]) {
+
 				if (CheckNode(s, x - 1, y, p, Direction::Left)) {
 					return true;
 				}
