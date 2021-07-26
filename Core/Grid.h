@@ -2,6 +2,7 @@
 #include "Base.h"
 
 enum class TypeOfMirror {
+	Unknow,
 	Left,
 	Right,
 	Top,
@@ -10,6 +11,43 @@ enum class TypeOfMirror {
 	BackSlash
 };
 
+inline Direction TypeOfMirror2Direction(TypeOfMirror t) {
+	switch (t) {
+		case TypeOfMirror::Left:
+			return Direction::Left;
+			break;
+		case TypeOfMirror::Right:
+			return Direction::Right;
+			break;
+		case TypeOfMirror::Top:
+			return Direction::Top;
+			break;
+		case TypeOfMirror::Bottom:
+			return Direction::Bottom;
+			break;
+		default:
+			return Direction::Unknow;
+	}
+}
+
+inline TypeOfMirror Direction2TypeOfMirror(Direction d) {
+	switch (d) {
+		case Direction::Left:
+			return TypeOfMirror::Left;
+			break;
+		case Direction::Right:
+			return TypeOfMirror::Right;
+			break;
+		case  Direction::Top:
+			return TypeOfMirror::Top;
+			break;
+		case Direction::Bottom:
+			return TypeOfMirror::Bottom;
+			break;
+		default:
+			return TypeOfMirror::Unknow;
+	}
+}
 enum class TypeOfCross {
 	None,
 	Slash,
@@ -256,7 +294,7 @@ protected:
 	MirrorStruct Mirror;
 public:
 	virtual GridType GetGridType()override;
-	bool AddMirror(TypeOfMirror type, Player whose);
+	bool AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen = true);
 	decltype(Mirror)& GetMirror() {
 		return Mirror;
 	}

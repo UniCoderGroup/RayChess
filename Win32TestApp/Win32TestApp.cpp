@@ -140,8 +140,10 @@ void FinishStep(char const* const _Format, ...) {
 void GameThread() {
 	try {
 		logger().log("[begin]\n");
-		game.CreateHome(5, 5, Player::P1).SetDirection(Direction::Top);
-		game.CreateHome(9, 7, Player::P2).SetDirection(Direction::Left);
+		game.CreateHome(5, 5, Player::P1);
+		game.SetHomeDirection(5, 5, Direction::Top);
+		game.CreateHome(3, 3, Player::P2);
+		game.SetHomeDirection(3, 3, Direction::Right);
 		/*game.AddMirror(6, 5, TypeOfMirror::Top, Player::P1);
 		game.AddMirror(6, 5, TypeOfMirror::Slash, Player::P1);
 		game.AddMirror(6, 5, TypeOfMirror::Bottom, Player::P1);*/
@@ -270,8 +272,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									break;
 								case Player::P2:
 									SelectObject(hdc, pen2);
-									MoveToEx(hdc, W + i * W, W + j * W, NULL);
-									LineTo(hdc, W + i * W, W + j * W + W);
+									MoveToEx(hdc, W + i * W + W, W + j * W, NULL);
+									LineTo(hdc, W + i * W + W, W + j * W + W);
 									break;
 							}
 							switch (gn.GetMirror().Top.whose) {

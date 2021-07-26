@@ -59,17 +59,44 @@ public:
 	Grid& GetGrid(const Coord& coord) {
 		return GetGrid(coord.x, coord.y);
 	}
-	GridHome& CreateHome(int x, int y, Player whose) {
-		if (!(GetHomeCoord(whose) == EOFCoord)) {
+	bool CreateHome(int x, int y, Player whose) {
+		if (!(GetHomeCoord(whose) == InvalidCoord)) {
 			throw std::exception("There has been a grid of home!");
-			return *(static_cast<GridHome*>(0)); // I think I'm wrong.
+			return false;
 		}
 		PGrid& pGrid = GetPGrid(x, y);
 		if (pGrid.GetPointer() != nullptr) {
 			delete pGrid.GetPointer();
 		}
 		pGrid = new GridHome(whose);
-		return *dynamic_cast<GridHome*>(pGrid.GetPointer());
+		return true;
+	}
+	bool SetHomeDirection(int x, int y, Direction d) {
+#if BUILD_CHECKGRIDTYPE
+		if (GetGrid(x, y).GetGridType() != GridType::Home) {
+			throw std::exception("Cannot set direction at a non-home grid!");
+			return false;
+		}
+#endif
+		GridHome& h = dynamic_cast<GridHome&>(GetGrid(x, y));
+		bool ret = true;
+		for (int i = 0; i < 4; i++) {
+			int idi = 0x1 << i;
+			Direction idd = static_cast<Direction>(idi);
+			if (idd!=d) {
+				logger().log("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x,y }, idd).x, GetSurroundingCoord({ x,y }, idd).y, OppositeDirection(idd));
+				Grid& gs = GetGrid(GetSurroundingCoord({ x,y }, idd));
+				switch (gs.GetGridType()) {
+					case GridType::Home:
+						break;
+					case GridType::Normal:
+						GridNormal& gsn = dynamic_cast<GridNormal&>(gs);
+						ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.GetWhose(), false);
+						break;
+				}
+			}
+		}
+		return ret && h.SetDirection(d);
 	}
 	Coord GetHomeCoord(Player whose) {
 		for (DataType::iterator i = data.begin(); i < data.end(); ++i) {
@@ -85,6 +112,6 @@ public:
 				return { static_cast<int>(iterHome - (*i)->begin()),static_cast<int>(i - data.begin()) };
 			}
 		}
-		return EOFCoord;
+		return InvalidCoord;
 	}
 };

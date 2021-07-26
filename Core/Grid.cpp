@@ -11,7 +11,7 @@ GridType GridNormal::GetGridType()
 	return GridType::Normal;
 }
 
-bool GridNormal::AddMirror(TypeOfMirror type, Player whose)
+bool GridNormal::AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen)
 {
 	switch (type) {
 		case TypeOfMirror::Left:
@@ -45,8 +45,13 @@ bool GridNormal::AddMirror(TypeOfMirror type, Player whose)
 	}
 	return true;
 therehasbeen:
-	throw std::exception("There has been a mirror!");
-	return false;
+	if (checkHasbeen) {
+		throw std::exception("There has been a mirror!");
+		return false;
+	}
+	else {
+		return true;
+	}
 }
 
 namespace TestOutput {

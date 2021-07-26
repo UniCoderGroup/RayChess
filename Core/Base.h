@@ -5,6 +5,7 @@
 #pragma region BuildConfigurations
 
 #define BUILD_CHECKRANGE 1
+#define BUILD_CHECKGRIDTYPE 1
 
 #pragma endregion
 
@@ -84,7 +85,22 @@ struct Coord {
 		return x == other.x && y == other.y;
 	}
 };
-constexpr Coord EOFCoord{ -1,-1 };
+constexpr Coord InvalidCoord{ -1,-1 };
+
+inline Coord GetSurroundingCoord(Coord&& c, Direction d) {
+	switch (d) {
+		case Direction::Left:
+			return {c.x - 1, c.y };
+		case Direction::Right:
+			return {c.x + 1, c.y };
+		case Direction::Top:
+			return {c.x, c.y - 1 };
+		case Direction::Bottom:
+			return {c.x, c.y + 1 };
+		default:
+			return InvalidCoord;
+	}
+}
 
 using RayData = int;
 
