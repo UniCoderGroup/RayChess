@@ -48,6 +48,7 @@ inline TypeOfMirror Direction2TypeOfMirror(Direction d) {
 			return TypeOfMirror::Unknow;
 	}
 }
+
 enum class TypeOfCross {
 	None,
 	Slash,

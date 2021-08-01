@@ -19,9 +19,6 @@ protected:
 	int nx = 0;
 	int ny = 0;
 public:
-	DataType& GetData() {
-		return data;
-	}
 	bool init(int XNum, int YNum) {
 		nx = XNum;
 		ny = YNum;
@@ -37,6 +34,9 @@ public:
 			i++;
 		}
 		return true;
+	}
+	DataType& GetData() {
+		return data;
 	}
 	int GetXNum() {
 		return nx;

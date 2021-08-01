@@ -10,7 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32TestApp", "Win32TestAp
 		{2C055B17-666E-4242-806D-F62FEB35A860} = {2C055B17-666E-4242-806D-F62FEB35A860}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E06873C0-A637-4BC7-98EF-4F250FE7606D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JsCore", "JsCore\JsCore.vcxproj", "{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +36,14 @@ Global
 		{B075F3C8-BA73-4D38-B824-F06D36B5EAD5}.Release|x64.Build.0 = Release|x64
 		{B075F3C8-BA73-4D38-B824-F06D36B5EAD5}.Release|x86.ActiveCfg = Release|Win32
 		{B075F3C8-BA73-4D38-B824-F06D36B5EAD5}.Release|x86.Build.0 = Release|Win32
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Debug|x64.ActiveCfg = Debug|x64
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Debug|x64.Build.0 = Debug|x64
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Debug|x86.ActiveCfg = Debug|Win32
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Debug|x86.Build.0 = Debug|Win32
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Release|x64.ActiveCfg = Release|x64
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Release|x64.Build.0 = Release|x64
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Release|x86.ActiveCfg = Release|Win32
+		{38333DEC-AE06-4EFA-A9F7-01FDA6A91D51}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
