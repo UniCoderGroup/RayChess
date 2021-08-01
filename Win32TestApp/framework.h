@@ -15,9 +15,9 @@
 #include <tchar.h>
 #include <thread>
 // Core
-#include "../Core/Core.h"
+#include "../CppCore/Core.h"
 #if _DEBUG
-#pragma comment(lib,"../Debug/Core.lib")
+#pragma comment(lib,"../Debug/CppCore.lib")
 #else
-#pragma comment(lib,"../Release/Core.lib")
+#pragma comment(lib,"../Release/CppCore.lib")
 #endif

@@ -46,7 +46,7 @@ bool GridNormal::AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen)
 	return true;
 therehasbeen:
 	if (checkHasbeen) {
-		throw std::exception("There has been a mirror!");
+		throw Exception("There has been a mirror!");
 		return false;
 	}
 	else {

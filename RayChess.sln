@@ -3,12 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31005.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{2C055B17-666E-4242-806D-F62FEB35A860}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppCore", "CppCore\CppCore.vcxproj", "{2C055B17-666E-4242-806D-F62FEB35A860}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32TestApp", "Win32TestApp\Win32TestApp.vcxproj", "{B075F3C8-BA73-4D38-B824-F06D36B5EAD5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2C055B17-666E-4242-806D-F62FEB35A860} = {2C055B17-666E-4242-806D-F62FEB35A860}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{E06873C0-A637-4BC7-98EF-4F250FE7606D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

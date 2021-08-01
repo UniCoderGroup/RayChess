@@ -139,7 +139,7 @@ void FinishStep(char const* const _Format, ...) {
 
 void GameThread() {
 	try {
-		logger().log("[begin]\n");
+		WriteLog("[begin]\n");
 		game.CreateHome(5, 5, Player::P1);
 		game.SetHomeDirection(5, 5, Direction::Top);
 		game.CreateHome(3, 3, Player::P2);
@@ -174,8 +174,8 @@ void GameThread() {
 
 		FinishStep("Winner = P%d\t\tusingTime=%lf\n", w, time);
 	}
-	catch (std::exception& e) {
-		logger().log(e.what());
+	catch (Exception& e) {
+		WriteLog(e.what());
 	}
 }
 

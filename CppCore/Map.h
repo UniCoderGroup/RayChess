@@ -47,7 +47,7 @@ public:
 	PGrid& GetPGrid(int x, int y) {
 #if BUILD_CHECKRANGE
 		if (x < 0 || x >= nx || y < 0 || y >= ny) {
-			throw std::exception("The coordinate of a grid is out of range!");
+			throw Exception("The coordinate of a grid is out of range!");
 			return *(static_cast<PGrid*>(0)); // I think I'm wrong.
 		}
 #endif
@@ -61,7 +61,7 @@ public:
 	}
 	bool CreateHome(int x, int y, Player whose) {
 		if (!(GetHomeCoord(whose) == InvalidCoord)) {
-			throw std::exception("There has been a grid of home!");
+			throw Exception("There has been a grid of home!");
 			return false;
 		}
 		PGrid& pGrid = GetPGrid(x, y);
@@ -74,7 +74,7 @@ public:
 	bool SetHomeDirection(int x, int y, Direction d) {
 #if BUILD_CHECKGRIDTYPE
 		if (GetGrid(x, y).GetGridType() != GridType::Home) {
-			throw std::exception("Cannot set direction at a non-home grid!");
+			throw Exception("Cannot set direction at a non-home grid!");
 			return false;
 		}
 #endif
@@ -84,7 +84,7 @@ public:
 			int idi = 0x1 << i;
 			Direction idd = static_cast<Direction>(idi);
 			if (idd!=d) {
-				logger().log("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x,y }, idd).x, GetSurroundingCoord({ x,y }, idd).y, OppositeDirection(idd));
+				WriteLog("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x,y }, idd).x, GetSurroundingCoord({ x,y }, idd).y, OppositeDirection(idd));
 				Grid& gs = GetGrid(GetSurroundingCoord({ x,y }, idd));
 				switch (gs.GetGridType()) {
 					case GridType::Home:

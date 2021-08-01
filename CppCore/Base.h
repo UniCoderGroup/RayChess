@@ -1,5 +1,4 @@
 #pragma once
-#include<exception>
 #include<cstdio>
 
 #pragma region BuildConfigurations
@@ -90,13 +89,13 @@ constexpr Coord InvalidCoord{ -1,-1 };
 inline Coord GetSurroundingCoord(Coord&& c, Direction d) {
 	switch (d) {
 		case Direction::Left:
-			return {c.x - 1, c.y };
+			return { c.x - 1, c.y };
 		case Direction::Right:
-			return {c.x + 1, c.y };
+			return { c.x + 1, c.y };
 		case Direction::Top:
-			return {c.x, c.y - 1 };
+			return { c.x, c.y - 1 };
 		case Direction::Bottom:
-			return {c.x, c.y + 1 };
+			return { c.x, c.y + 1 };
 		default:
 			return InvalidCoord;
 	}
@@ -104,16 +103,32 @@ inline Coord GetSurroundingCoord(Coord&& c, Direction d) {
 
 using RayData = int;
 
-class _tag_logger {
-public:
-	int log(char const* const _Format, ...) {
-		int _Result;
-		va_list _ArgList;
-		__crt_va_start(_ArgList, _Format);
-		_Result = _vfprintf_l(stdout, _Format, NULL, _ArgList);
-		__crt_va_end(_ArgList);
-		return _Result;
-	}
-};
+#define WriteLog(...) printf(__VA_ARGS__)
 
-_tag_logger& logger();
+class Exception
+{
+public:
+
+	Exception() noexcept
+	{
+	}
+
+	explicit Exception(char const* const _Message) noexcept
+	{
+		_what = _Message;
+	}
+
+	Exception(Exception const& _Other) noexcept
+	{
+		_what = _Other._what;
+	}
+
+	virtual char const* what() const
+	{
+		return _what!=nullptr ? _what : "Unknown exception";
+	}
+
+private:
+
+	const char* _what = nullptr;
+};

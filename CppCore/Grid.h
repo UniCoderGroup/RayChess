@@ -75,6 +75,7 @@ public:
 	Grid() = default;
 public:
 	virtual GridType GetGridType() = 0;
+	virtual ~Grid() = default;
 };
 
 class GridHome :public Grid {
@@ -314,7 +315,7 @@ public:
 				t.TopIn();
 				break;
 			default:
-				throw std::exception("Unknow direction!");
+				throw Exception("Unknow direction!");
 				break;
 		}
 		return t.GetOutput();

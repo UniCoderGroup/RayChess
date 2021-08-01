@@ -69,11 +69,11 @@ public:
 	//int top;
 	//                  数据          坐标      玩家     进入方向
 	bool CheckNode(SearchData& s, int x, int y, Player p, Direction d) { //查找格子，关键
-		//logger().log("CheckNode at (\t%d\t%d\t),\tdirection = \t%d\n", x, y, d);
+		//WriteLog("CheckNode at (\t%d\t%d\t),\tdirection = \t%d\n", x, y, d);
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
 		//stk[++top] = std::make_pair(x,y);
 		if (g.GetGridType() == GridType::Home) {//如果是基地类型
-			GridHome gh = dynamic_cast<GridHome&>(g);
+			GridHome& gh = dynamic_cast<GridHome&>(g);
 			Player wh = gh.GetWhose();
 			if (wh == p||wh==Player::None) {
 				return false;
@@ -162,7 +162,7 @@ public:
 	Player WhoWins() {
 		if (CheckIfWin(Player::P1)) {
 			if (CheckIfWin(Player::P2)) {
-				throw std::exception("Two winners one time!");
+				throw Exception("Two winners one time!");
 			}
 			else {
 				return Player::P1;
@@ -179,7 +179,7 @@ public:
 		switch (t) {
 			case GridType::Home:
 				//Error: can not place mirror on home
-				throw std::exception("Can not place mirror on home!");
+				throw Exception("Can not place mirror on home!");
 				return false;
 			case GridType::Normal:
 				GridNormal& gn = dynamic_cast<GridNormal&>(g);
