@@ -1,17 +1,17 @@
 #include "Grid.h"
 
 
-GridType GridHome::GetGridType()
+TypeOfGrid GridHome::GetGridType()
 {
-	return GridType::Home;
+	return TypeOfGrid::Home;
 }
 
-GridType GridNormal::GetGridType()
+TypeOfGrid GridNormal::GetGridType()
 {
-	return GridType::Normal;
+	return TypeOfGrid::Normal;
 }
 
-bool GridNormal::AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen)
+bool GridNormal::AddMirror(TypeOfMirror type, Player whose, bool checkExist)
 {
 	switch (type) {
 		case TypeOfMirror::Left:
@@ -45,7 +45,7 @@ bool GridNormal::AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen)
 	}
 	return true;
 therehasbeen:
-	if (checkHasbeen) {
+	if (checkExist) {
 		throw Exception("There has been a mirror!");
 		return false;
 	}

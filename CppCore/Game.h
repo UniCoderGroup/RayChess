@@ -72,7 +72,7 @@ public:
 		//WriteLog("CheckNode at (\t%d\t%d\t),\tdirection = \t%d\n", x, y, d);
 		Grid& g = map.GetGrid(x, y);//GetGrid - 获取x,y的格子
 		//stk[++top] = std::make_pair(x,y);
-		if (g.GetGridType() == GridType::Home) {//如果是基地类型
+		if (g.GetGridType() == TypeOfGrid::Home) {//如果是基地类型
 			GridHome& gh = dynamic_cast<GridHome&>(g);
 			Player wh = gh.GetWhose();
 			if (wh == p||wh==Player::None) {
@@ -84,7 +84,7 @@ public:
 				}
 			}
 		}
-		else if (g.GetGridType() == GridType::Normal) {//如果是一般类型
+		else if (g.GetGridType() == TypeOfGrid::Normal) {//如果是一般类型
 			GridNormal& gn = dynamic_cast<GridNormal&>(g);
 			RayData b = s.TestSurrounding(x, y);//未出界的方向 - 这个放心
 			RayData o = gn.TestOutput(d, p);//当输入方向为d时，格子可以输出的光线方向 - 这个很难写，但我测试了有效 （格子里的事情你不用管，交给这个函数）
@@ -175,22 +175,22 @@ public:
 	}
 	bool AddMirror(int x, int y, TypeOfMirror type, Player whose) {
 		Grid& g = GetGrid(x, y);
-		GridType t = g.GetGridType();
+		TypeOfGrid t = g.GetGridType();
 		switch (t) {
-			case GridType::Home:
+			case TypeOfGrid::Home:
 				//Error: can not place mirror on home
 				throw Exception("Can not place mirror on home!");
 				return false;
-			case GridType::Normal:
+			case TypeOfGrid::Normal:
 				GridNormal& gn = dynamic_cast<GridNormal&>(g);
 				Direction d = TypeOfMirror2Direction(type);
 				if (d != Direction::Unknow) {
 					Grid& gs = GetGrid(GetSurroundingCoord({ x,y }, d));
 					bool ret = true;
 					switch (gs.GetGridType()) {
-						case GridType::Home:
+						case TypeOfGrid::Home:
 							break;
-						case GridType::Normal:
+						case TypeOfGrid::Normal:
 							GridNormal& gsn = dynamic_cast<GridNormal&>(gs);
 							ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
 							break;

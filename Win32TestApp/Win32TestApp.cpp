@@ -220,7 +220,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				for (int j = 0; j < Y; j++) {
 					Grid& g0 = game.GetGrid(i, j);
 					switch (g0.GetGridType()) {
-						case GridType::Normal: {
+						case TypeOfGrid::Normal: {
 							GridNormal& gn = dynamic_cast<GridNormal&>(g0);
 							switch (gn.GetMirror().Cross.type) {
 								case TypeOfCross::Slash:
@@ -302,7 +302,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							}
 							break;
 						}
-						case GridType::Home: {
+						case TypeOfGrid::Home: {
 							GridHome& gh = dynamic_cast<GridHome&>(g0);
 							if (gh.GetWhose() == Player::None) {
 								break;

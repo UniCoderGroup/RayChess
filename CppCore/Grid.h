@@ -55,12 +55,12 @@ enum class TypeOfCross {
 	BackSlash
 };
 
-enum class GridType {
+enum class TypeOfGrid {
 	Home,
 	Normal
 };
 
-struct MirrorStruct {
+struct MirrorType {
 	struct {
 		Player whose = Player::None;
 	}Left, Top, Right, Bottom;
@@ -75,28 +75,28 @@ class Grid {
 public:
 	Grid() = default;
 public:
-	virtual GridType GetGridType() = 0;
+	virtual TypeOfGrid GetGridType() = 0;
 	virtual ~Grid() = default;
 };
 
 class GridHome :public Grid {
 public:
 	GridHome() = default;
-	GridHome(Player _whose) : whose(_whose), direction(Direction::Unknow) {};
+	GridHome(Player _whose) : whose(_whose), out(Direction::Unknow) {};
 protected:
 	Player whose = Player::None;
-	Direction direction;
+	Direction out;
 public:
-	virtual GridType GetGridType()override;
+	virtual TypeOfGrid GetGridType()override;
 	Player GetWhose() {
 		return whose;
 	}
-	bool SetDirection(Direction _direction) {
-		direction = _direction;
+	bool SetDirection(Direction outDirection) {
+		out = outDirection;
 		return true;
 	}
 	Direction GetDirection() {
-		return direction;
+		return out;
 	}
 };
 
@@ -245,7 +245,7 @@ namespace TestOutput {
 
 	class TestData {
 	public:
-		TestData(Player p, MirrorStruct& m) :
+		TestData(Player p, MirrorType& m) :
 			LeftMirror(*this, RelativePlayer(p, m.Left.whose)),
 			RightMirror(*this, RelativePlayer(p, m.Right.whose)),
 			TopMirror(*this, RelativePlayer(p, m.Top.whose)),
@@ -293,11 +293,11 @@ class GridNormal :public Grid {
 public:
 	GridNormal() = default;
 protected:
-	MirrorStruct Mirror;
+	MirrorType Mirror;
 public:
-	virtual GridType GetGridType()override;
-	bool AddMirror(TypeOfMirror type, Player whose, bool checkHasbeen = true);
-	decltype(Mirror)& GetMirror() {
+	virtual TypeOfGrid GetGridType()override;
+	bool AddMirror(TypeOfMirror type, Player whose, bool checkExist = true);
+	MirrorType& GetMirror() {
 		return Mirror;
 	}
 	RayData TestOutput(Direction d, Player p) {

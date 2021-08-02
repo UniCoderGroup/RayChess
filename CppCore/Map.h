@@ -73,7 +73,7 @@ public:
 	}
 	bool SetHomeDirection(int x, int y, Direction d) {
 #if BUILD_CHECKGRIDTYPE
-		if (GetGrid(x, y).GetGridType() != GridType::Home) {
+		if (GetGrid(x, y).GetGridType() != TypeOfGrid::Home) {
 			throw Exception("Cannot set direction at a non-home grid!");
 			return false;
 		}
@@ -87,9 +87,9 @@ public:
 				WriteLog("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x,y }, idd).x, GetSurroundingCoord({ x,y }, idd).y, OppositeDirection(idd));
 				Grid& gs = GetGrid(GetSurroundingCoord({ x,y }, idd));
 				switch (gs.GetGridType()) {
-					case GridType::Home:
+					case TypeOfGrid::Home:
 						break;
-					case GridType::Normal:
+					case TypeOfGrid::Normal:
 						GridNormal& gsn = dynamic_cast<GridNormal&>(gs);
 						ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.GetWhose(), false);
 						break;
@@ -101,7 +101,7 @@ public:
 	Coord GetHomeCoord(Player whose) {
 		for (DataType::iterator i = data.begin(); i < data.end(); ++i) {
 			RowType::iterator iterHome = std::find_if((*i)->begin(), (*i)->end(), [whose](PGrid another) {
-				if (GridType::Home == another->GetGridType()) {
+				if (TypeOfGrid::Home == another->GetGridType()) {
 					if (dynamic_cast<GridHome&>(*another).GetWhose() == whose) {
 						return true;
 					}
