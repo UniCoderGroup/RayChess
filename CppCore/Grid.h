@@ -116,8 +116,8 @@ namespace TestOutput {
 	public:
 		using TestMirror::TestMirror;
 	protected:
-		virtual TestOutput::TestArea* GetOuterArea() = 0;
-		virtual TestOutput::TestArea* GetInnerArea() = 0;
+		virtual TestArea* GetOuterArea() = 0;
+		virtual TestArea* GetInnerArea() = 0;
 	public:
 		bool Inward();
 		bool Outward();
