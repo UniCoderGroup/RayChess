@@ -144,13 +144,20 @@ namespace RayChess {
         Normal
     };
 
-    interface BorderMirrorType {
-        whose: Player = Player.None;
+    class BorderMirrorType {
+        constructor(Whose: Player = Player.None) {
+            this.whose = Whose;
+        }
+        whose: Player;
     }
 
-    interface CrossMirrorType {
-        type: TypeOfCross = TypeOfCross.None;
-        whose: Player = Player.None;
+    class CrossMirrorType {
+        constructor(Type: TypeOfCross = TypeOfCross.None, Whose: Player = Player.None) {
+            this.type = Type;
+            this.whose = Whose;
+        }
+        type: TypeOfCross;
+        whose: Player;
     }
 
     interface MirrorType {
@@ -162,7 +169,8 @@ namespace RayChess {
     }
 
     abstract class Grid {
-        public const type: TypeOfGrid;
+        protected readonly type: TypeOfGrid;
+        get Type(): TypeOfGrid { return this.type; }
     }
 
     class GridHome extends Grid {
@@ -170,7 +178,7 @@ namespace RayChess {
             super();
             this.whose = Whose;
         }
-        public const type: TypeOfGrid = TypeOfGrid.Home;
+        public readonly type: TypeOfGrid = TypeOfGrid.Home;
         protected whose: Player;
         get Whose(): Player { return this.whose; }
         protected outdir: Direction;
@@ -188,7 +196,7 @@ namespace RayChess {
             protected data: TestData;
             protected whose: RelativePlayer;
         }
-        class TestMirrorBorder extends TestMirror {
+        abstract class TestMirrorBorder extends TestMirror {
             constructor(Data: TestData, Whose: RelativePlayer) {
                 super(Data, Whose);
             }
@@ -421,7 +429,7 @@ namespace RayChess {
                 return true;
             }
         };
-        class TestArea {
+        abstract class TestArea {
             constructor(Data: TestData) {
                 this.data = Data;
             }
@@ -651,7 +659,7 @@ namespace RayChess {
         constructor() {
             super();
         }
-        public const type: TypeOfGrid = TypeOfGrid.Normal;
+        public readonly type: TypeOfGrid = TypeOfGrid.Normal;
         protected mirror: MirrorType;
         get Mirror(): MirrorType { return this.mirror };
 
@@ -712,6 +720,7 @@ namespace RayChess {
                 return true;
             }
         }
+
         public TestOutput(d: Direction, p: Player): RayData {
             let t: TestOutput.TestData = new TestOutput.TestData(p, this.mirror);
             switch (d) {
@@ -757,91 +766,256 @@ namespace RayChess {
         public GetGrid(x: number, y: number): Grid {
             return this.data[y][x];
         }
-        //    public CreateHome(x: number, y: number, whose: Player) {
-        //        if (!(GetHomeCoord(whose) == InvalidCoord)) {
-        //            throw "There has been a grid of home!";
-        //            return false;
-        //        }
-        //        PGrid & pGrid = GetPGrid(x, y);
-        //        if (pGrid.GetPothis.er() != nullptr) {
-        //            delete pGrid.GetPothis.er();
-        //        }
-        //        pGrid = new GridHome(whose);
-        //        return true;
-        //    }
-        //this.SetHomeDirection = function (x, y, d) {
-        //    //#if BUILD_CHECKGRIDTYPE
-        //    if (GetGrid(x, y).GetGridType() != GridType.Home) {
-        //        throw "Cannot set direction at a non-home grid!";
-        //        return false;
-        //    }
-        //    //#endif
-        //    GridHome & h = dynamic_cast<GridHome &>(GetGrid(x, y));
-        //    ret = true;
-        //    for (this.i = 0; i < 4; i++) {
-        //        this.idi = 0x1 << i;
-        //        Direction idd = static_cast<Direction>(idi);
-        //        if (idd != d) {
-        //            WriteLog("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x, y }, idd).x, GetSurroundingCoord({ x, y }, idd).y, OppositeDirection(idd));
-        //            Grid & gs = GetGrid(GetSurroundingCoord({ x, y }, idd));
-        //            switch (gs.GetGridType()) {
-        //                case GridType.Home:
-        //                    break;
-        //                case GridType.Normal:
-        //                    GridNormal & gsn = dynamic_cast<GridNormal &>(gs);
-        //                    ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.GetWhose(), false);
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //    return ret && h.SetDirection(d);
-        //}
+        public CreateHome(x: number, y: number, whose: Player) {
+            if (this.GetHomeCoord(whose) != InvalidCoord) {
+                throw "There has been a grid of home!";
+            }
+            let g = this.GetGrid(x, y);
+            if (g.Type == TypeOfGrid.Home) {
+                throw "This grid has been one player's home!";
+            }
+            g = new GridHome(whose);
+            return true;
+        }
+        SetHomeDirection(x: number, y: number, d: Direction) {
+            if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
+                throw "Cannot set direction at a non-home grid!";
+            }
+            let h = <GridHome>this.GetGrid(x, y);
+            let ret = true;
+            for (let i = 0; i < 4; i++) {
+                let idi = 0x1 << i;
+                let idd: Direction = <Direction>idi;
+                if (idd != d) {
+                    WriteLog("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x, y }, idd).x, GetSurroundingCoord({ x, y }, idd).y, OppositeDirection(idd));
+                    let sc = GetSurroundingCoord({ x, y }, idd);
+                    let gs: Grid = this.GetGrid(sc.x, sc.y);
+                    switch (gs.Type) {
+                        case TypeOfGrid.Home:
+                            break;
+                        case TypeOfGrid.Normal:
+                            let gsn = <GridNormal>gs;
+                            ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.Whose, false);
+                            break;
+                    }
+                }
+            }
+            h.Outdir = d;
+            return ret;
+        }
         GetHomeCoord(whose: Player): Coord {
             let c: Coord = new Coord;
-            this.data.findIndex(
+            c.y = this.data.findIndex(
                 function (value: Grid[], index: number, obj: Grid[][]): boolean {
-                    if (value.findIndex(
+                    c.x = value.findIndex(
                         function (value: Grid, index: number, obj: Grid[]): boolean {
-                            if (value.type == TypeOfGrid.Home) {
-                                let home: GridHome = value;
-                                //???????
+                            if (value.Type == TypeOfGrid.Home) {
+                                let home: GridHome = <GridHome>value;
                                 if (home.Whose == whose) {
                                     return true;
                                 }
                             }
                             return false;
                         }
-                    ) != -1) {
+                    );
+                    if (c.x != -1) {
                         return true;
                     } else {
                         return false;
                     }
                 }
             );
-            //unfinished!!!!!!
             return c;
         }
+    }
+
+
+    //Map end
+
+    //////////////////////////////////////////////////
+
+    //Game begin
+
+
+    namespace CheckIfWin {
+        export class SearchData { //这个class用来临时存储搜索所用的data
+            constructor(Game: Game) {
+                this.game = Game;
+                //XNum = g.map.GetXNum();
+                //YNum = g.map.GetYNum();
+                //data.resize(YNum);
+                //for (auto & row : data) {
+                //    row = new vector<RayData>;
+                //    row -> resize(XNum);
+                //}
+            }
+            protected XNum: number;
+            protected YNum: number;
+            protected game: Game;
+            protected data: RayData[][];
+            get Game(): Game { return this.game; }
+            TestSurrounding(x: number, y: number): RayData {
+                let r: RayData = 0;
+                if (!(x - 1 < 0)) {
+                    r |= <RayData>Direction.Left;
+                }
+                if (!(x + 1 >= this.XNum)) {
+                    r |= <RayData>Direction.Right;
+                }
+                if (!(y - 1 < 0)) {
+                    r |= <RayData>Direction.Top;
+                }
+                if (!(y + 1 >= this.YNum)) {
+                    r |= <RayData>Direction.Bottom;
+                }
+                return r;
+            }
+            GetRayData(x: number, y: number): RayData {
+                return this.data[y][x];
+            }
+        }
+    }
+
+    class Game {
+        protected map: Map;
+        get Map(): Map { return this.map; };
+        init(XNum: number, YNum: number): boolean {
+            return this.map.init(XNum, YNum);
+        }
+        public GetGrid(x: number, y: number): Grid {
+            return this.map.GetGrid(x, y);
+        }
+        CreateHome(x: number, y: number, whose: Player): boolean {
+            return this.map.CreateHome(x, y, whose);
+        }
+        SetHomeDirection(x: number, y: number, d: Direction): boolean {
+            return this.map.SetHomeDirection(x, y, d);
+        }
+        CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
+            let g = this.map.GetGrid(x, y);
+            if (g.Type == TypeOfGrid.Home) {
+                let gh = <GridHome>(g);
+                let wh = gh.Whose;
+                if (wh == p || wh == Player.None) {
+                    return false;
+                }
+                else {
+                    if (gh.Outdir == OppositeDirection(d)) {
+                        return true;
+                    }
+                }
+            }
+            else if (g.Type == TypeOfGrid.Normal) {
+                let gn = <GridNormal>(g);
+                let b: RayData = s.TestSurrounding(x, y);
+                let o: RayData = gn.TestOutput(d, p);
+                let r: RayData = s.GetRayData(x, y);
+                for (let i: number = 0; i < 4; i++) {
+                    let di = 0x1 << i;
+                    let dd = <Direction>(di);
+                    let iftest: boolean =
+                        di & o &&
+                        di & b &&
+                        !(di & r);
+                    if (iftest) {
+                        let ray = s.GetRayData(x, y)
+                        ray |= di;
+                        let c = new Coord(x, y);
+                        let sc = GetSurroundingCoord(c, dd);
+                        if (this.CheckNode(s, sc.x, sc.y, p, dd)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+        CheckIfWin(p: Player): boolean {
+            let cHome: Coord = this.map.GetHomeCoord(p);
+            let gHome: GridHome = <GridHome>this.map.GetGrid(cHome.x,cHome.y);
+            let s = new CheckIfWin.SearchData(this);
+            let x = cHome.x;
+            let y = cHome.y;
+            let b: RayData = s.TestSurrounding(x, y);
+            if (b & Direction.Left) {
+                if (this.CheckNode(s, x - 1, y, p, Direction.Left)) {
+                    return true;
+                }
+            }
+            if (b & Direction.Right) {
+                if (this.CheckNode(s, x + 1, y, p, Direction.Right)) {
+                    return true;
+                }
+            }
+            if (b & Direction.Top) {
+                if (this.CheckNode(s, x, y - 1, p, Direction.Top)) {
+                    return true;
+                }
+            }
+            if (b & Direction.Bottom) {
+                if (this.CheckNode(s, x, y + 1, p, Direction.Bottom)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        WhoWins(): Player {
+            if (this.CheckIfWin(Player.P1)) {
+                if (this.CheckIfWin(Player.P2)) {
+                    throw "Two winners one time!";
+                }
+                else {
+                    return Player.P1;
+                }
+            }
+            else if (this.CheckIfWin(Player.P2)) {
+                return Player.P2;
+            }
+            return Player.None;
+        }
+        AddMirror(x: number, y: number, type: TypeOfMirror, whose:Player ):boolean  {
+            let g = this.GetGrid(x, y);
+            let t = g.Type;
+            switch (t) {
+                case TypeOfGrid.Home:
+                    //Error: can not place mirror on home
+                    throw "Can not place mirror on home!";
+                    return false;
+                case TypeOfGrid.Normal:
+                    let gn = <GridNormal >(g);
+                    let d = TypeOfMirror2Direction(type);
+                    if (d != Direction.Unknow) {
+                        let c = new Coord(x, y);
+                        let cs= GetSurroundingCoord(c, d)
+                        let gs = this.GetGrid(cs.x,cs.y);
+                        let ret = true;
+                        switch (gs.Type) {
+                            case TypeOfGrid.Home:
+                                break;
+                            case TypeOfGrid.Normal:
+                                let gsn =<GridNormal >gs;
+                                ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
+                                break;
+                        }
+                        return ret && gn.AddMirror(type, whose);
+                    }
+                    else {
+                        return gn.AddMirror(type, whose);
+                    }
+            }
+            return true;
+        }
+    };
+
+
+    //Game end
+
+    //////////////////////////////////////////////////
+
 }
 
 
+console.log("----Test.Begin----");
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
+console.log("----Test.End----");
