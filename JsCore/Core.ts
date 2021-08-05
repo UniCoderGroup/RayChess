@@ -770,7 +770,7 @@ namespace RayChess {
         public GetGrid(x: number, y: number): Grid {
             return this.data[y][x];
         }
-        public CreateHome(x: number, y: number, whose: Player) {
+        public AddHome(x: number, y: number, whose: Player) {
             if (this.GetHomeCoord(whose) != InvalidCoord) {
                 throw "There has been a grid of home!";
             }
@@ -882,7 +882,7 @@ namespace RayChess {
             return this.map.GetGrid(x, y);
         }
         public AddHome(x: number, y: number, whose: Player): boolean {
-            return this.map.CreateHome(x, y, whose);
+            return this.map.AddHome(x, y, whose);
         }
         public SetHomeDirection(x: number, y: number, d: Direction): boolean {
             return this.map.SetHomeDirection(x, y, d);
