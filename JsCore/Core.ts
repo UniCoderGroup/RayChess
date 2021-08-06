@@ -1,1009 +1,1026 @@
-namespace RayChess {
 
-    //////////////////////////////////////////////////
+//////////////////////////////////////////////////
 
-    // Base begin
+// Base begin
 
-    export const enum Player {
-        None = 0,
-        P1 = 1,
-        P2 = 2
-    }
+export const enum Player {
+    None = 0,
+    P1 = 1,
+    P2 = 2
+}
 
-    const enum RelativePlayer {
-        None,
-        This,
-        Another
-    }
+export const enum RelativePlayer {
+    None,
+    This,
+    Another
+}
 
-    export function GetRelativePlayer(PlayerThis: Player, PlayerThat: Player): RelativePlayer {
-        if (PlayerThis != Player.None) {
-            if (PlayerThat == Player.None) {
-                return RelativePlayer.None;
-            }
-            else if (PlayerThis == PlayerThat) {
-                return RelativePlayer.This;
-            }
-            else {
-                return RelativePlayer.Another;
-            }
-        }
-        else {
+export function GetRelativePlayer(PlayerThis: Player, PlayerThat: Player): RelativePlayer {
+    if (PlayerThis != Player.None) {
+        if (PlayerThat == Player.None) {
             return RelativePlayer.None;
         }
-    }
-
-    export const enum Direction {
-        Unknow = 0,
-        Left = 1,
-        Right = 2,
-        Top = 4,
-        Bottom = 8
-    }
-
-    export function OppositeDirection(d: Direction): Direction {
-        switch (d) {
-            case Direction.Unknow:
-                return Direction.Unknow;
-            case Direction.Left:
-                return Direction.Right;
-            case Direction.Right:
-                return Direction.Left;
-            case Direction.Top:
-                return Direction.Bottom;
-            case Direction.Bottom:
-                return Direction.Top;
-            default:
-                return Direction.Unknow;
+        else if (PlayerThis == PlayerThat) {
+            return RelativePlayer.This;
+        }
+        else {
+            return RelativePlayer.Another;
         }
     }
+    else {
+        return RelativePlayer.None;
+    }
+}
 
-    export class Coord {
-        constructor(X: number = -1, Y: number = -1) {
-            this.x = X;
-            this.y = Y;
+export const enum Direction {
+    Unknow = 0,
+    Left = 1,
+    Right = 2,
+    Top = 4,
+    Bottom = 8
+}
+
+export function OppositeDirection(d: Direction): Direction {
+    switch (d) {
+        case Direction.Unknow:
+            return Direction.Unknow;
+        case Direction.Left:
+            return Direction.Right;
+        case Direction.Right:
+            return Direction.Left;
+        case Direction.Top:
+            return Direction.Bottom;
+        case Direction.Bottom:
+            return Direction.Top;
+        default:
+            return Direction.Unknow;
+    }
+}
+
+export class Coord {
+    constructor(X: number = -1, Y: number = -1) {
+        this.x = X;
+        this.y = Y;
+    }
+    public x: number;
+    public y: number;
+}
+export const InvalidCoord: Coord = { x: -1, y: -1 };
+
+export function IsCoordEqual(c1: Coord, c2: Coord): boolean {
+    return c1.x == c2.x && c1.y == c2.y;
+}
+
+export type RayData = number;
+
+export let WriteLog = console.log;
+
+export function GetSurroundingCoord(c: Coord, d: Direction): Coord {
+    switch (d) {
+        case Direction.Left:
+            return new Coord(c.x - 1, c.y);
+        case Direction.Right:
+            return new Coord(c.x + 1, c.y);
+        case Direction.Top:
+            return new Coord(c.x, c.y - 1);
+        case Direction.Bottom:
+            return new Coord(c.x, c.y + 1);
+        default:
+            return InvalidCoord;
+    }
+}
+
+//Base end
+
+//////////////////////////////////////////////////
+
+//Grid begin
+
+export enum TypeOfMirror {
+    Unknow = 0,
+    Left = 1,
+    Right = 2,
+    Top = 4,
+    Bottom = 8,
+    Slash = 16,
+    BackSlash = 32
+}
+
+export function TypeOfMirror2Direction(t: TypeOfMirror): Direction {
+    switch (t) {
+        case TypeOfMirror.Left:
+            return Direction.Left;
+        case TypeOfMirror.Right:
+            return Direction.Right;
+        case TypeOfMirror.Top:
+            return Direction.Top;
+        case TypeOfMirror.Bottom:
+            return Direction.Bottom;
+        default:
+            return Direction.Unknow;
+    }
+}
+
+export function Direction2TypeOfMirror(d: Direction): TypeOfMirror {
+    switch (d) {
+        case Direction.Left:
+            return TypeOfMirror.Left;
+        case Direction.Right:
+            return TypeOfMirror.Right;
+        case Direction.Top:
+            return TypeOfMirror.Top;
+        case Direction.Bottom:
+            return TypeOfMirror.Bottom;
+        default:
+            return TypeOfMirror.Unknow;
+    }
+}
+
+export enum TypeOfCross {
+    None,
+    Slash,
+    BackSlash
+}
+
+export enum TypeOfGrid {
+    Home,
+    Normal
+}
+
+export class BorderMirrorType {
+    constructor(Whose: Player = Player.None) {
+        this.whose = Whose;
+    }
+    protected whose: Player;
+    get Whose() { return this.whose }
+    set Whose(Whose) { this.whose = Whose; }
+}
+
+export class CrossMirrorType {
+    constructor(Type: TypeOfCross = TypeOfCross.None, Whose: Player = Player.None) {
+        this.type = Type;
+        this.whose = Whose;
+    }
+    protected type: TypeOfCross;
+    get Type() { return this.type }
+    set Type(Type) { this.type = Type; }
+    protected whose: Player;
+    get Whose() { return this.whose }
+    set Whose(Whose) { this.whose = Whose; }
+}
+
+export class MirrorType {
+    public Left = new BorderMirrorType;
+    public Right = new BorderMirrorType;
+    public Top = new BorderMirrorType;
+    public Bottom = new BorderMirrorType;
+    public Cross = new CrossMirrorType;
+}
+
+export abstract class Grid {
+    protected readonly type: TypeOfGrid;
+    get Type(): TypeOfGrid { return this.type; }
+}
+
+export class GridHome extends Grid {
+    constructor(Whose: Player = Player.None) {
+        super();
+        this.whose = Whose;
+    }
+    public readonly type: TypeOfGrid = TypeOfGrid.Home;
+    protected whose: Player;
+    get Whose(): Player { return this.whose; }
+    protected outdir: Direction;
+    get Outdir(): Direction { return this.outdir; }
+    set Outdir(Outdir: Direction) { this.outdir = Outdir; }
+}
+
+namespace TestOutput {
+    class TestMirror {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            this.data = Data;
+            this.whose = Whose
         }
-        public x: number;
-        public y: number;
+        protected data: TestData;
+        protected whose: RelativePlayer;
     }
-    export const InvalidCoord: Coord = { x: -1, y: -1 };
-
-    export type RayData = number;
-
-    export let WriteLog = console.log;
-
-    export function GetSurroundingCoord(c: Coord, d: Direction): Coord {
-        switch (d) {
-            case Direction.Left:
-                return new Coord(c.x - 1, c.y);
-            case Direction.Right:
-                return new Coord(c.x + 1, c.y);
-            case Direction.Top:
-                return new Coord(c.x, c.y - 1);
-            case Direction.Bottom:
-                return new Coord(c.x, c.y + 1);
-            default:
-                return InvalidCoord;
+    abstract class TestMirrorBorder extends TestMirror {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            super(Data, Whose);
+        }
+        protected abstract GetOuterArea(): TestArea;
+        protected abstract GetInnerArea(): TestArea;
+        public Inward(): boolean {
+            switch (this.whose) {
+                case RelativePlayer.None:
+                    this.GetInnerArea().Inward();
+                    break;
+                case RelativePlayer.This:
+                    this.GetInnerArea().Inward();
+                    this.GetOuterArea().Outward();
+                    break;
+                case RelativePlayer.Another:
+                    this.GetOuterArea().Outward();
+                    break;
+            }
+            return true;
+        }
+        public Outward(): boolean {
+            switch (this.whose) {
+                case RelativePlayer.None:
+                    this.GetOuterArea().Outward();
+                    break;
+                case RelativePlayer.This:
+                    this.GetInnerArea().Inward();
+                    this.GetOuterArea().Outward();
+                    break;
+                case RelativePlayer.Another:
+                    this.GetInnerArea().Inward();
+                    break;
+            }
+            return true;
         }
     }
-
-    //Base end
-
-    //////////////////////////////////////////////////
-
-    //Grid begin
-
-    export enum TypeOfMirror {
-        Unknow = 0,
-        Left = 1,
-        Right = 2,
-        Top = 4,
-        Bottom = 8,
-        Slash = 16,
-        BackSlash = 32
-    }
-
-    export function TypeOfMirror2Direction(t: TypeOfMirror): Direction {
-        switch (t) {
-            case TypeOfMirror.Left:
-                return Direction.Left;
-            case TypeOfMirror.Right:
-                return Direction.Right;
-            case TypeOfMirror.Top:
-                return Direction.Top;
-            case TypeOfMirror.Bottom:
-                return Direction.Bottom;
-            default:
-                return Direction.Unknow;
+    class TestMirrorLeft extends TestMirrorBorder {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            super(Data, Whose);
+        }
+        protected GetOuterArea(): TestArea {
+            return this.data.LeftOuterArea;
+        }
+        protected GetInnerArea(): TestArea {
+            return this.data.LeftInnerArea;
         }
     }
-
-    export function Direction2TypeOfMirror(d: Direction): TypeOfMirror {
-        switch (d) {
-            case Direction.Left:
-                return TypeOfMirror.Left;
-            case Direction.Right:
-                return TypeOfMirror.Right;
-            case Direction.Top:
-                return TypeOfMirror.Top;
-            case Direction.Bottom:
-                return TypeOfMirror.Bottom;
-            default:
-                return TypeOfMirror.Unknow;
+    class TestMirrorRight extends TestMirrorBorder {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            super(Data, Whose);
+        }
+        protected GetOuterArea(): TestArea {
+            return this.data.RightOuterArea;
+        }
+        protected GetInnerArea(): TestArea {
+            return this.data.RightInnerArea;
         }
     }
-
-    export enum TypeOfCross {
-        None,
-        Slash,
-        BackSlash
-    }
-
-    export enum TypeOfGrid {
-        Home,
-        Normal
-    }
-
-    export class BorderMirrorType {
-        constructor(Whose: Player = Player.None) {
-            this.whose = Whose;
+    class TestMirrorTop extends TestMirrorBorder {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            super(Data, Whose);
         }
-        protected whose: Player;
-        get Whose() { return this.whose }
-        set Whose(Whose) { this.whose = Whose; }
+        protected GetOuterArea(): TestArea {
+            return this.data.TopOuterArea;
+        }
+        protected GetInnerArea(): TestArea {
+            return this.data.TopInnerArea;
+        }
     }
+    class TestMirrorBottom extends TestMirrorBorder {
+        constructor(Data: TestData, Whose: RelativePlayer) {
+            super(Data, Whose);
+        }
+        protected GetOuterArea(): TestArea {
+            return this.data.BottomOuterArea;
+        }
+        protected GetInnerArea(): TestArea {
+            return this.data.BottomInnerArea;
+        }
+    }
+    class TestMirrorCross extends TestMirror {
 
-    export class CrossMirrorType {
-        constructor(Type: TypeOfCross = TypeOfCross.None, Whose: Player = Player.None) {
+        constructor(Data: TestData, Whose: RelativePlayer, Type: TypeOfCross) {
+            super(Data, Whose);
             this.type = Type;
-            this.whose = Whose;
         }
         protected type: TypeOfCross;
-        get Type() { return this.type }
-        set Type(Type) { this.type = Type; }
-        protected whose: Player;
-        get Whose() { return this.whose }
-        set Whose(Whose) { this.whose = Whose; }
-    }
-
-    export class MirrorType {
-        Left: BorderMirrorType;
-        Right: BorderMirrorType;
-        Top: BorderMirrorType;
-        Bottom: BorderMirrorType;
-        Cross: CrossMirrorType;
-    }
-
-    export abstract class Grid {
-        protected readonly type: TypeOfGrid;
-        get Type(): TypeOfGrid { return this.type; }
-    }
-
-    export class GridHome extends Grid {
-        constructor(Whose: Player = Player.None) {
-            super();
-            this.whose = Whose;
-        }
-        public readonly type: TypeOfGrid = TypeOfGrid.Home;
-        protected whose: Player;
-        get Whose(): Player { return this.whose; }
-        protected outdir: Direction;
-        get Outdir(): Direction { return this.outdir; }
-        set Outdir(Outdir: Direction) { this.outdir = Outdir; }
-    }
-
-    namespace TestOutput {
-        class TestMirror {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                this.data = Data;
-                this.whose = Whose
-            }
-            protected data: TestData;
-            protected whose: RelativePlayer;
-        }
-        abstract class TestMirrorBorder extends TestMirror {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                super(Data, Whose);
-            }
-            protected abstract GetOuterArea(): TestArea;
-            protected abstract GetInnerArea(): TestArea;
-            public Inward(): boolean {
-                switch (this.whose) {
-                    case RelativePlayer.None:
-                        this.GetInnerArea().Inward();
-                        break;
-                    case RelativePlayer.This:
-                        this.GetInnerArea().Inward();
-                        this.GetOuterArea().Outward();
-                        break;
-                    case RelativePlayer.Another:
-                        this.GetOuterArea().Outward();
-                        break;
-                }
-                return true;
-            }
-            public Outward(): boolean {
-                switch (this.whose) {
-                    case RelativePlayer.None:
-                        this.GetOuterArea().Outward();
-                        break;
-                    case RelativePlayer.This:
-                        this.GetInnerArea().Inward();
-                        this.GetOuterArea().Outward();
-                        break;
-                    case RelativePlayer.Another:
-                        this.GetInnerArea().Inward();
-                        break;
-                }
-                return true;
-            }
-        }
-        class TestMirrorLeft extends TestMirrorBorder {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                super(Data, Whose);
-            }
-            protected GetOuterArea(): TestArea {
-                return this.data.LeftOuterArea;
-            }
-            protected GetInnerArea(): TestArea {
-                return this.data.LeftInnerArea;
-            }
-        }
-        class TestMirrorRight extends TestMirrorBorder {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                super(Data, Whose);
-            }
-            protected GetOuterArea(): TestArea {
-                return this.data.RightOuterArea;
-            }
-            protected GetInnerArea(): TestArea {
-                return this.data.RightInnerArea;
-            }
-        }
-        class TestMirrorTop extends TestMirrorBorder {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                super(Data, Whose);
-            }
-            protected GetOuterArea(): TestArea {
-                return this.data.TopOuterArea;
-            }
-            protected GetInnerArea(): TestArea {
-                return this.data.TopInnerArea;
-            }
-        }
-        class TestMirrorBottom extends TestMirrorBorder {
-            constructor(Data: TestData, Whose: RelativePlayer) {
-                super(Data, Whose);
-            }
-            protected GetOuterArea(): TestArea {
-                return this.data.BottomOuterArea;
-            }
-            protected GetInnerArea(): TestArea {
-                return this.data.BottomInnerArea;
-            }
-        }
-        class TestMirrorCross extends TestMirror {
-
-            constructor(Data: TestData, Whose: RelativePlayer, Type: TypeOfCross) {
-                super(Data, Whose);
-                this.type = Type;
-            }
-            protected type: TypeOfCross;
-            public LeftIn(): boolean {
-                switch (this.type) {
-                    case TypeOfCross.Slash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.RightInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.RightInnerArea.Outward();
-                                this.data.TopInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.TopInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.BackSlash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.RightInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.RightInnerArea.Outward();
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.None:
-                        this.data.RightInnerArea.Outward();
-                        break;
-                }
-                return true;
-            }
-            public RightIn(): boolean {
-                switch (this.type) {
-                    case TypeOfCross.Slash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.LeftInnerArea.Outward();
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.BackSlash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.LeftInnerArea.Outward();
-                                this.data.TopInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.TopInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.None:
-                        this.data.LeftInnerArea.Outward();
-                        break;
-                }
-                return true;
-            }
-            public TopIn(): boolean {
-                switch (this.type) {
-                    case TypeOfCross.Slash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.BottomInnerArea.Outward();
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.BackSlash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.BottomInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.BottomInnerArea.Outward();
-                                this.data.RightInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.RightInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.None:
-                        this.data.BottomInnerArea.Outward();
-                        break;
-                }
-                return true;
-            }
-            public BottomIn(): boolean {
-                switch (this.type) {
-                    case TypeOfCross.Slash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.TopInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.TopInnerArea.Outward();
-                                this.data.RightInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.RightInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.BackSlash:
-                        switch (this.whose) {
-                            case RelativePlayer.None:
-                                this.data.TopInnerArea.Outward();
-                                break;
-                            case RelativePlayer.This:
-                                this.data.TopInnerArea.Outward();
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                            case RelativePlayer.Another:
-                                this.data.LeftInnerArea.Outward();
-                                break;
-                        }
-                        break;
-                    case TypeOfCross.None:
-                        this.data.TopInnerArea.Outward();
-                        break;
-                }
-                return true;
-            }
-        }
-        abstract class TestArea {
-            constructor(Data: TestData) {
-                this.data = Data;
-            }
-            protected data: TestData;
-            protected in: boolean = false;
-            protected out: boolean = false;
-            public abstract Inward(): boolean;
-            public abstract Outward(): boolean;
-        }
-        class TestAreaInnerLeft extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.CrossMirror.LeftIn();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.LeftMirror.Outward();
-            }
-        }
-        class TestAreaOuterLeft extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.LeftMirror.Inward();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.LeftOut();
-            }
-        }
-        class TestAreaInnerRight extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.CrossMirror.RightIn();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.RightMirror.Outward();
-            }
-        }
-        class TestAreaOuterRight extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.RightMirror.Inward();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.RightOut();
-            }
-        }
-        class TestAreaInnerTop extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.CrossMirror.TopIn();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.TopMirror.Outward();
-            }
-        }
-        class TestAreaOuterTop extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.TopMirror.Inward();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.TopOut();
-            }
-        }
-        class TestAreaInnerBottom extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.CrossMirror.BottomIn();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.BottomMirror.Outward();
-            }
-        }
-        class TestAreaOuterBottom extends TestArea {
-            constructor(Data: TestData) {
-                super(Data);
-            }
-            public Inward(): boolean {
-                if (this.in) {
-                    return true;
-                }
-                this.in = true;
-                return this.data.BottomMirror.Inward();
-            }
-            public Outward(): boolean {
-                if (this.out) {
-                    return true;
-                }
-                this.out = true;
-                return this.data.BottomOut();
-            }
-        }
-        export class TestData {
-            constructor(p: Player, m: MirrorType) {
-                this.LeftMirror = new TestMirrorLeft(this, GetRelativePlayer(p, m.Left.Whose));
-                this.RightMirror = new TestMirrorRight(this, GetRelativePlayer(p, m.Right.Whose));
-                this.TopMirror = new TestMirrorTop(this, GetRelativePlayer(p, m.Top.Whose));
-                this.BottomMirror = new TestMirrorBottom(this, GetRelativePlayer(p, m.Bottom.Whose));
-                this.CrossMirror = new TestMirrorCross(this, GetRelativePlayer(p, m.Cross.Whose), m.Cross.Type);
-                this.LeftInnerArea = new TestAreaInnerLeft(this);
-                this.LeftOuterArea = new TestAreaOuterLeft(this);
-                this.RightInnerArea = new TestAreaInnerRight(this);
-                this.RightOuterArea = new TestAreaOuterRight(this);
-                this.TopInnerArea = new TestAreaInnerTop(this);
-                this.TopOuterArea = new TestAreaOuterTop(this);
-                this.BottomInnerArea = new TestAreaInnerBottom(this);
-                this.BottomOuterArea = new TestAreaOuterBottom(this);
-            }
-            public LeftMirror: TestMirrorLeft;
-            public RightMirror: TestMirrorRight;
-            public TopMirror: TestMirrorTop;
-            public BottomMirror: TestMirrorBottom;
-            public CrossMirror: TestMirrorCross;
-            public LeftInnerArea: TestAreaInnerLeft;
-            public LeftOuterArea: TestAreaOuterLeft;
-            public RightInnerArea: TestAreaInnerRight;
-            public RightOuterArea: TestAreaOuterRight;
-            public TopInnerArea: TestAreaInnerTop;
-            public TopOuterArea: TestAreaOuterTop;
-            public BottomInnerArea: TestAreaInnerBottom;
-            public BottomOuterArea: TestAreaOuterBottom;
-            protected output: number;
-            public LeftIn(): boolean {
-                return this.LeftOuterArea.Inward();
-            }
-            public RightIn(): boolean {
-                return this.RightOuterArea.Inward();
-            }
-            public TopIn(): boolean {
-                return this.TopOuterArea.Inward();
-            }
-            public BottomIn(): boolean {
-                return this.BottomOuterArea.Inward();
-            }
-            public LeftOut(): boolean {
-                this.output |= Direction.Left;
-                return true;
-            }
-            public RightOut(): boolean {
-                this.output |= Direction.Right;
-                return true;
-            }
-            public TopOut(): boolean {
-                this.output |= Direction.Top;
-                return true;
-            }
-            public BottomOut(): boolean {
-                this.output |= Direction.Bottom;
-                return true;
-            }
-            get Output(): number {
-                return this.output;
-            }
-        }
-    }
-
-    export class GridNormal extends Grid {
-        constructor() {
-            super();
-        }
-        public readonly type: TypeOfGrid = TypeOfGrid.Normal;
-        protected mirror: MirrorType;
-        get Mirror(): MirrorType { return this.mirror }
-
-        public AddMirror(type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
-            let mirrorExist: boolean = false;
-            switch (type) {
-                case TypeOfMirror.Left:
-                    if (this.mirror.Left.Whose != Player.None) {
-                        mirrorExist = true;
-                        break;
+        public LeftIn(): boolean {
+            switch (this.type) {
+                case TypeOfCross.Slash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.RightInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.RightInnerArea.Outward();
+                            this.data.TopInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.TopInnerArea.Outward();
+                            break;
                     }
-                    this.mirror.Left.Whose = whose;
                     break;
-                case TypeOfMirror.Right:
-                    if (this.mirror.Right.Whose != Player.None) {
-                        mirrorExist = true;
-                        break;
+                case TypeOfCross.BackSlash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.RightInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.RightInnerArea.Outward();
+                            this.data.BottomInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.BottomInnerArea.Outward();
+                            break;
                     }
-                    this.mirror.Right.Whose = whose;
                     break;
-                case TypeOfMirror.Top:
-                    if (this.mirror.Top.Whose != Player.None) {
-                        mirrorExist = true;
-                        break;
-                    }
-                    this.mirror.Top.Whose = whose;
+                case TypeOfCross.None:
+                    this.data.RightInnerArea.Outward();
                     break;
-                case TypeOfMirror.Bottom:
-                    if (this.mirror.Bottom.Whose != Player.None) {
-                        mirrorExist = true;
-                        break;
-                    }
-                    this.mirror.Bottom.Whose = whose;
-                    break;
-                case TypeOfMirror.Slash:
-                    if (this.mirror.Cross.Type != TypeOfCross.None) {
-                        mirrorExist = true;
-                        break;
-                    }
-                    this.mirror.Cross.Type = TypeOfCross.Slash;
-                    this.mirror.Cross.Whose = whose;
-                    break;
-                case TypeOfMirror.BackSlash:
-                    if (this.mirror.Cross.Type != TypeOfCross.None) {
-                        mirrorExist = true;
-                        break;
-                    }
-                    this.mirror.Cross.Type = TypeOfCross.BackSlash;
-                    this.mirror.Cross.Whose = whose;
-                    break;
-                default:
-                    return false;
             }
-            if (mirrorExist && checkExist) {
-                throw "There has been a mirror!";
-            }
-            else {
-                return true;
-            }
-        }
-
-        public TestOutput(d: Direction, p: Player): RayData {
-            let t: TestOutput.TestData = new TestOutput.TestData(p, this.mirror);
-            switch (d) {
-                case Direction.Left:
-                    t.RightIn();
-                    break;
-                case Direction.Right:
-                    t.LeftIn();
-                    break;
-                case Direction.Top:
-                    t.BottomIn();
-                    break;
-                case Direction.Bottom:
-                    t.TopIn();
-                    break;
-                default:
-                    throw "Unknow direction!";
-            }
-            return t.Output;
-        }
-    }
-
-    //Grid end
-
-    //////////////////////////////////////////////////
-
-    //Map begin
-
-    export class Map {
-        protected data: Grid[][];
-        get Data(): Grid[][] { return this.data; }
-        protected nx: number;
-        get Nx(): number { return this.nx; }
-        protected ny: number;
-        get Ny(): number { return this.ny; }
-        public init(XNum: number, YNum: number): boolean {
-            this.nx = XNum;
-            this.ny = YNum;
-            this.data = new GridNormal[YNum][XNum];
             return true;
         }
-        public GetGrid(x: number, y: number): Grid {
+        public RightIn(): boolean {
+            switch (this.type) {
+                case TypeOfCross.Slash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.LeftInnerArea.Outward();
+                            this.data.BottomInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.BottomInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.BackSlash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.LeftInnerArea.Outward();
+                            this.data.TopInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.TopInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.None:
+                    this.data.LeftInnerArea.Outward();
+                    break;
+            }
+            return true;
+        }
+        public TopIn(): boolean {
+            switch (this.type) {
+                case TypeOfCross.Slash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.BottomInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.BottomInnerArea.Outward();
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.BackSlash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.BottomInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.BottomInnerArea.Outward();
+                            this.data.RightInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.RightInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.None:
+                    this.data.BottomInnerArea.Outward();
+                    break;
+            }
+            return true;
+        }
+        public BottomIn(): boolean {
+            switch (this.type) {
+                case TypeOfCross.Slash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.TopInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.TopInnerArea.Outward();
+                            this.data.RightInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.RightInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.BackSlash:
+                    switch (this.whose) {
+                        case RelativePlayer.None:
+                            this.data.TopInnerArea.Outward();
+                            break;
+                        case RelativePlayer.This:
+                            this.data.TopInnerArea.Outward();
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                        case RelativePlayer.Another:
+                            this.data.LeftInnerArea.Outward();
+                            break;
+                    }
+                    break;
+                case TypeOfCross.None:
+                    this.data.TopInnerArea.Outward();
+                    break;
+            }
+            return true;
+        }
+    }
+    abstract class TestArea {
+        constructor(Data: TestData) {
+            this.data = Data;
+        }
+        protected data: TestData;
+        protected in: boolean = false;
+        protected out: boolean = false;
+        public abstract Inward(): boolean;
+        public abstract Outward(): boolean;
+    }
+    class TestAreaInnerLeft extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.CrossMirror.LeftIn();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.LeftMirror.Outward();
+        }
+    }
+    class TestAreaOuterLeft extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.LeftMirror.Inward();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.LeftOut();
+        }
+    }
+    class TestAreaInnerRight extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.CrossMirror.RightIn();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.RightMirror.Outward();
+        }
+    }
+    class TestAreaOuterRight extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.RightMirror.Inward();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.RightOut();
+        }
+    }
+    class TestAreaInnerTop extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.CrossMirror.TopIn();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.TopMirror.Outward();
+        }
+    }
+    class TestAreaOuterTop extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.TopMirror.Inward();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.TopOut();
+        }
+    }
+    class TestAreaInnerBottom extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.CrossMirror.BottomIn();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.BottomMirror.Outward();
+        }
+    }
+    class TestAreaOuterBottom extends TestArea {
+        constructor(Data: TestData) {
+            super(Data);
+        }
+        public Inward(): boolean {
+            if (this.in) {
+                return true;
+            }
+            this.in = true;
+            return this.data.BottomMirror.Inward();
+        }
+        public Outward(): boolean {
+            if (this.out) {
+                return true;
+            }
+            this.out = true;
+            return this.data.BottomOut();
+        }
+    }
+    export class TestData {
+        constructor(p: Player, m: MirrorType) {
+            this.LeftMirror = new TestMirrorLeft(this, GetRelativePlayer(p, m.Left.Whose));
+            this.RightMirror = new TestMirrorRight(this, GetRelativePlayer(p, m.Right.Whose));
+            this.TopMirror = new TestMirrorTop(this, GetRelativePlayer(p, m.Top.Whose));
+            this.BottomMirror = new TestMirrorBottom(this, GetRelativePlayer(p, m.Bottom.Whose));
+            this.CrossMirror = new TestMirrorCross(this, GetRelativePlayer(p, m.Cross.Whose), m.Cross.Type);
+            this.LeftInnerArea = new TestAreaInnerLeft(this);
+            this.LeftOuterArea = new TestAreaOuterLeft(this);
+            this.RightInnerArea = new TestAreaInnerRight(this);
+            this.RightOuterArea = new TestAreaOuterRight(this);
+            this.TopInnerArea = new TestAreaInnerTop(this);
+            this.TopOuterArea = new TestAreaOuterTop(this);
+            this.BottomInnerArea = new TestAreaInnerBottom(this);
+            this.BottomOuterArea = new TestAreaOuterBottom(this);
+        }
+        public LeftMirror: TestMirrorLeft;
+        public RightMirror: TestMirrorRight;
+        public TopMirror: TestMirrorTop;
+        public BottomMirror: TestMirrorBottom;
+        public CrossMirror: TestMirrorCross;
+        public LeftInnerArea: TestAreaInnerLeft;
+        public LeftOuterArea: TestAreaOuterLeft;
+        public RightInnerArea: TestAreaInnerRight;
+        public RightOuterArea: TestAreaOuterRight;
+        public TopInnerArea: TestAreaInnerTop;
+        public TopOuterArea: TestAreaOuterTop;
+        public BottomInnerArea: TestAreaInnerBottom;
+        public BottomOuterArea: TestAreaOuterBottom;
+        protected output: number;
+        public LeftIn(): boolean {
+            return this.LeftOuterArea.Inward();
+        }
+        public RightIn(): boolean {
+            return this.RightOuterArea.Inward();
+        }
+        public TopIn(): boolean {
+            return this.TopOuterArea.Inward();
+        }
+        public BottomIn(): boolean {
+            return this.BottomOuterArea.Inward();
+        }
+        public LeftOut(): boolean {
+            this.output |= Direction.Left;
+            return true;
+        }
+        public RightOut(): boolean {
+            this.output |= Direction.Right;
+            return true;
+        }
+        public TopOut(): boolean {
+            this.output |= Direction.Top;
+            return true;
+        }
+        public BottomOut(): boolean {
+            this.output |= Direction.Bottom;
+            return true;
+        }
+        get Output(): number {
+            return this.output;
+        }
+    }
+}
+
+export class GridNormal extends Grid {
+    constructor() {
+        super();
+    }
+    public readonly type: TypeOfGrid = TypeOfGrid.Normal;
+    protected mirror = new MirrorType;
+    get Mirror(): MirrorType { return this.mirror }
+
+    public AddMirror(type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
+        let mirrorExist: boolean = false;
+        switch (type) {
+            case TypeOfMirror.Left:
+                if (this.mirror.Left.Whose != Player.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Left.Whose = whose;
+                break;
+            case TypeOfMirror.Right:
+                if (this.mirror.Right.Whose != Player.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Right.Whose = whose;
+                break;
+            case TypeOfMirror.Top:
+                if (this.mirror.Top.Whose != Player.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Top.Whose = whose;
+                break;
+            case TypeOfMirror.Bottom:
+                if (this.mirror.Bottom.Whose != Player.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Bottom.Whose = whose;
+                break;
+            case TypeOfMirror.Slash:
+                if (this.mirror.Cross.Type != TypeOfCross.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Cross.Type = TypeOfCross.Slash;
+                this.mirror.Cross.Whose = whose;
+                break;
+            case TypeOfMirror.BackSlash:
+                if (this.mirror.Cross.Type != TypeOfCross.None) {
+                    mirrorExist = true;
+                    break;
+                }
+                this.mirror.Cross.Type = TypeOfCross.BackSlash;
+                this.mirror.Cross.Whose = whose;
+                break;
+            default:
+                return false;
+        }
+        if (mirrorExist && checkExist) {
+            throw "There has been a mirror!";
+        }
+        else {
+            return true;
+        }
+    }
+
+    public TestOutput(d: Direction, p: Player): RayData {
+        let t: TestOutput.TestData = new TestOutput.TestData(p, this.mirror);
+        switch (d) {
+            case Direction.Left:
+                t.RightIn();
+                break;
+            case Direction.Right:
+                t.LeftIn();
+                break;
+            case Direction.Top:
+                t.BottomIn();
+                break;
+            case Direction.Bottom:
+                t.TopIn();
+                break;
+            default:
+                throw "Unknow direction!";
+        }
+        return t.Output;
+    }
+}
+
+//Grid end
+
+//////////////////////////////////////////////////
+
+//Map begin
+
+export class Map {
+    protected data: Grid[][] = [];
+    get Data(): Grid[][] { return this.data; }
+    protected nx: number;
+    get Nx(): number { return this.nx; }
+    protected ny: number;
+    get Ny(): number { return this.ny; }
+    public init(Nx: number, Ny: number): boolean {
+        this.nx = Nx;
+        this.ny = Ny;
+        for (let i = 0; i < Ny; i++) {
+            this.data[i] = new Array<GridNormal>(Nx);
+            for (let j = 0; j < Nx; j++) {
+                this.data[i][j] = new GridNormal;
+            }
+        }
+        return true;
+    }
+    public GetGrid(x: number, y: number): Grid {
+        return this.data[y][x];
+    }
+    public SetGrid(x: number, y: number, value: Grid): boolean {
+        this.data[y][x] = value;
+        return true;
+    }
+    public AddHome(x: number, y: number, whose: Player) {
+        if (!IsCoordEqual(this.GetHomeCoord(whose), InvalidCoord)) {
+            throw "There has been a grid of home!";
+        }
+        let g = this.GetGrid(x, y);
+        if (g.Type == TypeOfGrid.Home) {
+            throw "This grid has been one player's home!";
+        }
+        this.SetGrid(x, y, new GridHome(whose));
+        return true;
+    }
+    SetHomeDirection(x: number, y: number, d: Direction) {
+        if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
+            throw "Cannot set direction at a non-home grid!";
+        }
+        let h = <GridHome>this.GetGrid(x, y);
+        let ret = true;
+        for (let i = 0; i < 4; i++) {
+            let idi = 0x1 << i;
+            let idd: Direction = <Direction>idi;
+            if (idd != d) {
+                let sc = GetSurroundingCoord({ x, y }, idd);
+                let gs: Grid = this.GetGrid(sc.x, sc.y);
+                switch (gs.Type) {
+                    case TypeOfGrid.Home:
+                        break;
+                    case TypeOfGrid.Normal:
+                        let gsn = <GridNormal>gs;
+                        ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.Whose, false);
+                        break;
+                }
+            }
+        }
+        h.Outdir = d;
+        return ret;
+    }
+    GetHomeCoord(whose: Player): Coord {
+        let c: Coord = new Coord;
+        c.y = this.data.findIndex(
+            function (value: Grid[], index: number, obj: Grid[][]): boolean {
+                c.x = value.findIndex(
+                    function (value: Grid, index: number, obj: Grid[]): boolean {
+                        if (value.Type == TypeOfGrid.Home) {
+                            let home: GridHome = <GridHome>value;
+                            if (home.Whose == whose) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                );
+                if (c.x != -1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        );
+        return c;
+    }
+}
+
+//Map end
+
+//////////////////////////////////////////////////
+
+//Game begin
+
+namespace CheckIfWin {
+    export class SearchData {
+        constructor(Game: Game) {
+            this.nx = Game.Nx;
+            this.ny = Game.Ny;
+            this.game = Game;
+            for (let i = 0; i < this.ny; i++) {
+                this.data[i] = new Array<RayData>(this.nx);
+            }
+        }
+        protected nx: number;
+        get Nx(): number { return this.nx };
+        protected ny: number;
+        get Ny(): number { return this.ny };
+        protected game: Game;
+        protected data: RayData[][] = [];
+        get Game(): Game { return this.game; }
+        TestSurrounding(x: number, y: number): RayData {
+            let r: RayData = 0;
+            if (!(x - 1 < 0)) {
+                r |= <RayData>Direction.Left;
+            }
+            if (!(x + 1 >= this.nx)) {
+                r |= <RayData>Direction.Right;
+            }
+            if (!(y - 1 < 0)) {
+                r |= <RayData>Direction.Top;
+            }
+            if (!(y + 1 >= this.ny)) {
+                r |= <RayData>Direction.Bottom;
+            }
+            return r;
+        }
+        GetRayData(x: number, y: number): RayData {
             return this.data[y][x];
         }
-        public AddHome(x: number, y: number, whose: Player) {
-            if (this.GetHomeCoord(whose) != InvalidCoord) {
-                throw "There has been a grid of home!";
+    }
+}
+
+export class Game {
+    protected map: Map = new Map;
+    get Map(): Map { return this.map; }
+    get Nx(): number { return this.map.Nx };
+    get Ny(): number { return this.map.Ny };
+    public init(Nx: number, Ny: number): boolean {
+        return this.map.init(Nx, Ny);
+    }
+    public GetGrid(x: number, y: number): Grid {
+        return this.map.GetGrid(x, y);
+    }
+    public AddHome(x: number, y: number, whose: Player): boolean {
+        return this.map.AddHome(x, y, whose);
+    }
+    public SetHomeDirection(x: number, y: number, d: Direction): boolean {
+        return this.map.SetHomeDirection(x, y, d);
+    }
+    protected CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
+        let g = this.map.GetGrid(x, y);
+        if (g.Type == TypeOfGrid.Home) {
+            let gh = <GridHome>(g);
+            let wh = gh.Whose;
+            if (wh == p || wh == Player.None) {
+                return false;
             }
-            let g = this.GetGrid(x, y);
-            if (g.Type == TypeOfGrid.Home) {
-                throw "This grid has been one player's home!";
+            else {
+                if (gh.Outdir == OppositeDirection(d)) {
+                    return true;
+                }
             }
-            g = new GridHome(whose);
-            return true;
         }
-        SetHomeDirection(x: number, y: number, d: Direction) {
-            if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
-                throw "Cannot set direction at a non-home grid!";
+        else if (g.Type == TypeOfGrid.Normal) {
+            let gn = <GridNormal>(g);
+            let b: RayData = s.TestSurrounding(x, y);
+            let o: RayData = gn.TestOutput(d, p);
+            let r: RayData = s.GetRayData(x, y);
+            for (let i: number = 0; i < 4; i++) {
+                let di = 0x1 << i;
+                let dd = <Direction>(di);
+                let iftest: boolean =
+                    di & o &&
+                    di & b &&
+                    !(di & r);
+                if (iftest) {
+                    let ray = s.GetRayData(x, y)
+                    ray |= di;
+                    let c = new Coord(x, y);
+                    let sc = GetSurroundingCoord(c, dd);
+                    if (this.CheckNode(s, sc.x, sc.y, p, dd)) {
+                        return true;
+                    }
+                }
             }
-            let h = <GridHome>this.GetGrid(x, y);
-            let ret = true;
-            for (let i = 0; i < 4; i++) {
-                let idi = 0x1 << i;
-                let idd: Direction = <Direction>idi;
-                if (idd != d) {
-                    WriteLog("SetSurGrid (%d , %d) d=%d\n", GetSurroundingCoord({ x, y }, idd).x, GetSurroundingCoord({ x, y }, idd).y, OppositeDirection(idd));
-                    let sc = GetSurroundingCoord({ x, y }, idd);
-                    let gs: Grid = this.GetGrid(sc.x, sc.y);
+            return false;
+        }
+    }
+    protected CheckIfWin(p: Player): boolean {
+        let cHome: Coord = this.map.GetHomeCoord(p);
+        let gHome: GridHome = <GridHome>this.map.GetGrid(cHome.x, cHome.y);
+        let s = new CheckIfWin.SearchData(this);
+        let x = cHome.x;
+        let y = cHome.y;
+        let b: RayData = s.TestSurrounding(x, y);
+        if (b & Direction.Left) {
+            if (this.CheckNode(s, x - 1, y, p, Direction.Left)) {
+                return true;
+            }
+        }
+        if (b & Direction.Right) {
+            if (this.CheckNode(s, x + 1, y, p, Direction.Right)) {
+                return true;
+            }
+        }
+        if (b & Direction.Top) {
+            if (this.CheckNode(s, x, y - 1, p, Direction.Top)) {
+                return true;
+            }
+        }
+        if (b & Direction.Bottom) {
+            if (this.CheckNode(s, x, y + 1, p, Direction.Bottom)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public WhoWins(): Player {
+        if (this.CheckIfWin(Player.P1)) {
+            if (this.CheckIfWin(Player.P2)) {
+                throw "Two winners one time!";
+            }
+            else {
+                return Player.P1;
+            }
+        }
+        else if (this.CheckIfWin(Player.P2)) {
+            return Player.P2;
+        }
+        return Player.None;
+    }
+    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
+        let g = this.GetGrid(x, y);
+        let t = g.Type;
+        switch (t) {
+            case TypeOfGrid.Home:
+                //Error: can not place mirror on home
+                throw "Can not place mirror on home!";
+                return false;
+            case TypeOfGrid.Normal:
+                let gn = <GridNormal>(g);
+                let d = TypeOfMirror2Direction(type);
+                if (d != Direction.Unknow) {
+                    let c = new Coord(x, y);
+                    let cs = GetSurroundingCoord(c, d)
+                    let gs = this.GetGrid(cs.x, cs.y);
+                    let ret = true;
                     switch (gs.Type) {
                         case TypeOfGrid.Home:
                             break;
                         case TypeOfGrid.Normal:
                             let gsn = <GridNormal>gs;
-                            ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(idd)), h.Whose, false);
+                            ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
                             break;
                     }
-                }
-            }
-            h.Outdir = d;
-            return ret;
-        }
-        GetHomeCoord(whose: Player): Coord {
-            let c: Coord = new Coord;
-            c.y = this.data.findIndex(
-                function (value: Grid[], index: number, obj: Grid[][]): boolean {
-                    c.x = value.findIndex(
-                        function (value: Grid, index: number, obj: Grid[]): boolean {
-                            if (value.Type == TypeOfGrid.Home) {
-                                let home: GridHome = <GridHome>value;
-                                if (home.Whose == whose) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        }
-                    );
-                    if (c.x != -1) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            );
-            return c;
-        }
-    }
-
-    //Map end
-
-    //////////////////////////////////////////////////
-
-    //Game begin
-
-    namespace CheckIfWin {
-        export class SearchData {
-            constructor(Game: Game) {
-                this.game = Game;
-            }
-            protected XNum: number;
-            protected YNum: number;
-            protected game: Game;
-            protected data: RayData[][];
-            get Game(): Game { return this.game; }
-            TestSurrounding(x: number, y: number): RayData {
-                let r: RayData = 0;
-                if (!(x - 1 < 0)) {
-                    r |= <RayData>Direction.Left;
-                }
-                if (!(x + 1 >= this.XNum)) {
-                    r |= <RayData>Direction.Right;
-                }
-                if (!(y - 1 < 0)) {
-                    r |= <RayData>Direction.Top;
-                }
-                if (!(y + 1 >= this.YNum)) {
-                    r |= <RayData>Direction.Bottom;
-                }
-                return r;
-            }
-            GetRayData(x: number, y: number): RayData {
-                return this.data[y][x];
-            }
-        }
-    }
-
-    export class Game {
-        constructor() { };
-        protected map: Map;
-        get Map(): Map { return this.map; }
-        public init(XNum: number, YNum: number): boolean {
-            return this.map.init(XNum, YNum);
-        }
-        public GetGrid(x: number, y: number): Grid {
-            return this.map.GetGrid(x, y);
-        }
-        public AddHome(x: number, y: number, whose: Player): boolean {
-            return this.map.AddHome(x, y, whose);
-        }
-        public SetHomeDirection(x: number, y: number, d: Direction): boolean {
-            return this.map.SetHomeDirection(x, y, d);
-        }
-        protected CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
-            let g = this.map.GetGrid(x, y);
-            if (g.Type == TypeOfGrid.Home) {
-                let gh = <GridHome>(g);
-                let wh = gh.Whose;
-                if (wh == p || wh == Player.None) {
-                    return false;
+                    return ret && gn.AddMirror(type, whose);
                 }
                 else {
-                    if (gh.Outdir == OppositeDirection(d)) {
-                        return true;
-                    }
+                    return gn.AddMirror(type, whose);
                 }
-            }
-            else if (g.Type == TypeOfGrid.Normal) {
-                let gn = <GridNormal>(g);
-                let b: RayData = s.TestSurrounding(x, y);
-                let o: RayData = gn.TestOutput(d, p);
-                let r: RayData = s.GetRayData(x, y);
-                for (let i: number = 0; i < 4; i++) {
-                    let di = 0x1 << i;
-                    let dd = <Direction>(di);
-                    let iftest: boolean =
-                        di & o &&
-                        di & b &&
-                        !(di & r);
-                    if (iftest) {
-                        let ray = s.GetRayData(x, y)
-                        ray |= di;
-                        let c = new Coord(x, y);
-                        let sc = GetSurroundingCoord(c, dd);
-                        if (this.CheckNode(s, sc.x, sc.y, p, dd)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        }
-        protected CheckIfWin(p: Player): boolean {
-            let cHome: Coord = this.map.GetHomeCoord(p);
-            let gHome: GridHome = <GridHome>this.map.GetGrid(cHome.x, cHome.y);
-            let s = new CheckIfWin.SearchData(this);
-            let x = cHome.x;
-            let y = cHome.y;
-            let b: RayData = s.TestSurrounding(x, y);
-            if (b & Direction.Left) {
-                if (this.CheckNode(s, x - 1, y, p, Direction.Left)) {
-                    return true;
-                }
-            }
-            if (b & Direction.Right) {
-                if (this.CheckNode(s, x + 1, y, p, Direction.Right)) {
-                    return true;
-                }
-            }
-            if (b & Direction.Top) {
-                if (this.CheckNode(s, x, y - 1, p, Direction.Top)) {
-                    return true;
-                }
-            }
-            if (b & Direction.Bottom) {
-                if (this.CheckNode(s, x, y + 1, p, Direction.Bottom)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public WhoWins(): Player {
-            if (this.CheckIfWin(Player.P1)) {
-                if (this.CheckIfWin(Player.P2)) {
-                    throw "Two winners one time!";
-                }
-                else {
-                    return Player.P1;
-                }
-            }
-            else if (this.CheckIfWin(Player.P2)) {
-                return Player.P2;
-            }
-            return Player.None;
-        }
-        public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
-            let g = this.GetGrid(x, y);
-            let t = g.Type;
-            switch (t) {
-                case TypeOfGrid.Home:
-                    //Error: can not place mirror on home
-                    throw "Can not place mirror on home!";
-                    return false;
-                case TypeOfGrid.Normal:
-                    let gn = <GridNormal>(g);
-                    let d = TypeOfMirror2Direction(type);
-                    if (d != Direction.Unknow) {
-                        let c = new Coord(x, y);
-                        let cs = GetSurroundingCoord(c, d)
-                        let gs = this.GetGrid(cs.x, cs.y);
-                        let ret = true;
-                        switch (gs.Type) {
-                            case TypeOfGrid.Home:
-                                break;
-                            case TypeOfGrid.Normal:
-                                let gsn = <GridNormal>gs;
-                                ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
-                                break;
-                        }
-                        return ret && gn.AddMirror(type, whose);
-                    }
-                    else {
-                        return gn.AddMirror(type, whose);
-                    }
-            }
         }
     }
+}
 
     //Game end
 
     //////////////////////////////////////////////////
-
-}
