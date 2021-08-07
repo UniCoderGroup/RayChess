@@ -12,3 +12,8 @@ g.SetHomeDirection(2, 2, r.Direction.Top);
 console.log(g.WhoWins());
 
 console.log("----Test.End----");
+
+
+
+
+setTimeout(() => {} , 100000000);

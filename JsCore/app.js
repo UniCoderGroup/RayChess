@@ -11,4 +11,5 @@ g.AddHome(2, 2, 2 /* P2 */);
 g.SetHomeDirection(2, 2, 4 /* Top */);
 console.log(g.WhoWins());
 console.log("----Test.End----");
+setTimeout(() => { }, 100000000);
 //# sourceMappingURL=app.js.map
