@@ -9,6 +9,17 @@ export const enum Player {
     P2 = 2
 }
 
+export function GetAnotherPlayer(player: Player): Player {
+    switch (player) {
+        case Player.P1:
+            return Player.P2;
+        case Player.P2:
+            return Player.P1;
+        case Player.None:
+            return Player.None;
+    }
+}
+
 export const enum RelativePlayer {
     None,
     This,
@@ -755,9 +766,9 @@ export class GridNormal extends Grid {
 
 //////////////////////////////////////////////////
 
-//Map begin
+//Board begin
 
-export class Map {
+export class Board {
     protected data: Grid[][] = [];
     get Data(): Grid[][] { return this.data; }
     protected nx: number;
@@ -844,7 +855,7 @@ export class Map {
     }
 }
 
-//Map end
+//Board end
 
 //////////////////////////////////////////////////
 
@@ -889,25 +900,37 @@ namespace CheckIfWin {
     }
 }
 
+export class CreateDataType {
+
+}
+
+export class JoinDataType {
+
+}
+
 export class Game {
-    protected map: Map = new Map;
-    get Map(): Map { return this.map; }
-    get Nx(): number { return this.map.Nx };
-    get Ny(): number { return this.map.Ny };
-    public init(Nx: number, Ny: number): boolean {
-        return this.map.init(Nx, Ny);
+    protected board: Board = new Board;
+    get Board(): Board { return this.board; }
+    get Nx(): number { return this.board.Nx; };
+    get Ny(): number { return this.board.Ny; };
+    public me: Player = Player.None;
+    public nextPlayer: Player = Player.None;
+    protected isCreate: boolean;
+    get IsCreate(): boolean { return this.isCreate; };
+    public initBoard(Nx: number, Ny: number): boolean {
+        return this.board.init(Nx, Ny);
     }
     public GetGrid(x: number, y: number): Grid {
-        return this.map.GetGrid(x, y);
+        return this.board.GetGrid(x, y);
     }
     public AddHome(x: number, y: number, whose: Player): boolean {
-        return this.map.AddHome(x, y, whose);
+        return this.board.AddHome(x, y, whose);
     }
     public SetHomeDirection(x: number, y: number, d: Direction): boolean {
-        return this.map.SetHomeDirection(x, y, d);
+        return this.board.SetHomeDirection(x, y, d);
     }
     protected CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
-        let g = this.map.GetGrid(x, y);
+        let g = this.board.GetGrid(x, y);
         if (g.Type == TypeOfGrid.Home) {
             let gh = <GridHome>(g);
             let wh = gh.Whose;
@@ -946,8 +969,8 @@ export class Game {
         }
     }
     protected CheckIfWin(p: Player): boolean {
-        let cHome: Coord = this.map.GetHomeCoord(p);
-        let gHome: GridHome = <GridHome>this.map.GetGrid(cHome.x, cHome.y);
+        let cHome: Coord = this.board.GetHomeCoord(p);
+        let gHome: GridHome = <GridHome>this.board.GetGrid(cHome.x, cHome.y);
         let s = new CheckIfWin.SearchData(this);
         let x = cHome.x;
         let y = cHome.y;
@@ -1019,6 +1042,39 @@ export class Game {
                 }
         }
     }
+
+    //Game Process Part start
+
+    //when a game starts
+    //Step 1 : construct a Game object.
+    public constructor() { };
+    
+    //when after letting user select create a game or join a game
+    //Step 2 : Select create a game or join a game.
+    //  this function set datas and may fetch online datas
+    public CreateOrJoin(IsCreate: boolean, data: CreateDataType | JoinDataType): boolean {//unfinished
+        this.isCreate = IsCreate;
+        if (IsCreate) {
+
+        } else {
+
+        }
+        return true;
+    }
+
+    //when after user selected create mode and inputted the board's size
+    //Step 3 : (Create mode only) Set board size
+    //  this function set the size of the board and alloc memories for grids
+    //  if user selected join mode, this function will be called by CreateOrJoin()
+    public setSize(Nx: number, Ny: number): boolean {
+        if (this.isCreate)
+            return this.initBoard(Nx, Ny);
+    }
+
+    //Step 4 : 
+
+    //Game Process Part end
+
 }
 
     //Game end

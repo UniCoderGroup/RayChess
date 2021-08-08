@@ -3,7 +3,7 @@ console.log("----Test.Begin----");
 
 import * as r from "./Core";
 let g = new r.Game;
-g.init(30, 40);
+g.initBoard(30, 40);
 g.AddHome(1, 1, r.Player.P1);
 g.SetHomeDirection(1, 1, r.Direction.Top);
 g.AddMirror(2, 1, r.TypeOfMirror.BackSlash, r.Player.P1);

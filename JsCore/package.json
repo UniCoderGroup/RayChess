@@ -1,10 +1,10 @@
 {
-  "name": "js-core",
-  "version": "0.0.0",
-  "description": "JsCore",
-  "main": "app.js",
+  "name": "raychess-jscore",
+  "version": "0.0.1",
+  "description": "Core of RayChess in JavaScript. Written in TypeScript",
+  "main": "core.js",
   "author": {
-    "name": ""
+    "name": "UniCoder Group"
   },
   "scripts": {
     "build": "tsc --build",
