@@ -84,6 +84,8 @@ export function IsCoordEqual(c1: Coord, c2: Coord): boolean {
 
 export type RayData = number;
 
+export type RayRoute = Coord[];
+
 export let WriteLog = console.log;
 
 export function GetSurroundingCoord(c: Coord, d: Direction): Coord {
@@ -99,6 +101,17 @@ export function GetSurroundingCoord(c: Coord, d: Direction): Coord {
         default:
             return InvalidCoord;
     }
+}
+
+export function GetDirectionFromTo(from: Coord, to: Coord): Direction {
+    for (let i: number = 0; i < 4; i++) {
+        let di = 0x1 << i;
+        let dd = <Direction>(di);
+        if (GetSurroundingCoord(from, dd) == to) {
+            return dd;
+        }
+    }
+    return Direction.Unknow;
 }
 
 //Base end
@@ -900,14 +913,6 @@ namespace CheckIfWin {
     }
 }
 
-export class CreateDataType {
-
-}
-
-export class JoinDataType {
-
-}
-
 export class Game {
     protected board: Board = new Board;
     get Board(): Board { return this.board; }
@@ -917,7 +922,7 @@ export class Game {
     public nextPlayer: Player = Player.None;
     protected isCreate: boolean;
     get IsCreate(): boolean { return this.isCreate; };
-    public initBoard(Nx: number, Ny: number): boolean {
+    public InitBoard(Nx: number, Ny: number): boolean {
         return this.board.init(Nx, Ny);
     }
     public GetGrid(x: number, y: number): Grid {
@@ -1011,12 +1016,44 @@ export class Game {
         }
         return Player.None;
     }
+
+    public CheckRayRoute(route: RayRoute, p: Player, n: number): boolean {
+        let g = this.GetGrid(route[n].x, route[n].y);
+        if (g.Type == TypeOfGrid.Home) {
+            let gh = <GridHome>g;
+            if (gh.Whose == p) {
+                if (n == 0) {
+                    return this.CheckRayRoute(route, p, n + 1);
+                }
+                else {
+                    return false;
+                }
+            } else if (gh.Whose == GetAnotherPlayer(p)) {
+                if (n == route.length - 1) {
+                    if (gh.Outdir != GetDirectionFromTo(route[n - 1], route[n])) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    WriteLog("This is a bug if happends");
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (g.Type == TypeOfGrid.Normal) {
+            let gn = <GridNormal>g;
+
+        }
+        return false;
+    }
+
     public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
         let g = this.GetGrid(x, y);
         let t = g.Type;
         switch (t) {
             case TypeOfGrid.Home:
-                //Error: can not place mirror on home
                 throw "Can not place mirror on home!";
                 return false;
             case TypeOfGrid.Normal:
@@ -1042,39 +1079,43 @@ export class Game {
                 }
         }
     }
+}
 
-    //Game Process Part start
+class LocalGame extends Game {
+    //Step 1
+    //CONDITION:	when starting a game or reset a game
+    //TODO:			construct a Game object.
+    //FUNCTION:		this function is a constructor
+    public constructor() { super(); };
 
-    //when a game starts
-    //Step 1 : construct a Game object.
-    public constructor() { };
-    
-    //when after letting user select create a game or join a game
-    //Step 2 : Select create a game or join a game.
-    //  this function set datas and may fetch online datas
-    public CreateOrJoin(IsCreate: boolean, data: CreateDataType | JoinDataType): boolean {//unfinished
-        this.isCreate = IsCreate;
-        if (IsCreate) {
+    //Step 2
+    //CONDITION:	when after user selected create mode and inputted the board's size
+    //TODO:			Set board size
+    //FUNCTION:		this function set the size of the board and alloc memories for grids
+    public ProcSetSize(Nx: number, Ny: number): boolean {
+        return this.InitBoard(Nx, Ny);
+    }
 
-        } else {
-
+    //Step 3
+    //CONDITION:	when a player place a mirror and the turn is finished
+    //TODO:			Add the mirror and check if someone wins
+    //FUNCITON:		this function check and add the mirror, then check if someone wins
+    public ProcFinishTurn(x: number, y: number, type: TypeOfMirror, whose: Player): [boolean, Player] {
+        try {
+            this.AddMirror(x, y, type, whose);
+        } catch (e) {
+            return [false, Player.None];
         }
-        return true;
+        return [true, this.WhoWins()];
     }
 
-    //when after user selected create mode and inputted the board's size
-    //Step 3 : (Create mode only) Set board size
-    //  this function set the size of the board and alloc memories for grids
-    //  if user selected join mode, this function will be called by CreateOrJoin()
-    public setSize(Nx: number, Ny: number): boolean {
-        if (this.isCreate)
-            return this.initBoard(Nx, Ny);
+    //Step 4
+    //CONDITION:	someone wins
+    //TODO:			let the winner show the route of ray
+    //FUNCTION:     check if the route is right
+    public ProcCheckRayRoute(route: RayRoute, p: Player): boolean {
+        return this.CheckRayRoute(route, p, 0);
     }
-
-    //Step 4 : 
-
-    //Game Process Part end
-
 }
 
     //Game end
