@@ -1019,6 +1019,7 @@ export class Game {
 
     public CheckRayRoute(route: RayRoute, p: Player, n: number): boolean {
         let g = this.GetGrid(route[n].x, route[n].y);
+        let d = GetDirectionFromTo(route[n - 1], route[n]);
         if (g.Type == TypeOfGrid.Home) {
             let gh = <GridHome>g;
             if (gh.Whose == p) {
@@ -1026,11 +1027,12 @@ export class Game {
                     return this.CheckRayRoute(route, p, n + 1);
                 }
                 else {
+                    WriteLog("This is a bug if happends");
                     return false;
                 }
             } else if (gh.Whose == GetAnotherPlayer(p)) {
                 if (n == route.length - 1) {
-                    if (gh.Outdir != GetDirectionFromTo(route[n - 1], route[n])) {
+                    if (gh.Outdir != d) {
                         return false;
                     } else {
                         return true;
@@ -1044,7 +1046,16 @@ export class Game {
             }
         } else if (g.Type == TypeOfGrid.Normal) {
             let gn = <GridNormal>g;
-
+            let o = gn.TestOutput(d, p);
+            if (d & o) {
+                if (n + 1 < route.length) {
+                    return this.CheckRayRoute(route, p, n + 1);
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
         return false;
     }
