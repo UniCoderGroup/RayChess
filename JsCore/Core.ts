@@ -3,7 +3,7 @@
 
 // Base begin
 
-export const enum Player {
+export  enum Player {
     None = 0,
     P1 = 1,
     P2 = 2
@@ -20,7 +20,7 @@ export function GetAnotherPlayer(player: Player): Player {
     }
 }
 
-export const enum RelativePlayer {
+export enum RelativePlayer {
     None,
     This,
     Another
@@ -43,7 +43,7 @@ export function GetRelativePlayer(PlayerThis: Player, PlayerThat: Player): Relat
     }
 }
 
-export const enum Direction {
+export enum Direction {
     Unknow = 0,
     Left = 1,
     Right = 2,
@@ -746,7 +746,7 @@ export class GridNormal extends Grid {
                 return false;
         }
         if (mirrorExist && checkExist) {
-            throw "There has been a mirror!";
+            throw new Error("There has been a mirror!");
         }
         else {
             return true;
@@ -769,7 +769,7 @@ export class GridNormal extends Grid {
                 t.TopIn();
                 break;
             default:
-                throw "Unknow direction!";
+                throw new Error("Unknow direction!");
         }
         return t.Output;
     }
@@ -806,20 +806,23 @@ export class Board {
         this.data[y][x] = value;
         return true;
     }
+    GetRow(y: number): Grid[] {
+        return this.data[y];
+    }
     public AddHome(x: number, y: number, whose: Player) {
         if (!IsCoordEqual(this.GetHomeCoord(whose), InvalidCoord)) {
-            throw "There has been a grid of home!";
+            throw new Error("There has been a grid of home!");
         }
         let g = this.GetGrid(x, y);
         if (g.Type == TypeOfGrid.Home) {
-            throw "This grid has been one player's home!";
+            throw new Error("This grid has been one player's home!");
         }
         this.SetGrid(x, y, new GridHome(whose));
         return true;
     }
     SetHomeDirection(x: number, y: number, d: Direction) {
         if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
-            throw "Cannot set direction at a non-home grid!";
+            throw new Error("Cannot set direction at a non-home grid!");
         }
         let h = <GridHome>this.GetGrid(x, y);
         let ret = true;
@@ -916,10 +919,11 @@ namespace CheckIfWin {
 export class Game {
     protected board: Board = new Board;
     get Board(): Board { return this.board; }
-    get Nx(): number { return this.board.Nx; };
-    get Ny(): number { return this.board.Ny; };
-    public me: Player = Player.None;
-    public nextPlayer: Player = Player.None;
+    get Nx(): number { return this.board.Nx; }
+    get Ny(): number { return this.board.Ny; }
+    protected nextPlayer: Player = Player.None;
+    get NextPlayer(): Player { return this.nextPlayer; }
+    set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; }
     protected isCreate: boolean;
     get IsCreate(): boolean { return this.isCreate; };
     public InitBoard(Nx: number, Ny: number): boolean {
@@ -927,6 +931,9 @@ export class Game {
     }
     public GetGrid(x: number, y: number): Grid {
         return this.board.GetGrid(x, y);
+    }
+    public GetRow(y: number): Grid[] {
+        return this.board.GetRow(y);
     }
     public AddHome(x: number, y: number, whose: Player): boolean {
         return this.board.AddHome(x, y, whose);
@@ -1005,7 +1012,7 @@ export class Game {
     public WhoWins(): Player {
         if (this.CheckIfWin(Player.P1)) {
             if (this.CheckIfWin(Player.P2)) {
-                throw "Two winners one time!";
+                throw new Error("Two winners one time!");
             }
             else {
                 return Player.P1;
@@ -1065,7 +1072,7 @@ export class Game {
         let t = g.Type;
         switch (t) {
             case TypeOfGrid.Home:
-                throw "Can not place mirror on home!";
+                throw new Error("Can not place mirror on home!");
                 return false;
             case TypeOfGrid.Normal:
                 let gn = <GridNormal>(g);
@@ -1090,6 +1097,13 @@ export class Game {
                 }
         }
     }
+}
+
+export enum TypeOfGame {
+    Undefined,
+    Local,
+    OnlineCreate,
+    OnlineJoin,
 }
 
 class LocalGame extends Game {

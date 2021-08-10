@@ -2,46 +2,58 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import * as r from 'raychess-jscore';
+import { createJsxElement } from 'typescript';
 
-let g = new r.Game;
+let GameType = r.TypeOfGame.Undefined;
+let GameData : r.Game = new r.Game;/*!!!*/
 
-class Square extends React.Component {
+let me: r.Player ;
+
+const ColorOfPlayer = new Map<r.Player, any>([
+    [r.Player.P1, "blue"],
+    [r.Player.P2, "red"],
+    [r.Player.None,"black"]
+]);
+
+const StringOfPlayer = new Map<r.Player, String>([
+    [r.Player.P1, "Player 1"],
+    [r.Player.P2, "Player 2"],
+    [r.Player.None, "<No Player>"]
+]);
+
+class Grid extends React.Component {
     render() {
         return (
-            <button className="square">
-                {/* TODO */}
+            <button className="grid">
             </button>
         );
     }
 }
 
 class Board extends React.Component {
-    renderSquare(i:number) {
-        return <Square />;
+    renderGrid(x:number,y:number) {
+        return <Grid />;
     }
-
+    renderRow(y: number): JSX.Element{
+        let arr = new Array<JSX.Element>();
+        for (let x = 0; x < GameData.Nx; x++) {
+            arr.push(this.renderGrid(x, y));
+        }
+        return/* <div className="board-row" >*/{arr}/*</div>*/;
+    }
     render() {
-        switch()
-        const status = <span>Next player:<span style={{ color: "red" }}>Red</span></span>;
+        const status = <span>Next player:<span style={{ color: ColorOfPlayer.get(r.Player.P1) }}>{ StringOfPlayer.get(r.Player.P1)}</span></span>;
+
+        let rows = new Array<JSX.Element>();
+        for (let y = 0; y < GameData.Ny; y++) {
+            rows.push(this.renderRow(y));
+        }
+        let board = <div className="board" >{rows}</div>;
 
         return (
             <div>
                 <div className="status">{status}</div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {board}
             </div>
         );
     }

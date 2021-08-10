@@ -1,8 +1,11 @@
 {
   "name": "raychess-jscore",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "keywords": [
+    "Game"
+  ],
   "description": "Core of RayChess in JavaScript. Written in TypeScript",
-  "main": "core.js",
+  "main": "Core.js",
   "author": {
     "name": "UniCoder Group"
   },
