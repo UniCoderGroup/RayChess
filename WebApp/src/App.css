@@ -10,28 +10,33 @@
     margin-bottom: 10px;
 }
 
-.game-grid {
-    background: #fff;
-    border: 3px solid #999;
-    float: left;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 34px;
-    height: 34px;
-    margin-right: -3px;
-    margin-top: -3px;
-    padding: 0;
-    text-align: center;
-    width: 34px;
-}
 
-    .grid:focus {
+
+    .game-grid:focus {
         outline: none;
     }
 
-.game-row {
-    
-}
+    .game-grid .btn {
+        background: #fff;
+        border: hidden;
+        padding: 0;
+        /*height:17px;
+        width:17px;
+        line-height:17px;
+        margin:0px 0px 0px 0px;*/
+    }
+    /*.game-grid .lefttop {
+    }
+    .game-grid .righttop {
+        align-self:flex-start;
+    }
+    .game-grid .leftbottom {
+        
+    }
+    .game-grid .rightbottom {
+        float: left;
+    }*/
+
 
 .kbd-navigation .grid:focus {
     background: #ddd;
