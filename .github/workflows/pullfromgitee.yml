@@ -2,7 +2,7 @@ name: Pull From Gitee
 
 on:
   schedule:
-    - cron: '0 0/1 * * *'
+    - cron: '0/5 0/1 * * *'
 
 jobs:
   pull-from-gitee:
