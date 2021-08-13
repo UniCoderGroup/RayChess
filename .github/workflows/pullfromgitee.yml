@@ -9,6 +9,8 @@ jobs:
     name: Git Pull From Gitee
     runs-on: ubuntu-latest
     steps: 
+      - name: 'Checkout codes'
+        uses: actions/checkout@v2
       - name: 'run pullfromgitee.sh'
         run: 'bash ./.github/workflows/pullfromgitee.sh'
     
