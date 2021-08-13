@@ -1,0 +1,15 @@
+name: Pull From Gitee
+
+on:
+  schedule:
+    - cron: '0 0/1 * * *'
+
+jobs:
+  pull-from-gitee:
+    name: Git Pull From Gitee
+    runs-on: ubuntu-latest
+    steps: 
+      - name: 'run pullfromgitee.sh'
+        run: 'bash ./.github/workflows/pullfromgitee.sh'
+    
+    
