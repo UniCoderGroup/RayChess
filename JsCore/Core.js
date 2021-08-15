@@ -709,7 +709,7 @@ class GridNormal extends Grid {
                 return false;
         }
         if (mirrorExist && checkExist) {
-            throw "There has been a mirror!";
+            throw new Error("There has been a mirror!");
         }
         else {
             return true;
@@ -731,7 +731,7 @@ class GridNormal extends Grid {
                 t.TopIn();
                 break;
             default:
-                throw "Unknow direction!";
+                throw new Error("Unknow direction!");
         }
         return t.Output;
     }
@@ -765,20 +765,23 @@ class Board {
         this.data[y][x] = value;
         return true;
     }
+    GetRow(y) {
+        return this.data[y];
+    }
     AddHome(x, y, whose) {
         if (!IsCoordEqual(this.GetHomeCoord(whose), exports.InvalidCoord)) {
-            throw "There has been a grid of home!";
+            throw new Error("There has been a grid of home!");
         }
         let g = this.GetGrid(x, y);
         if (g.Type == TypeOfGrid.Home) {
-            throw "This grid has been one player's home!";
+            throw new Error("This grid has been one player's home!");
         }
         this.SetGrid(x, y, new GridHome(whose));
         return true;
     }
     SetHomeDirection(x, y, d) {
         if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
-            throw "Cannot set direction at a non-home grid!";
+            throw new Error("Cannot set direction at a non-home grid!");
         }
         let h = this.GetGrid(x, y);
         let ret = true;
@@ -870,19 +873,23 @@ class Game {
     constructor() {
         this.board = new Board;
         this.nextPlayer = Player.None;
+        this.onChange = () => { };
     }
     get Board() { return this.board; }
     get Nx() { return this.board.Nx; }
     get Ny() { return this.board.Ny; }
     get NextPlayer() { return this.nextPlayer; }
-    set NextPlayer(NextPlayer) { this.nextPlayer = NextPlayer; }
-    get IsCreate() { return this.isCreate; }
-    ;
+    set NextPlayer(NextPlayer) { this.nextPlayer = NextPlayer; this.onChange(); }
+    get OnChange() { return this.onChange; }
+    set OnChange(OnChange) { this.onChange = OnChange; }
     InitBoard(Nx, Ny) {
         return this.board.init(Nx, Ny);
     }
     GetGrid(x, y) {
         return this.board.GetGrid(x, y);
+    }
+    GetRow(y) {
+        return this.board.GetRow(y);
     }
     AddHome(x, y, whose) {
         return this.board.AddHome(x, y, whose);
@@ -960,7 +967,7 @@ class Game {
     WhoWins() {
         if (this.CheckIfWin(Player.P1)) {
             if (this.CheckIfWin(Player.P2)) {
-                throw "Two winners one time!";
+                throw new Error("Two winners one time!");
             }
             else {
                 return Player.P1;
@@ -1025,8 +1032,7 @@ class Game {
         let t = g.Type;
         switch (t) {
             case TypeOfGrid.Home:
-                throw "Can not place mirror on home!";
-                return false;
+                throw new Error("Can not place mirror on home!");
             case TypeOfGrid.Normal:
                 let gn = (g);
                 let d = TypeOfMirror2Direction(type);
@@ -1043,9 +1049,11 @@ class Game {
                             ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
                             break;
                     }
+                    this.onChange();
                     return ret && gn.AddMirror(type, whose);
                 }
                 else {
+                    this.onChange();
                     return gn.AddMirror(type, whose);
                 }
         }

@@ -21,7 +21,12 @@ const StringOfPlayer = new Map<r.Player, String>([
     [r.Player.None, "<No Player>"]
 ]);
 
-class Grid extends React.Component {
+class Grid extends React.Component<{Data:r.Grid}> {
+    constructor(props: { Data: r.Grid; } | Readonly<{ Data: r.Grid; }>) {
+        super(props);
+        this.Data = props.Data;
+    }
+    public Data: r.Grid;
     render() {
         let gridStyle: CSSProperties = {
             display: "inline-grid",
@@ -37,6 +42,24 @@ class Grid extends React.Component {
             //marginTop: "-3px",
             //width: "34px",
         }
+        let ColorLeft: any;
+        let ColorRight: any;
+        let ColorTop: any;
+        let ColorBottom: any;
+        switch (this.Data.Type) {
+            case r.TypeOfGrid.Home:
+                let gh = this.Data as r.GridHome;
+                ColorLeft = ColorOfPlayer.get(gh.Outdir != r.Direction.Left ? gh.Whose : gh.OutMirror.Whose) ;
+                break;
+            case r.TypeOfGrid.Normal:
+                let gn = this.Data as r.GridNormal;
+                ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
+                ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
+                ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
+                ColorBottom = ColorOfPlayer.get(gn.Mirror.Bottom.Whose);
+
+        }
+        
 
         let btnMargin = "-2px";
         let btnBorder = "solid 1px #999";
@@ -103,7 +126,7 @@ class Grid extends React.Component {
 
 class Board extends React.Component {
     renderGrid(grid: r.Grid) {
-        return <Grid />;
+        return <Grid Data={grid}/>;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
@@ -113,16 +136,14 @@ class Board extends React.Component {
     render() {
         let status = <span>Next player:<span style={{ color: ColorOfPlayer.get(r.Player.P1) }}>{StringOfPlayer.get(r.Player.P1)}</span></span>;
 
-        let board = GameData.Board.Data.map((value, index) => {
-            return (
-                <div  key={index}>
-                    {this.renderRow(index)}
-                </div>
-            );
+        let board: JSX.Element[] = [];
+        GameData.Board.Data.forEach((value, index) => {
+            board = board.concat(this.renderRow(index));
         });
+
         let boardStyle: CSSProperties = {
             display: "inline-grid",
-            gridTemplateColumns: "100%",
+            gridTemplateColumns: "repeat(" + GameData.Nx + "," + 100 / GameData.Nx + "%)",
             gridTemplateRows: "repeat(" + GameData.Ny + "," + 100 / GameData.Ny + "%)",
             background: "#fff",
             padding: 0,
@@ -139,7 +160,17 @@ class Board extends React.Component {
     }
 }
 
-class Game extends React.Component {
+class Game extends React.Component<{}, { Data: r.Game }> {
+    constructor(props: {} | Readonly<{}>) {
+        super(props);
+        GameData.OnChange = () => {
+            this.setState({
+                Data: GameData
+            })
+        };
+        GameData.OnChange();
+    }
+
     render() {
         return (
             <div className="game">
@@ -153,10 +184,21 @@ class Game extends React.Component {
     }
 }
 
+
 function App() {
     return (
         <Game />
     );
 }
+
+setTimeout(() => {}, 1000);
+let g = GameData;
+g.AddHome(1, 1, r.Player.P1);
+g.SetHomeDirection(1, 1, r.Direction.Top);
+g.AddMirror(2, 1, r.TypeOfMirror.BackSlash, r.Player.P1);
+g.AddHome(2, 2, r.Player.P2);
+g.SetHomeDirection(2, 2, r.Direction.Top);
+console.log(g.WhoWins());
+
 
 export default App;

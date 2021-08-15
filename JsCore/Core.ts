@@ -217,6 +217,9 @@ export class GridHome extends Grid {
     protected outdir: Direction;
     get Outdir(): Direction { return this.outdir; }
     set Outdir(Outdir: Direction) { this.outdir = Outdir; }
+    protected outMirror: BorderMirrorType;
+    get OutMirror(): BorderMirrorType { return this.outMirror; }
+    set OutMirror(OutMirror: BorderMirrorType) { this.outMirror = OutMirror; }
 }
 
 namespace TestOutput {
@@ -923,9 +926,11 @@ export class Game {
     get Ny(): number { return this.board.Ny; }
     protected nextPlayer: Player = Player.None;
     get NextPlayer(): Player { return this.nextPlayer; }
-    set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; }
-    protected isCreate: boolean;
-    get IsCreate(): boolean { return this.isCreate; };
+    set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; this.onChange(); }
+    protected onChange: () => void = () => { };
+    get OnChange(): () => void { return this.onChange; }
+    set OnChange(OnChange: () => void) { this.onChange = OnChange; }
+
     public InitBoard(Nx: number, Ny: number): boolean {
         return this.board.init(Nx, Ny);
     }
@@ -1023,7 +1028,6 @@ export class Game {
         }
         return Player.None;
     }
-
     public CheckRayRoute(route: RayRoute, p: Player, n: number): boolean {
         let g = this.GetGrid(route[n].x, route[n].y);
         let d = GetDirectionFromTo(route[n - 1], route[n]);
@@ -1066,14 +1070,12 @@ export class Game {
         }
         return false;
     }
-
     public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
         let g = this.GetGrid(x, y);
         let t = g.Type;
         switch (t) {
             case TypeOfGrid.Home:
                 throw new Error("Can not place mirror on home!");
-                return false;
             case TypeOfGrid.Normal:
                 let gn = <GridNormal>(g);
                 let d = TypeOfMirror2Direction(type);
@@ -1084,15 +1086,21 @@ export class Game {
                     let ret = true;
                     switch (gs.Type) {
                         case TypeOfGrid.Home:
+                            let gsh = <GridHome>gs;
+                            if (gsh.Outdir == OppositeDirection(d)) {
+                                gsh.OutMirror.Whose = whose;
+                            }
                             break;
                         case TypeOfGrid.Normal:
                             let gsn = <GridNormal>gs;
                             ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
                             break;
                     }
+                    this.onChange();
                     return ret && gn.AddMirror(type, whose);
                 }
                 else {
+                    this.onChange();
                     return gn.AddMirror(type, whose);
                 }
         }
