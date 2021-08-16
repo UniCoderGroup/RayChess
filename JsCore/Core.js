@@ -198,11 +198,14 @@ class GridHome extends Grid {
     constructor(Whose = Player.None) {
         super();
         this.type = TypeOfGrid.Home;
+        this.outMirror = new BorderMirrorType;
         this.whose = Whose;
     }
     get Whose() { return this.whose; }
     get Outdir() { return this.outdir; }
     set Outdir(Outdir) { this.outdir = Outdir; }
+    get OutMirror() { return this.outMirror; }
+    set OutMirror(OutMirror) { this.outMirror = OutMirror; }
 }
 exports.GridHome = GridHome;
 var TestOutput;
@@ -1043,6 +1046,10 @@ class Game {
                     let ret = true;
                     switch (gs.Type) {
                         case TypeOfGrid.Home:
+                            let gsh = gs;
+                            if (gsh.Outdir == OppositeDirection(d)) {
+                                gsh.OutMirror.Whose = whose;
+                            }
                             break;
                         case TypeOfGrid.Normal:
                             let gsn = gs;

@@ -9,10 +9,11 @@ let GameData: r.Game = new r.Game();/*!!!*/
 
 GameData.InitBoard(6, 8);
 
-const ColorOfPlayer = new Map<r.Player, any>([
+type Color = any;
+const ColorOfPlayer = new Map<r.Player, Color>([
     [r.Player.P1, "blue"],
     [r.Player.P2, "red"],
-    [r.Player.None, "black"]
+    [r.Player.None, "grey"]
 ]);
 
 const StringOfPlayer = new Map<r.Player, String>([
@@ -20,6 +21,35 @@ const StringOfPlayer = new Map<r.Player, String>([
     [r.Player.P2, "Player 2"],
     [r.Player.None, "<No Player>"]
 ]);
+
+enum Corner {
+    LeftTop,
+    LeftBottom,
+    RightTop,
+    RightBottom
+}
+
+
+class Btn extends React.Component<{ pos: Corner,colorLR:Color,colorTB:Color }> {
+    render() {
+        let btnMargin = "-2px";
+        let btnBorder = "solid 2px ";
+        let s: CSSProperties = {
+            background: "#fff",
+            border: "hidden",
+            //https://www.cnblogs.com/newsea/p/3781110.html
+            borderRigh#t: btnBorder + this.props.colorLR,
+            borderTo#p: btnBorder + this.props.colorTB,
+            borderRadius: "0px",
+            marginLeft: btnMargin,
+            marginRight: btnMargin,
+            marginTop: btnMargin,
+            marginBottom: btnMargin,
+            padding: 0
+        }
+        return <div><button/></div>
+    }
+}
 
 class Grid extends React.Component<{Data:r.Grid}> {
     constructor(props: { Data: r.Grid; } | Readonly<{ Data: r.Grid; }>) {
@@ -42,6 +72,7 @@ class Grid extends React.Component<{Data:r.Grid}> {
             //marginTop: "-3px",
             //width: "34px",
         }
+
         let ColorLeft: any;
         let ColorRight: any;
         let ColorTop: any;
@@ -49,7 +80,10 @@ class Grid extends React.Component<{Data:r.Grid}> {
         switch (this.Data.Type) {
             case r.TypeOfGrid.Home:
                 let gh = this.Data as r.GridHome;
-                ColorLeft = ColorOfPlayer.get(gh.Outdir != r.Direction.Left ? gh.Whose : gh.OutMirror.Whose) ;
+                ColorLeft = ColorOfPlayer.get(gh.Outdir != r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
+                ColorRight = ColorOfPlayer.get(gh.Outdir != r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
+                ColorTop = ColorOfPlayer.get(gh.Outdir != r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
+                ColorBottom = ColorOfPlayer.get(gh.Outdir != r.Direction.Bottom ? gh.Whose : gh.OutMirror.Whose);
                 break;
             case r.TypeOfGrid.Normal:
                 let gn = this.Data as r.GridNormal;
@@ -57,17 +91,16 @@ class Grid extends React.Component<{Data:r.Grid}> {
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
                 ColorBottom = ColorOfPlayer.get(gn.Mirror.Bottom.Whose);
-
+                
         }
         
 
-        let btnMargin = "-2px";
-        let btnBorder = "solid 1px #999";
+        
         let btnLeftTopStyle: CSSProperties = {
             background: "#fff",
             border: "hidden",
-            borderLeft: btnBorder,
-            borderTop: btnBorder,
+            borderLeft: btnBorder+ColorLeft,
+            borderTop: btnBorder + ColorTop,
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
@@ -78,8 +111,8 @@ class Grid extends React.Component<{Data:r.Grid}> {
         let btnRightTopStyle: CSSProperties = {
             background: "#fff",
             border: "hidden",
-            borderRight: btnBorder,
-            borderTop: btnBorder,
+            borderRight: btnBorder + ColorRight,
+            borderTop: btnBorder + ColorTop,
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
@@ -90,8 +123,8 @@ class Grid extends React.Component<{Data:r.Grid}> {
         let btnLeftBottomStyle: CSSProperties = {
             background: "#fff",
             border: "hidden",
-            borderLeft: btnBorder,
-            borderBottom: btnBorder,
+            borderLeft: btnBorder + ColorLeft,
+            borderBottom: btnBorder + ColorBottom,
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
@@ -102,8 +135,8 @@ class Grid extends React.Component<{Data:r.Grid}> {
         let btnRightBottomStyle: CSSProperties = {
             background: "#fff",
             border: "hidden",
-            borderRight: btnBorder,
-            borderBottom: btnBorder,
+            borderRight: btnBorder + ColorRight,
+            borderBottom: btnBorder + ColorBottom,
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
@@ -111,7 +144,9 @@ class Grid extends React.Component<{Data:r.Grid}> {
             marginBottom: btnMargin,
             padding: 0
         }
-        let btnOnClick = function () { console.log("clicked!"); }
+        let btnOnClick = function (e: React.MouseEvent<HTMLButtonElement>) {
+            console.log("clicked!");
+        }
 
         return (
             <div style={gridStyle}>

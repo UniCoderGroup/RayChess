@@ -3,7 +3,7 @@
 
 // Base begin
 
-export  enum Player {
+export enum Player {
     None = 0,
     P1 = 1,
     P2 = 2
@@ -217,7 +217,7 @@ export class GridHome extends Grid {
     protected outdir: Direction;
     get Outdir(): Direction { return this.outdir; }
     set Outdir(Outdir: Direction) { this.outdir = Outdir; }
-    protected outMirror: BorderMirrorType;
+    protected outMirror = new BorderMirrorType;
     get OutMirror(): BorderMirrorType { return this.outMirror; }
     set OutMirror(OutMirror: BorderMirrorType) { this.outMirror = OutMirror; }
 }
@@ -697,7 +697,6 @@ export class GridNormal extends Grid {
     public readonly type: TypeOfGrid = TypeOfGrid.Normal;
     protected mirror = new MirrorType;
     get Mirror(): MirrorType { return this.mirror }
-
     public AddMirror(type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
         let mirrorExist: boolean = false;
         switch (type) {
