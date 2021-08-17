@@ -30,16 +30,13 @@ enum Corner {
 }
 
 
-class Btn extends React.Component<{ pos: Corner,colorLR:Color,colorTB:Color }> {
+class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color } & React.DOMAttributes<HTMLButtonElement>> {
     render() {
         let btnMargin = "-2px";
         let btnBorder = "solid 2px ";
-        let s: CSSProperties = {
+        let base: CSSProperties = {
             background: "#fff",
             border: "hidden",
-            //https://www.cnblogs.com/newsea/p/3781110.html
-            borderRigh#t: btnBorder + this.props.colorLR,
-            borderTo#p: btnBorder + this.props.colorTB,
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
@@ -47,11 +44,40 @@ class Btn extends React.Component<{ pos: Corner,colorLR:Color,colorTB:Color }> {
             marginBottom: btnMargin,
             padding: 0
         }
-        return <div><button/></div>
+        let style: CSSProperties = {};
+        let _this = this;
+        Object.assign(style, base,
+            (() => {
+                switch (_this.props.pos) {
+                    case Corner.LeftTop:
+                        return {
+                            borderLeft: btnBorder + _this.props.colorLR,
+                            borderTop: btnBorder + _this.props.colorTB
+                        }
+                    case Corner.LeftBottom:
+                        return {
+                            borderLeft: btnBorder + _this.props.colorLR,
+                            borderBottom: btnBorder + _this.props.colorTB
+                        }
+                    case Corner.RightTop:
+                        return {
+                            borderRight: btnBorder + _this.props.colorLR,
+                            borderTop: btnBorder + _this.props.colorTB
+                        }
+                    case Corner.RightBottom:
+                        return {
+                            borderRight: btnBorder + _this.props.colorLR,
+                            borderBottom: btnBorder + _this.props.colorTB
+                        }
+                }
+            })());
+        return (<div>
+            <button style={style} />
+        </div>);
     }
 }
 
-class Grid extends React.Component<{Data:r.Grid}> {
+class Grid extends React.Component<{ Data: r.Grid }> {
     constructor(props: { Data: r.Grid; } | Readonly<{ Data: r.Grid; }>) {
         super(props);
         this.Data = props.Data;
@@ -91,58 +117,7 @@ class Grid extends React.Component<{Data:r.Grid}> {
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
                 ColorBottom = ColorOfPlayer.get(gn.Mirror.Bottom.Whose);
-                
-        }
-        
 
-        
-        let btnLeftTopStyle: CSSProperties = {
-            background: "#fff",
-            border: "hidden",
-            borderLeft: btnBorder+ColorLeft,
-            borderTop: btnBorder + ColorTop,
-            borderRadius: "0px",
-            marginLeft: btnMargin,
-            marginRight: btnMargin,
-            marginTop: btnMargin,
-            marginBottom: btnMargin,
-            padding: 0
-        }
-        let btnRightTopStyle: CSSProperties = {
-            background: "#fff",
-            border: "hidden",
-            borderRight: btnBorder + ColorRight,
-            borderTop: btnBorder + ColorTop,
-            borderRadius: "0px",
-            marginLeft: btnMargin,
-            marginRight: btnMargin,
-            marginTop: btnMargin,
-            marginBottom: btnMargin,
-            padding: 0
-        }
-        let btnLeftBottomStyle: CSSProperties = {
-            background: "#fff",
-            border: "hidden",
-            borderLeft: btnBorder + ColorLeft,
-            borderBottom: btnBorder + ColorBottom,
-            borderRadius: "0px",
-            marginLeft: btnMargin,
-            marginRight: btnMargin,
-            marginTop: btnMargin,
-            marginBottom: btnMargin,
-            padding: 0
-        }
-        let btnRightBottomStyle: CSSProperties = {
-            background: "#fff",
-            border: "hidden",
-            borderRight: btnBorder + ColorRight,
-            borderBottom: btnBorder + ColorBottom,
-            borderRadius: "0px",
-            marginLeft: btnMargin,
-            marginRight: btnMargin,
-            marginTop: btnMargin,
-            marginBottom: btnMargin,
-            padding: 0
         }
         let btnOnClick = function (e: React.MouseEvent<HTMLButtonElement>) {
             console.log("clicked!");
@@ -150,22 +125,22 @@ class Grid extends React.Component<{Data:r.Grid}> {
 
         return (
             <div style={gridStyle}>
-                <button style={btnLeftTopStyle} onClick={btnOnClick} />
-                <button style={btnRightTopStyle} onClick={btnOnClick} />
-                <button style={btnLeftBottomStyle} onClick={btnOnClick} />
-                <button style={btnRightBottomStyle} onClick={btnOnClick} />
+                <Btn pos={Corner.LeftTop} colorLR={ColorLeft} colorTB={ColorTop} onClick={btnOnClick} />
+                <Btn pos={Corner.LeftBottom} colorLR={ColorLeft} colorTB={ColorBottom} onClick={btnOnClick} />
+                <Btn pos={Corner.RightTop} colorLR={ColorRight} colorTB={ColorTop} onClick={btnOnClick} />
+                <Btn pos={Corner.RightBottom} colorLR={ColorRight} colorTB={ColorBottom} onClick={btnOnClick} />
             </div>
         );
     }
 }
 
 class Board extends React.Component {
-    renderGrid(grid: r.Grid) {
-        return <Grid Data={grid}/>;
+    renderGrid(grid: r.Grid, key: React.Key) {
+        return <Grid key={key} Data={grid} />;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
-            return this.renderGrid(value);
+            return this.renderGrid(value, y * GameData.Nx + index);
         });
     }
     render() {
@@ -226,7 +201,7 @@ function App() {
     );
 }
 
-setTimeout(() => {}, 1000);
+setTimeout(() => { }, 1000);
 let g = GameData;
 g.AddHome(1, 1, r.Player.P1);
 g.SetHomeDirection(1, 1, r.Direction.Top);
