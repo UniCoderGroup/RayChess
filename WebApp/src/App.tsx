@@ -30,7 +30,7 @@ enum Corner {
 }
 
 
-class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color } & React.DOMAttributes<HTMLButtonElement>> {
+class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
     render() {
         let btnMargin = "-2px";
         let btnBorder = "solid 2px ";
@@ -71,9 +71,11 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color 
                         }
                 }
             })());
-        return (<div>
+
+
+        return (
             <button style={style} />
-        </div>);
+        );
     }
 }
 
@@ -103,6 +105,8 @@ class Grid extends React.Component<{ Data: r.Grid }> {
         let ColorRight: any;
         let ColorTop: any;
         let ColorBottom: any;
+        let CrossType: r.TypeOfCross;
+        let ColorCross: Color;
         switch (this.Data.Type) {
             case r.TypeOfGrid.Home:
                 let gh = this.Data as r.GridHome;
@@ -110,6 +114,8 @@ class Grid extends React.Component<{ Data: r.Grid }> {
                 ColorRight = ColorOfPlayer.get(gh.Outdir != r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
                 ColorTop = ColorOfPlayer.get(gh.Outdir != r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
                 ColorBottom = ColorOfPlayer.get(gh.Outdir != r.Direction.Bottom ? gh.Whose : gh.OutMirror.Whose);
+                CrossType = r.TypeOfCross.None;
+                ColorCross = ColorOfPlayer.get(r.Player.None);
                 break;
             case r.TypeOfGrid.Normal:
                 let gn = this.Data as r.GridNormal;
@@ -117,7 +123,9 @@ class Grid extends React.Component<{ Data: r.Grid }> {
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
                 ColorBottom = ColorOfPlayer.get(gn.Mirror.Bottom.Whose);
-
+                CrossType = gn.Mirror.Cross.Type;
+                ColorCross = ColorOfPlayer.get(gn.Mirror.Cross.Whose);
+                break;
         }
         let btnOnClick = function (e: React.MouseEvent<HTMLButtonElement>) {
             console.log("clicked!");
@@ -125,10 +133,30 @@ class Grid extends React.Component<{ Data: r.Grid }> {
 
         return (
             <div style={gridStyle}>
-                <Btn pos={Corner.LeftTop} colorLR={ColorLeft} colorTB={ColorTop} onClick={btnOnClick} />
-                <Btn pos={Corner.LeftBottom} colorLR={ColorLeft} colorTB={ColorBottom} onClick={btnOnClick} />
-                <Btn pos={Corner.RightTop} colorLR={ColorRight} colorTB={ColorTop} onClick={btnOnClick} />
-                <Btn pos={Corner.RightBottom} colorLR={ColorRight} colorTB={ColorBottom} onClick={btnOnClick} />
+                <Btn pos={Corner.LeftTop}
+                    colorLR={ColorLeft}
+                    colorTB={ColorTop}
+                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.Slash : r.TypeOfCross.None}
+                    colorCross={ColorCross}
+                    onClick={btnOnClick} />
+                <Btn pos={Corner.RightTop}
+                    colorLR={ColorRight}
+                    colorTB={ColorTop}
+                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.BackSlash : r.TypeOfCross.None}
+                    colorCross={ColorCross}
+                    onClick={btnOnClick} />
+                <Btn pos={Corner.LeftBottom}
+                    colorLR={ColorLeft}
+                    colorTB={ColorBottom}
+                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.Slash : r.TypeOfCross.None}
+                    colorCross={ColorCross}
+                    onClick={btnOnClick} />
+                <Btn pos={Corner.RightBottom}
+                    colorLR={ColorRight}
+                    colorTB={ColorBottom}
+                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.BackSlash : r.TypeOfCross.None}
+                    colorCross={ColorCross}
+                    onClick={btnOnClick} />
             </div>
         );
     }
