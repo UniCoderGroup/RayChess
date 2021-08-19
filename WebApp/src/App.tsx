@@ -72,7 +72,20 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
                 }
             })());
 
+        let width = 100;
+        let height = 100;
 
+        let before: JSX.Element = {} as JSX.Element;
+        let beforeStyle: CSSProperties = {
+            position: "absolute",
+            top: 0,
+            right: 0,
+            left: 0,
+            bottom: 0,
+            borderBottom: width+"px solid red",
+            borderLeft: height+"px solid transparent",
+            content: ""
+        }
         return (
             <button style={style} />
         );
