@@ -10,6 +10,7 @@ let GameData: r.Game = new r.Game();/*!!!*/
 GameData.InitBoard(6, 8);
 
 type Color = any;
+const BkgrColor = "white"
 const ColorOfPlayer = new Map<r.Player, Color>([
     [r.Player.P1, "blue"],
     [r.Player.P2, "red"],
@@ -35,14 +36,18 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
         let btnMargin = "-2px";
         let btnBorder = "solid 2px ";
         let base: CSSProperties = {
-            background: "#fff",
+            position: "absolute",
+            background: BkgrColor,
             border: "hidden",
             borderRadius: "0px",
             marginLeft: btnMargin,
             marginRight: btnMargin,
             marginTop: btnMargin,
             marginBottom: btnMargin,
-            padding: 0
+            padding: 0,
+            width: "100%",
+            height: "100%",
+            /*display: "inline-table"*/
         }
         let style: CSSProperties = {};
         let _this = this;
@@ -72,22 +77,38 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
                 }
             })());
 
-        let width = 100;
-        let height = 100;
+        let width = 10;
+        let height = 10;
 
-        let before: JSX.Element = {} as JSX.Element;
         let beforeStyle: CSSProperties = {
             position: "absolute",
             top: 0,
             right: 0,
             left: 0,
             bottom: 0,
-            borderBottom: width+"px solid red",
-            borderLeft: height+"px solid transparent",
+            borderBottom: width + "px solid red",
+            borderLeft: height + "px solid transparent",
             content: ""
         }
+        let beforeElement = (<div style={beforeStyle} />);
+        let afterStyle: CSSProperties = {
+            position: "absolute",
+            left: "1px",
+            right: 0,
+            top: "1px",
+            bottom: 0,
+            borderBottom: width + "px solid " + BkgrColor,
+            borderLeft: height + "px solid transparent",
+            content: ""
+        }
+        let afterElement = (<div style={afterStyle} />);
+
         return (
-            <button style={style} />
+            <div style={{ position: "relative" }}>
+                {beforeElement}
+                <button style={style} />
+                {afterElement}
+            </div>
         );
     }
 }
@@ -103,7 +124,7 @@ class Grid extends React.Component<{ Data: r.Grid }> {
             display: "inline-grid",
             gridTemplateColumns: "repeat(2, 50%)",
             gridTemplateRows: "repeat(2, 50%)",
-            background: "#fff",
+            background: BkgrColor,
             padding: 0,
             /*border: "3px solid #999",*/
             //float: "left",
@@ -196,7 +217,7 @@ class Board extends React.Component {
             display: "inline-grid",
             gridTemplateColumns: "repeat(" + GameData.Nx + "," + 100 / GameData.Nx + "%)",
             gridTemplateRows: "repeat(" + GameData.Ny + "," + 100 / GameData.Ny + "%)",
-            background: "#fff",
+            background: BkgrColor,
             padding: 0,
             width: "200px",
             height: "200px"
