@@ -33,8 +33,9 @@ enum Corner {
 
 class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
     render() {
-        let btnMargin = "-2px";
-        let btnBorder = "solid 2px ";
+        let borderWidth = 2;
+        let btnMargin = "-" + borderWidth + "px";
+        let btnBorder = "solid " + borderWidth + "px ";
         let base: CSSProperties = {
             position: "absolute",
             background: BkgrColor,
@@ -105,9 +106,13 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
 
         return (
             <div style={{ position: "relative" }}>
-                {beforeElement}
                 <button style={style} />
-                {afterElement}
+                <svg style={{ position: "absolute" }}>
+                    <line x1="0" y1="0" x2="300" y2="300"
+                        style={{ stroke: this.props.colorCross, strokeWidth: borderWidth, background: "transparent" }}
+                    />
+                </svg>
+                {/*{afterElement}*/}
             </div>
         );
     }
