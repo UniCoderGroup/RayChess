@@ -217,7 +217,7 @@ class BoardOld extends React.Component {
     }
 }
 
-class Grid extends React.Component<{ Data: _r.Grid ,x:number,y:number}, { w: number, h: number }> {
+class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w: number, h: number }> {
     constructor(props: { Data: _r.Grid; x: number; y: number; } | Readonly<{ Data: _r.Grid; x: number; y: number; }>) {
         super(props);
         this.Data = props.Data;
@@ -271,7 +271,7 @@ class Grid extends React.Component<{ Data: _r.Grid ,x:number,y:number}, { w: num
                     y={t}
                     points={[0, 0, 0, h]}
                     stroke={ColorLeft}
-                    strokeWidth={strokeWidth}/>
+                    strokeWidth={strokeWidth} />
                 <Line
                     x={r}
                     y={t}
@@ -290,22 +290,44 @@ class Grid extends React.Component<{ Data: _r.Grid ,x:number,y:number}, { w: num
                     points={[0, 0, w, 0]}
                     stroke={ColorBottom}
                     strokeWidth={strokeWidth} />
+                {
+                    CrossType == _r.TypeOfCross.None ?
+                        (<div style={{ display: "hidden" }} />)
+                        :
+                        (CrossType == _r.TypeOfCross.Slash ?
+                                (<Line
+                                    x={r}
+                                    y={t}
+                                    points={[0, 0, -w, h]}
+                                    stroke={ColorCross}
+                                    strokeWidth={strokeWidth}
+                                />)
+                                :
+                                (<Line
+                                    x={l}
+                                    y={t}
+                                    points={[0, 0, w, h]}
+                                    stroke={ColorCross}
+                                    strokeWidth={strokeWidth}
+                                />)
+                        )
+                }
             </Group>
         )
     }
 }
 
 class Board extends React.Component {
-    renderGrid(grid: _r.Grid, y:number,x:number) {
+    renderGrid(grid: _r.Grid, y: number, x: number) {
         return <Grid
             key={y * GameData.Nx + x}
             Data={grid}
-            x={x*W}
-            y={y*H} />;
+            x={x * W}
+            y={y * H} />;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
-            return this.renderGrid(value, y ,index);
+            return this.renderGrid(value, y, index);
         });
     }
     render() {
