@@ -1,26 +1,32 @@
 import React, { CSSProperties } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import * as r from 'raychess-jscore';
-import { createJsxElement } from 'typescript';
+import * as _r from 'raychess-jscore';
+import { Stage, Layer, Group, Line } from 'react-konva';
+import Konva from 'konva';
 
-let GameType = r.TypeOfGame.Undefined;
-let GameData: r.Game = new r.Game();/*!!!*/
+
+let GameType = _r.TypeOfGame.Undefined;
+let GameData: _r.Game = new _r.Game();/*!!!*/
+
+let W = 30;
+let H = 30;
+
 
 GameData.InitBoard(6, 8);
 
 type Color = any;
 const BkgrColor = "white"
-const ColorOfPlayer = new Map<r.Player, Color>([
-    [r.Player.P1, "blue"],
-    [r.Player.P2, "red"],
-    [r.Player.None, "grey"]
+const ColorOfPlayer = new Map<_r.Player, Color>([
+    [_r.Player.P1, "blue"],
+    [_r.Player.P2, "red"],
+    [_r.Player.None, "grey"]
 ]);
 
-const StringOfPlayer = new Map<r.Player, String>([
-    [r.Player.P1, "Player 1"],
-    [r.Player.P2, "Player 2"],
-    [r.Player.None, "<No Player>"]
+const StringOfPlayer = new Map<_r.Player, String>([
+    [_r.Player.P1, "Player 1"],
+    [_r.Player.P2, "Player 2"],
+    [_r.Player.None, "<No Player>"]
 ]);
 
 enum Corner {
@@ -31,7 +37,7 @@ enum Corner {
 }
 
 
-class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
+class BtnOld extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: _r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
     render() {
         let borderWidth = 2;
         let btnMargin = "-" + borderWidth + "px";
@@ -78,37 +84,13 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
                 }
             })());
 
-        let width = 10;
-        let height = 10;
 
-        let beforeStyle: CSSProperties = {
-            position: "absolute",
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
-            borderBottom: width + "px solid red",
-            borderLeft: height + "px solid transparent",
-            content: ""
-        }
-        let beforeElement = (<div style={beforeStyle} />);
-        let afterStyle: CSSProperties = {
-            position: "absolute",
-            left: "1px",
-            right: 0,
-            top: "1px",
-            bottom: 0,
-            borderBottom: width + "px solid " + BkgrColor,
-            borderLeft: height + "px solid transparent",
-            content: ""
-        }
-        let afterElement = (<div style={afterStyle} />);
 
         return (
             <div style={{ position: "relative" }}>
                 <button style={style} />
                 <svg style={{ position: "absolute" }}>
-                    <line x1="0" y1="0" x2="300" y2="300"
+                    <line x1="0" y1="0" x2="100%" y2="100%"
                         style={{ stroke: this.props.colorCross, strokeWidth: borderWidth, background: "transparent" }}
                     />
                 </svg>
@@ -117,13 +99,12 @@ class Btn extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color,
         );
     }
 }
-
-class Grid extends React.Component<{ Data: r.Grid }> {
-    constructor(props: { Data: r.Grid; } | Readonly<{ Data: r.Grid; }>) {
+class GridOld extends React.Component<{ Data: _r.Grid }> {
+    constructor(props: { Data: _r.Grid; } | Readonly<{ Data: _r.Grid; }>) {
         super(props);
         this.Data = props.Data;
     }
-    public Data: r.Grid;
+    public Data: _r.Grid;
     render() {
         let gridStyle: CSSProperties = {
             display: "inline-grid",
@@ -144,20 +125,20 @@ class Grid extends React.Component<{ Data: r.Grid }> {
         let ColorRight: any;
         let ColorTop: any;
         let ColorBottom: any;
-        let CrossType: r.TypeOfCross;
+        let CrossType: _r.TypeOfCross;
         let ColorCross: Color;
         switch (this.Data.Type) {
-            case r.TypeOfGrid.Home:
-                let gh = this.Data as r.GridHome;
-                ColorLeft = ColorOfPlayer.get(gh.Outdir != r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
-                ColorRight = ColorOfPlayer.get(gh.Outdir != r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
-                ColorTop = ColorOfPlayer.get(gh.Outdir != r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
-                ColorBottom = ColorOfPlayer.get(gh.Outdir != r.Direction.Bottom ? gh.Whose : gh.OutMirror.Whose);
-                CrossType = r.TypeOfCross.None;
-                ColorCross = ColorOfPlayer.get(r.Player.None);
+            case _r.TypeOfGrid.Home:
+                let gh = this.Data as _r.GridHome;
+                ColorLeft = ColorOfPlayer.get(gh.Outdir != _r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
+                ColorRight = ColorOfPlayer.get(gh.Outdir != _r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
+                ColorTop = ColorOfPlayer.get(gh.Outdir != _r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
+                ColorBottom = ColorOfPlayer.get(gh.Outdir != _r.Direction.Bottom ? gh.Whose : gh.OutMirror.Whose);
+                CrossType = _r.TypeOfCross.None;
+                ColorCross = ColorOfPlayer.get(_r.Player.None);
                 break;
-            case r.TypeOfGrid.Normal:
-                let gn = this.Data as r.GridNormal;
+            case _r.TypeOfGrid.Normal:
+                let gn = this.Data as _r.GridNormal;
                 ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
@@ -172,38 +153,37 @@ class Grid extends React.Component<{ Data: r.Grid }> {
 
         return (
             <div style={gridStyle}>
-                <Btn pos={Corner.LeftTop}
+                <BtnOld pos={Corner.LeftTop}
                     colorLR={ColorLeft}
                     colorTB={ColorTop}
-                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.Slash : r.TypeOfCross.None}
+                    crossType={CrossType == _r.TypeOfCross.Slash ? _r.TypeOfCross.Slash : _r.TypeOfCross.None}
                     colorCross={ColorCross}
                     onClick={btnOnClick} />
-                <Btn pos={Corner.RightTop}
+                <BtnOld pos={Corner.RightTop}
                     colorLR={ColorRight}
                     colorTB={ColorTop}
-                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.BackSlash : r.TypeOfCross.None}
+                    crossType={CrossType == _r.TypeOfCross.Slash ? _r.TypeOfCross.BackSlash : _r.TypeOfCross.None}
                     colorCross={ColorCross}
                     onClick={btnOnClick} />
-                <Btn pos={Corner.LeftBottom}
+                <BtnOld pos={Corner.LeftBottom}
                     colorLR={ColorLeft}
                     colorTB={ColorBottom}
-                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.Slash : r.TypeOfCross.None}
+                    crossType={CrossType == _r.TypeOfCross.Slash ? _r.TypeOfCross.Slash : _r.TypeOfCross.None}
                     colorCross={ColorCross}
                     onClick={btnOnClick} />
-                <Btn pos={Corner.RightBottom}
+                <BtnOld pos={Corner.RightBottom}
                     colorLR={ColorRight}
                     colorTB={ColorBottom}
-                    crossType={CrossType == r.TypeOfCross.Slash ? r.TypeOfCross.BackSlash : r.TypeOfCross.None}
+                    crossType={CrossType == _r.TypeOfCross.Slash ? _r.TypeOfCross.BackSlash : _r.TypeOfCross.None}
                     colorCross={ColorCross}
                     onClick={btnOnClick} />
             </div>
         );
     }
 }
-
-class Board extends React.Component {
-    renderGrid(grid: r.Grid, key: React.Key) {
-        return <Grid key={key} Data={grid} />;
+class BoardOld extends React.Component {
+    renderGrid(grid: _r.Grid, key: React.Key) {
+        return <GridOld key={key} Data={grid} />;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
@@ -211,7 +191,7 @@ class Board extends React.Component {
         });
     }
     render() {
-        let status = <span>Next player:<span style={{ color: ColorOfPlayer.get(r.Player.P1) }}>{StringOfPlayer.get(r.Player.P1)}</span></span>;
+        let status = <span>Next player:<span style={{ color: ColorOfPlayer.get(_r.Player.P1) }}>{StringOfPlayer.get(_r.Player.P1)}</span></span>;
 
         let board: JSX.Element[] = [];
         GameData.Board.Data.forEach((value, index) => {
@@ -237,7 +217,116 @@ class Board extends React.Component {
     }
 }
 
-class Game extends React.Component<{}, { Data: r.Game }> {
+class Grid extends React.Component<{ Data: _r.Grid ,x:number,y:number}, { w: number, h: number }> {
+    constructor(props: { Data: _r.Grid; x: number; y: number; } | Readonly<{ Data: _r.Grid; x: number; y: number; }>) {
+        super(props);
+        this.Data = props.Data;
+        this.state = {
+            w: W,
+            h: H
+        };
+    }
+    public Data: _r.Grid;
+    render() {
+        let ColorLeft: any;
+        let ColorRight: any;
+        let ColorTop: any;
+        let ColorBottom: any;
+        let CrossType: _r.TypeOfCross;
+        let ColorCross: Color;
+        switch (this.Data.Type) {
+            case _r.TypeOfGrid.Home:
+                let gh = this.Data as _r.GridHome;
+                ColorLeft = ColorOfPlayer.get(gh.Outdir != _r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
+                ColorRight = ColorOfPlayer.get(gh.Outdir != _r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
+                ColorTop = ColorOfPlayer.get(gh.Outdir != _r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
+                ColorBottom = ColorOfPlayer.get(gh.Outdir != _r.Direction.Bottom ? gh.Whose : gh.OutMirror.Whose);
+                CrossType = _r.TypeOfCross.None;
+                ColorCross = ColorOfPlayer.get(_r.Player.None);
+                break;
+            case _r.TypeOfGrid.Normal:
+                let gn = this.Data as _r.GridNormal;
+                ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
+                ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
+                ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
+                ColorBottom = ColorOfPlayer.get(gn.Mirror.Bottom.Whose);
+                CrossType = gn.Mirror.Cross.Type;
+                ColorCross = ColorOfPlayer.get(gn.Mirror.Cross.Whose);
+                break;
+        }
+        console.log(ColorTop);
+        let w = this.state.w;
+        let h = this.state.h;
+        let l = 0;
+        let t = 0;
+        let r = l + w;
+        let b = t + h;
+        let strokeWidth = 3
+        return (
+            <Group
+                x={this.props.x}
+                y={this.props.y}>
+                <Line
+                    x={l}
+                    y={t}
+                    points={[0, 0, 0, h]}
+                    stroke={ColorLeft}
+                    strokeWidth={strokeWidth}/>
+                <Line
+                    x={r}
+                    y={t}
+                    points={[0, 0, 0, h]}
+                    stroke={ColorRight}
+                    strokeWidth={strokeWidth} />
+                <Line
+                    x={l}
+                    y={t}
+                    points={[0, 0, w, 0]}
+                    stroke={ColorTop}
+                    strokeWidth={strokeWidth} />
+                <Line
+                    x={l}
+                    y={b}
+                    points={[0, 0, w, 0]}
+                    stroke={ColorBottom}
+                    strokeWidth={strokeWidth} />
+            </Group>
+        )
+    }
+}
+
+class Board extends React.Component {
+    renderGrid(grid: _r.Grid, y:number,x:number) {
+        return <Grid
+            key={y * GameData.Nx + x}
+            Data={grid}
+            x={x*W}
+            y={y*H} />;
+    }
+    renderRow(y: number): JSX.Element[] {
+        return GameData.Board.Data[y].map((value, index) => {
+            return this.renderGrid(value, y ,index);
+        });
+    }
+    render() {
+
+        let board: JSX.Element[] = [];
+        GameData.Board.Data.forEach((value, index) => {
+            board = board.concat(this.renderRow(index));
+        });
+
+        console.log(board);
+        return (
+            <Stage width={1000} height={1000}>
+                <Layer>
+                    {board}
+                </Layer>
+            </Stage>
+        );
+    }
+}
+
+class Game extends React.Component<{}, { Data: _r.Game }> {
     constructor(props: {} | Readonly<{}>) {
         super(props);
         GameData.OnChange = () => {
@@ -253,8 +342,7 @@ class Game extends React.Component<{}, { Data: r.Game }> {
             <div className="game">
                 <Board />
                 <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{/* TODO */}</ol>
+                    <div className="next-player"></div>
                 </div>
             </div>
         );
@@ -270,11 +358,11 @@ function App() {
 
 setTimeout(() => { }, 1000);
 let g = GameData;
-g.AddHome(1, 1, r.Player.P1);
-g.SetHomeDirection(1, 1, r.Direction.Top);
-g.AddMirror(2, 1, r.TypeOfMirror.BackSlash, r.Player.P1);
-g.AddHome(2, 2, r.Player.P2);
-g.SetHomeDirection(2, 2, r.Direction.Top);
+g.AddHome(1, 1, _r.Player.P1);
+g.SetHomeDirection(1, 1, _r.Direction.Top);
+g.AddMirror(2, 1, _r.TypeOfMirror.BackSlash, _r.Player.P1);
+g.AddHome(2, 2, _r.Player.P2);
+g.SetHomeDirection(2, 2, _r.Direction.Top);
 console.log(g.WhoWins());
 
 
