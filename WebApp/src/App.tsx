@@ -1,16 +1,18 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, MouseEvent } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import * as _r from 'raychess-jscore';
 import { Stage, Layer, Group, Line } from 'react-konva';
 import Konva from 'konva';
+import { KonvaEventObject } from 'konva/lib/Node';
 
 
 let GameType = _r.TypeOfGame.Undefined;
 let GameData: _r.Game = new _r.Game();/*!!!*/
 
-let W = 30;
-let H = 30;
+let gridWidth = 30;
+let gridHeight = 30;
+let mirrorWidth = 3;
 
 
 GameData.InitBoard(6, 8);
@@ -222,11 +224,16 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
         super(props);
         this.Data = props.Data;
         this.state = {
-            w: W,
-            h: H
+            w: gridWidth,
+            h: gridHeight
         };
     }
     public Data: _r.Grid;
+    click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
+        let x = evt.evt.clientX - evt.currentTarget.x();
+        let y = evt.evt.clientY - evt.currentTarget.y();
+        console.log(x, y);
+    }
     render() {
         let ColorLeft: any;
         let ColorRight: any;
@@ -254,62 +261,61 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
                 ColorCross = ColorOfPlayer.get(gn.Mirror.Cross.Whose);
                 break;
         }
-        console.log(ColorTop);
         let w = this.state.w;
         let h = this.state.h;
         let l = 0;
         let t = 0;
         let r = l + w;
         let b = t + h;
-        let strokeWidth = 3
         return (
             <Group
                 x={this.props.x}
-                y={this.props.y}>
+                y={this.props.y}
+                onClick={this.click}>
                 <Line
                     x={l}
                     y={t}
                     points={[0, 0, 0, h]}
                     stroke={ColorLeft}
-                    strokeWidth={strokeWidth} />
+                    strokeWidth={mirrorWidth} />
                 <Line
                     x={r}
                     y={t}
                     points={[0, 0, 0, h]}
                     stroke={ColorRight}
-                    strokeWidth={strokeWidth} />
+                    strokeWidth={mirrorWidth} />
                 <Line
                     x={l}
                     y={t}
                     points={[0, 0, w, 0]}
                     stroke={ColorTop}
-                    strokeWidth={strokeWidth} />
+                    strokeWidth={mirrorWidth} />
                 <Line
                     x={l}
                     y={b}
                     points={[0, 0, w, 0]}
                     stroke={ColorBottom}
-                    strokeWidth={strokeWidth} />
+                    strokeWidth={mirrorWidth} />
                 {
                     CrossType == _r.TypeOfCross.None ?
-                        (<div style={{ display: "hidden" }} />)
+                        (<></>)
                         :
                         (CrossType == _r.TypeOfCross.Slash ?
-                                (<Line
-                                    x={r}
-                                    y={t}
-                                    points={[0, 0, -w, h]}
-                                    stroke={ColorCross}
-                                    strokeWidth={strokeWidth}
-                                />)
-                                :
-                                (<Line
-                                    x={l}
-                                    y={t}
-                                    points={[0, 0, w, h]}
-                                    stroke={ColorCross}
-                                    strokeWidth={strokeWidth}
-                                />)
+                            (<Line
+                                x={r}
+                                y={t}
+                                points={[0, 0, -w, h]}
+                                stroke={ColorCross}
+                                strokeWidth={mirrorWidth}
+                            />)
+                            :
+                            (<Line
+                                x={l}
+                                y={t}
+                                points={[0, 0, w, h]}
+                                stroke={ColorCross}
+                                strokeWidth={mirrorWidth}
+                            />)
                         )
                 }
             </Group>
@@ -322,8 +328,8 @@ class Board extends React.Component {
         return <Grid
             key={y * GameData.Nx + x}
             Data={grid}
-            x={x * W}
-            y={y * H} />;
+            x={x * gridWidth}
+            y={y * gridHeight} />;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
@@ -331,17 +337,21 @@ class Board extends React.Component {
         });
     }
     render() {
-
         let board: JSX.Element[] = [];
         GameData.Board.Data.forEach((value, index) => {
             board = board.concat(this.renderRow(index));
         });
 
-        console.log(board);
         return (
-            <Stage width={1000} height={1000}>
+            <Stage
+                width={GameData.Nx * gridWidth + mirrorWidth}
+                height={GameData.Ny * gridHeight + mirrorWidth}>
                 <Layer>
-                    {board}
+                    <Group
+                        x={1}
+                        y={1}>
+                        {board}
+                    </Group>
                 </Layer>
             </Stage>
         );
