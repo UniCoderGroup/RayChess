@@ -2,7 +2,7 @@ import React, { CSSProperties, MouseEvent } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import * as _r from 'raychess-jscore';
-import { Stage, Layer, Group, Line } from 'react-konva';
+import { Stage, Layer, Group, Line, Circle, Rect } from 'react-konva';
 import Konva from 'konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 
@@ -13,16 +13,17 @@ let GameData: _r.Game = new _r.Game();/*!!!*/
 let gridWidth = 30;
 let gridHeight = 30;
 let mirrorWidth = 3;
-
+let PointRadius = 4;
 
 GameData.InitBoard(6, 8);
 
-type Color = any;
-const BkgrColor = "white"
+type Color = string | undefined;
+const BkgrColor = "white";
+const PointColor = "grey";
 const ColorOfPlayer = new Map<_r.Player, Color>([
     [_r.Player.P1, "blue"],
     [_r.Player.P2, "red"],
-    [_r.Player.None, "grey"]
+    [_r.Player.None, "transparent"]
 ]);
 
 const StringOfPlayer = new Map<_r.Player, String>([
@@ -219,31 +220,31 @@ class BoardOld extends React.Component {
     }
 }
 
+
 class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w: number, h: number }> {
     constructor(props: { Data: _r.Grid; x: number; y: number; } | Readonly<{ Data: _r.Grid; x: number; y: number; }>) {
         super(props);
-        this.Data = props.Data;
         this.state = {
             w: gridWidth,
             h: gridHeight
         };
     }
-    public Data: _r.Grid;
     click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
         let x = evt.evt.clientX - evt.currentTarget.x();
         let y = evt.evt.clientY - evt.currentTarget.y();
         console.log(x, y);
     }
     render() {
+        let Data = this.props.Data;
         let ColorLeft: any;
         let ColorRight: any;
         let ColorTop: any;
         let ColorBottom: any;
         let CrossType: _r.TypeOfCross;
         let ColorCross: Color;
-        switch (this.Data.Type) {
+        switch (Data.Type) {
             case _r.TypeOfGrid.Home:
-                let gh = this.Data as _r.GridHome;
+                let gh = Data as _r.GridHome;
                 ColorLeft = ColorOfPlayer.get(gh.Outdir != _r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
                 ColorRight = ColorOfPlayer.get(gh.Outdir != _r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
                 ColorTop = ColorOfPlayer.get(gh.Outdir != _r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
@@ -252,7 +253,7 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
                 ColorCross = ColorOfPlayer.get(_r.Player.None);
                 break;
             case _r.TypeOfGrid.Normal:
-                let gn = this.Data as _r.GridNormal;
+                let gn = Data as _r.GridNormal;
                 ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
@@ -322,35 +323,88 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
         )
     }
 }
+class Point extends React.Component<{ x: number, y: number }> {
+    click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
+        let x = evt.evt.clientX - evt.currentTarget.x();
+        let y = evt.evt.clientY - evt.currentTarget.y();
+        console.log(x, y);
+    }
+    render() {
+        return (
+            <Rect
+                x={this.props.x}
+                y={this.props.y}
+                onClick={this.click}
+                width={PointRadius}
+                height={PointRadius}
+                offsetX={PointRadius / 2}
+                offsetY={PointRadius / 2}
+                fill={PointColor} />
+        );
+    }
+}
 
 class Board extends React.Component {
-    renderGrid(grid: _r.Grid, y: number, x: number) {
-        return <Grid
+    renderMirrorOne(grid: _r.Grid, y: number, x: number) {
+        return (<Grid
             key={y * GameData.Nx + x}
             Data={grid}
             x={x * gridWidth}
-            y={y * gridHeight} />;
+            y={y * gridHeight} />);
     }
-    renderRow(y: number): JSX.Element[] {
+    renderMirrorRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
-            return this.renderGrid(value, y, index);
+            return this.renderMirrorOne(value, y, index);
         });
+    }
+    renderMirrors(): JSX.Element[] {
+        let mirrors: JSX.Element[] = [];
+        GameData.Board.Data.forEach((value, index) => {
+            mirrors = mirrors.concat(this.renderMirrorRow(index));
+        });
+        return mirrors;
+    }
+    renderPointOne(y: number, x: number) {
+        return (<Point
+            key={y * GameData.Nx + x}
+            x={x * gridWidth}
+            y={y * gridHeight} />);
+    }
+    renderPointRow(y: number): JSX.Element[] {
+        let points: JSX.Element[] = [];
+        for (let x = 0; x <= GameData.Nx; x++) {
+            points = points.concat(this.renderPointOne(x, y));
+        }
+        return points;
+    }
+    renderPoints(): JSX.Element[] {
+        let points: JSX.Element[] = [];
+        for (let y = 0; y <= GameData.Ny; y++) {
+            points = points.concat(this.renderPointRow(y));
+        }
+        return points;
     }
     render() {
-        let board: JSX.Element[] = [];
-        GameData.Board.Data.forEach((value, index) => {
-            board = board.concat(this.renderRow(index));
-        });
+
+        let mirrors = this.renderMirrors();
+        let points = this.renderPoints();
 
         return (
             <Stage
                 width={GameData.Nx * gridWidth + mirrorWidth}
                 height={GameData.Ny * gridHeight + mirrorWidth}>
-                <Layer>
+                <Layer>{/*Mirrors*/}
                     <Group
                         x={1}
                         y={1}>
-                        {board}
+                        {mirrors}
+                    </Group>
+                </Layer>
+                <Layer>{/*Points*/}
+                    <Group
+                        x={1}
+                        y={1}>
+                        {points}
                     </Group>
                 </Layer>
             </Stage>
@@ -370,8 +424,36 @@ class Game extends React.Component<{}, { Data: _r.Game }> {
     }
 
     render() {
+        let TextStyle: CSSProperties = {
+            fill: "none",
+            stroke: " white",
+            strokeDasharray: " 7% 28%",
+            strokeWidth: "3px",
+            WebkitAnimation: "stroke-offset 9s infinite linear",
+            animation: "stroke-offset 9s infinite linear",
+        }
         return (
             <div className="game">
+                <div className="title">
+                    <svg viewBox="0 0 800 600"
+                        style={{
+                            width: 300,
+                            height:50
+                        }}
+                    >
+                        <symbol id="s-text">
+                            <text text-anchor="middle" x="50%" y="35%" fontSize=".5em" >Ray</text>
+                            <text text-anchor="middle" x="50%" y="68%" >Chess</text>
+                        </symbol>
+                        <g>
+                            <use xlinkHref="#s-text" style={TextStyle}></use>
+                            <use xlinkHref="#s-text" style={TextStyle}></use>
+                            <use xlinkHref="#s-text" style={TextStyle}></use>
+                            <use xlinkHref="#s-text" style={TextStyle}></use>
+                            <use xlinkHref="#s-text" style={TextStyle}></use>
+                        </g>
+                    </svg>
+                </div>
                 <Board />
                 <div className="game-info">
                     <div className="next-player"></div>
