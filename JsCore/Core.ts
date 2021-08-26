@@ -783,6 +783,45 @@ export class GridNormal extends Grid {
 
 //Board begin
 
+namespace CheckIfWin {
+    export class SearchData {
+        constructor(board: Board) {
+            this.nx = board.Nx;
+            this.ny = board.Ny;
+            this.board = board;
+            for (let i = 0; i < this.ny; i++) {
+                this.data[i] = new Array<RayData>(this.nx);
+            }
+        }
+        protected nx: number;
+        get Nx(): number { return this.nx };
+        protected ny: number;
+        get Ny(): number { return this.ny };
+        protected board: Board;
+        protected data: RayData[][] = [];
+        get Board(): Board { return this.board; }
+        TestSurrounding(x: number, y: number): RayData {
+            let r: RayData = 0;
+            if (!(x - 1 < 0)) {
+                r |= <RayData>Direction.Left;
+            }
+            if (!(x + 1 >= this.nx)) {
+                r |= <RayData>Direction.Right;
+            }
+            if (!(y - 1 < 0)) {
+                r |= <RayData>Direction.Top;
+            }
+            if (!(y + 1 >= this.ny)) {
+                r |= <RayData>Direction.Bottom;
+            }
+            return r;
+        }
+        GetRayData(x: number, y: number): RayData {
+            return this.data[y][x];
+        }
+    }
+}
+
 export class Board {
     protected data: Grid[][] = [];
     get Data(): Grid[][] { return this.data; }
@@ -790,6 +829,9 @@ export class Board {
     get Nx(): number { return this.nx; }
     protected ny: number;
     get Ny(): number { return this.ny; }
+    protected onChange: () => void = () => { };
+    get OnChange(): () => void { return this.onChange; }
+    set OnChange(OnChange: () => void) { this.onChange = OnChange; }
     public init(Nx: number, Ny: number): boolean {
         this.nx = Nx;
         this.ny = Ny;
@@ -808,7 +850,7 @@ export class Board {
         this.data[y][x] = value;
         return true;
     }
-    GetRow(y: number): Grid[] {
+    public GetRow(y: number): Grid[] {
         return this.data[y];
     }
     public AddHome(x: number, y: number, whose: Player) {
@@ -822,7 +864,7 @@ export class Board {
         this.SetGrid(x, y, new GridHome(whose));
         return true;
     }
-    SetHomeDirection(x: number, y: number, d: Direction) {
+    public SetHomeDirection(x: number, y: number, d: Direction) {
         if (this.GetGrid(x, y).Type != TypeOfGrid.Home) {
             throw new Error("Cannot set direction at a non-home grid!");
         }
@@ -871,82 +913,41 @@ export class Board {
         );
         return c;
     }
-}
-
-//Board end
-
-//////////////////////////////////////////////////
-
-//Game begin
-
-namespace CheckIfWin {
-    export class SearchData {
-        constructor(Game: Game) {
-            this.nx = Game.Nx;
-            this.ny = Game.Ny;
-            this.game = Game;
-            for (let i = 0; i < this.ny; i++) {
-                this.data[i] = new Array<RayData>(this.nx);
-            }
+    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
+        let g = this.GetGrid(x, y);
+        let t = g.Type;
+        switch (t) {
+            case TypeOfGrid.Home:
+                throw new Error("Can not place mirror on home!");
+            case TypeOfGrid.Normal:
+                let gn = <GridNormal>(g);
+                let d = TypeOfMirror2Direction(type);
+                if (d != Direction.Unknow) {
+                    let c = new Coord(x, y);
+                    let cs = GetSurroundingCoord(c, d)
+                    let gs = this.GetGrid(cs.x, cs.y);
+                    let ret = true;
+                    switch (gs.Type) {
+                        case TypeOfGrid.Home:
+                            let gsh = <GridHome>gs;
+                            if (gsh.Outdir == OppositeDirection(d)) {
+                                gsh.OutMirror.Whose = whose;
+                            }
+                            break;
+                        case TypeOfGrid.Normal:
+                            let gsn = <GridNormal>gs;
+                            ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
+                            break;
+                    }
+                    return ret && gn.AddMirror(type, whose);
+                }
+                else {
+                    return gn.AddMirror(type, whose);
+                }
         }
-        protected nx: number;
-        get Nx(): number { return this.nx };
-        protected ny: number;
-        get Ny(): number { return this.ny };
-        protected game: Game;
-        protected data: RayData[][] = [];
-        get Game(): Game { return this.game; }
-        TestSurrounding(x: number, y: number): RayData {
-            let r: RayData = 0;
-            if (!(x - 1 < 0)) {
-                r |= <RayData>Direction.Left;
-            }
-            if (!(x + 1 >= this.nx)) {
-                r |= <RayData>Direction.Right;
-            }
-            if (!(y - 1 < 0)) {
-                r |= <RayData>Direction.Top;
-            }
-            if (!(y + 1 >= this.ny)) {
-                r |= <RayData>Direction.Bottom;
-            }
-            return r;
-        }
-        GetRayData(x: number, y: number): RayData {
-            return this.data[y][x];
-        }
-    }
-}
-
-export class Game {
-    protected board: Board = new Board;
-    get Board(): Board { return this.board; }
-    get Nx(): number { return this.board.Nx; }
-    get Ny(): number { return this.board.Ny; }
-    protected nextPlayer: Player = Player.None;
-    get NextPlayer(): Player { return this.nextPlayer; }
-    set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; this.onChange(); }
-    protected onChange: () => void = () => { };
-    get OnChange(): () => void { return this.onChange; }
-    set OnChange(OnChange: () => void) { this.onChange = OnChange; }
-
-    public InitBoard(Nx: number, Ny: number): boolean {
-        return this.board.init(Nx, Ny);
-    }
-    public GetGrid(x: number, y: number): Grid {
-        return this.board.GetGrid(x, y);
-    }
-    public GetRow(y: number): Grid[] {
-        return this.board.GetRow(y);
-    }
-    public AddHome(x: number, y: number, whose: Player): boolean {
-        return this.board.AddHome(x, y, whose);
-    }
-    public SetHomeDirection(x: number, y: number, d: Direction): boolean {
-        return this.board.SetHomeDirection(x, y, d);
     }
     protected CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
-        let g = this.board.GetGrid(x, y);
+        let g = this.GetGrid(x, y);
         if (g.Type == TypeOfGrid.Home) {
             let gh = <GridHome>(g);
             let wh = gh.Whose;
@@ -985,8 +986,8 @@ export class Game {
         }
     }
     protected CheckIfWin(p: Player): boolean {
-        let cHome: Coord = this.board.GetHomeCoord(p);
-        let gHome: GridHome = <GridHome>this.board.GetGrid(cHome.x, cHome.y);
+        let cHome: Coord = this.GetHomeCoord(p);
+        let gHome: GridHome = <GridHome>this.GetGrid(cHome.x, cHome.y);
         let s = new CheckIfWin.SearchData(this);
         let x = cHome.x;
         let y = cHome.y;
@@ -1069,40 +1070,48 @@ export class Game {
         }
         return false;
     }
+}
+
+//Board end
+
+//////////////////////////////////////////////////
+
+//Game begin
+
+
+export class Game {
+    protected board: Board = new Board;
+    get Board(): Board { return this.board; }
+    get Nx(): number { return this.board.Nx; }
+    get Ny(): number { return this.board.Ny; }
+    protected nextPlayer: Player = Player.None;
+    get NextPlayer(): Player { return this.nextPlayer; }
+    set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; this.board.OnChange(); }
+    get OnChange(): () => void { return this.board.OnChange; }
+    set OnChange(OnChange: () => void) { this.board.OnChange = OnChange; }
+    public InitBoard(Nx: number, Ny: number): boolean {
+        return this.board.init(Nx, Ny);
+    }
+    public GetGrid(x: number, y: number): Grid {
+        return this.board.GetGrid(x, y);
+    }
+    public GetRow(y: number): Grid[] {
+        return this.board.GetRow(y);
+    }
+    public AddHome(x: number, y: number, whose: Player): boolean {
+        return this.board.AddHome(x, y, whose);
+    }
     public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player): boolean {
-        let g = this.GetGrid(x, y);
-        let t = g.Type;
-        switch (t) {
-            case TypeOfGrid.Home:
-                throw new Error("Can not place mirror on home!");
-            case TypeOfGrid.Normal:
-                let gn = <GridNormal>(g);
-                let d = TypeOfMirror2Direction(type);
-                if (d != Direction.Unknow) {
-                    let c = new Coord(x, y);
-                    let cs = GetSurroundingCoord(c, d)
-                    let gs = this.GetGrid(cs.x, cs.y);
-                    let ret = true;
-                    switch (gs.Type) {
-                        case TypeOfGrid.Home:
-                            let gsh = <GridHome>gs;
-                            if (gsh.Outdir == OppositeDirection(d)) {
-                                gsh.OutMirror.Whose = whose;
-                            }
-                            break;
-                        case TypeOfGrid.Normal:
-                            let gsn = <GridNormal>gs;
-                            ret = ret && gsn.AddMirror(Direction2TypeOfMirror(OppositeDirection(d)), whose, false);
-                            break;
-                    }
-                    this.onChange();
-                    return ret && gn.AddMirror(type, whose);
-                }
-                else {
-                    this.onChange();
-                    return gn.AddMirror(type, whose);
-                }
-        }
+        return this.board.AddMirror(x, y, type, whose);
+    }
+    public SetHomeDirection(x: number, y: number, d: Direction): boolean {
+        return this.board.SetHomeDirection(x, y, d);
+    }
+    public WhoWins(): Player {
+        return this.board.WhoWins();
+    }
+    public CheckRayRoute(route: RayRoute, p: Player, n: number): boolean {
+        return this.board.CheckRayRoute(route, p, n);
     }
 }
 

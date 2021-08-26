@@ -1,10 +1,9 @@
-import React, { CSSProperties, MouseEvent } from 'react';
+import React, { CSSProperties, Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import * as _r from 'raychess-jscore';
 import { Stage, Layer, Group, Line, Circle, Rect } from 'react-konva';
 import Konva from 'konva';
-import { KonvaEventObject } from 'konva/lib/Node';
 
 
 let GameType = _r.TypeOfGame.Undefined;
@@ -102,12 +101,12 @@ class BtnOld extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Col
         );
     }
 }
-class GridOld extends React.Component<{ Data: _r.Grid }> {
-    constructor(props: { Data: _r.Grid; } | Readonly<{ Data: _r.Grid; }>) {
+class GridOld extends React.Component<{ data: _r.Grid }> {
+    constructor(props: { data: _r.Grid; } | Readonly<{ data: _r.Grid; }>) {
         super(props);
-        this.Data = props.Data;
+        this.data = props.data;
     }
-    public Data: _r.Grid;
+    public data: _r.Grid;
     render() {
         let gridStyle: CSSProperties = {
             display: "inline-grid",
@@ -130,9 +129,9 @@ class GridOld extends React.Component<{ Data: _r.Grid }> {
         let ColorBottom: any;
         let CrossType: _r.TypeOfCross;
         let ColorCross: Color;
-        switch (this.Data.Type) {
+        switch (this.data.Type) {
             case _r.TypeOfGrid.Home:
-                let gh = this.Data as _r.GridHome;
+                let gh = this.data as _r.GridHome;
                 ColorLeft = ColorOfPlayer.get(gh.Outdir != _r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
                 ColorRight = ColorOfPlayer.get(gh.Outdir != _r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
                 ColorTop = ColorOfPlayer.get(gh.Outdir != _r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
@@ -141,7 +140,7 @@ class GridOld extends React.Component<{ Data: _r.Grid }> {
                 ColorCross = ColorOfPlayer.get(_r.Player.None);
                 break;
             case _r.TypeOfGrid.Normal:
-                let gn = this.Data as _r.GridNormal;
+                let gn = this.data as _r.GridNormal;
                 ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
@@ -186,7 +185,7 @@ class GridOld extends React.Component<{ Data: _r.Grid }> {
 }
 class BoardOld extends React.Component {
     renderGrid(grid: _r.Grid, key: React.Key) {
-        return <GridOld key={key} Data={grid} />;
+        return <GridOld key={key} data={grid} />;
     }
     renderRow(y: number): JSX.Element[] {
         return GameData.Board.Data[y].map((value, index) => {
@@ -212,17 +211,17 @@ class BoardOld extends React.Component {
         }
 
         return (
-            <div>
+            <>
                 <div className="status">{status}</div>
                 <div style={boardStyle} >{board}</div>
-            </div>
+            </>
         );
     }
 }
 
 
-class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w: number, h: number }> {
-    constructor(props: { Data: _r.Grid; x: number; y: number; } | Readonly<{ Data: _r.Grid; x: number; y: number; }>) {
+class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w: number, h: number }> {
+    constructor(props: { data: _r.Grid; x: number; y: number; } | Readonly<{ data: _r.Grid; x: number; y: number; }>) {
         super(props);
         this.state = {
             w: gridWidth,
@@ -235,16 +234,16 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
         console.log(x, y);
     }
     render() {
-        let Data = this.props.Data;
+        let data = this.props.data;
         let ColorLeft: any;
         let ColorRight: any;
         let ColorTop: any;
         let ColorBottom: any;
         let CrossType: _r.TypeOfCross;
         let ColorCross: Color;
-        switch (Data.Type) {
+        switch (data.Type) {
             case _r.TypeOfGrid.Home:
-                let gh = Data as _r.GridHome;
+                let gh = data as _r.GridHome;
                 ColorLeft = ColorOfPlayer.get(gh.Outdir != _r.Direction.Left ? gh.Whose : gh.OutMirror.Whose);
                 ColorRight = ColorOfPlayer.get(gh.Outdir != _r.Direction.Right ? gh.Whose : gh.OutMirror.Whose);
                 ColorTop = ColorOfPlayer.get(gh.Outdir != _r.Direction.Top ? gh.Whose : gh.OutMirror.Whose);
@@ -253,7 +252,7 @@ class Grid extends React.Component<{ Data: _r.Grid, x: number, y: number }, { w:
                 ColorCross = ColorOfPlayer.get(_r.Player.None);
                 break;
             case _r.TypeOfGrid.Normal:
-                let gn = Data as _r.GridNormal;
+                let gn = data as _r.GridNormal;
                 ColorLeft = ColorOfPlayer.get(gn.Mirror.Left.Whose);
                 ColorRight = ColorOfPlayer.get(gn.Mirror.Right.Whose);
                 ColorTop = ColorOfPlayer.get(gn.Mirror.Top.Whose);
@@ -344,80 +343,83 @@ class Point extends React.Component<{ x: number, y: number }> {
     }
 }
 
-class Board extends React.Component {
+class Board extends React.Component<{ data: _r.Board }>{
     renderMirrorOne(grid: _r.Grid, y: number, x: number) {
         return (<Grid
-            key={y * GameData.Nx + x}
-            Data={grid}
+            key={"Grid" + y * this.props.data.Nx + x}
+            data={grid}
             x={x * gridWidth}
             y={y * gridHeight} />);
     }
     renderMirrorRow(y: number): JSX.Element[] {
-        return GameData.Board.Data[y].map((value, index) => {
+        return this.props.data.Data[y].map((value, index) => {
             return this.renderMirrorOne(value, y, index);
         });
     }
     renderMirrors(): JSX.Element[] {
         let mirrors: JSX.Element[] = [];
-        GameData.Board.Data.forEach((value, index) => {
+        this.props.data.Data.forEach((value, index) => {
             mirrors = mirrors.concat(this.renderMirrorRow(index));
         });
         return mirrors;
     }
     renderPointOne(y: number, x: number) {
         return (<Point
-            key={y * GameData.Nx + x}
+            key={"Point" + y * this.props.data.Nx + x}
             x={x * gridWidth}
             y={y * gridHeight} />);
     }
     renderPointRow(y: number): JSX.Element[] {
         let points: JSX.Element[] = [];
-        for (let x = 0; x <= GameData.Nx; x++) {
+        for (let x = 0; x <= this.props.data.Nx; x++) {
             points = points.concat(this.renderPointOne(x, y));
         }
         return points;
     }
     renderPoints(): JSX.Element[] {
         let points: JSX.Element[] = [];
-        for (let y = 0; y <= GameData.Ny; y++) {
+        for (let y = 0; y <= this.props.data.Ny; y++) {
             points = points.concat(this.renderPointRow(y));
         }
         return points;
     }
     render() {
-
+        let margin = 5;
+        let innerMargin = 3;
         let mirrors = this.renderMirrors();
         let points = this.renderPoints();
-
         return (
-            <Stage
-                width={GameData.Nx * gridWidth + mirrorWidth}
-                height={GameData.Ny * gridHeight + mirrorWidth}>
-                <Layer>{/*Mirrors*/}
-                    <Group
-                        x={1}
-                        y={1}>
-                        {mirrors}
-                    </Group>
-                </Layer>
-                <Layer>{/*Points*/}
-                    <Group
-                        x={1}
-                        y={1}>
-                        {points}
-                    </Group>
-                </Layer>
-            </Stage>
+            <div
+                style={{ margin: margin }}>
+                <Stage
+                    width={this.props.data.Nx * gridWidth  + innerMargin*2}
+                    height={this.props.data.Ny * gridHeight  + innerMargin*2}>
+                    <Layer>{/*Mirrors*/}
+                        <Group
+                            x={innerMargin}
+                            y={innerMargin}>
+                            {mirrors}
+                        </Group>
+                    </Layer>
+                    <Layer>{/*Points*/}
+                        <Group
+                            x={innerMargin}
+                            y={innerMargin}>
+                            {points}
+                        </Group>
+                    </Layer>
+                </Stage>
+            </div>
         );
     }
 }
 
-class Game extends React.Component<{}, { Data: _r.Game }> {
+class Game extends React.Component<{}, { data: _r.Game }> {
     constructor(props: {} | Readonly<{}>) {
         super(props);
         GameData.OnChange = () => {
             this.setState({
-                Data: GameData
+                data: GameData
             })
         };
         GameData.OnChange();
@@ -426,39 +428,38 @@ class Game extends React.Component<{}, { Data: _r.Game }> {
     render() {
         let TextStyle: CSSProperties = {
             fill: "none",
-            stroke: " white",
-            strokeDasharray: " 7% 28%",
+            stroke: "black",
+            strokeDasharray: "7% 28%",
             strokeWidth: "3px",
             WebkitAnimation: "stroke-offset 9s infinite linear",
             animation: "stroke-offset 9s infinite linear",
         }
         return (
-            <div className="game">
+            <>
                 <div className="title">
-                    <svg viewBox="0 0 800 600"
-                        style={{
-                            width: 300,
-                            height:50
-                        }}
-                    >
-                        <symbol id="s-text">
-                            <text text-anchor="middle" x="50%" y="35%" fontSize=".5em" >Ray</text>
-                            <text text-anchor="middle" x="50%" y="68%" >Chess</text>
-                        </symbol>
-                        <g>
-                            <use xlinkHref="#s-text" style={TextStyle}></use>
-                            <use xlinkHref="#s-text" style={TextStyle}></use>
-                            <use xlinkHref="#s-text" style={TextStyle}></use>
-                            <use xlinkHref="#s-text" style={TextStyle}></use>
-                            <use xlinkHref="#s-text" style={TextStyle}></use>
-                        </g>
-                    </svg>
+                    {/*<svg viewBox="0 0 300 50"*/}
+                    {/*    style={{*/}
+                    {/*        width: 300,*/}
+                    {/*        height:50*/}
+                    {/*    }}>*/}
+                    {/*    <symbol id="s-text">*/}
+                    {/*        <text text-anchor="middle" x="50%" y="35%"  >Ray</text>*/}
+                    {/*        <text text-anchor="middle" x="50%" y="68%" >Chess</text>*/}
+                    {/*    </symbol>*/}
+                    {/*    <g>*/}
+                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
+                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
+                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
+                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
+                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
+                    {/*    </g>*/}
+                    {/*</svg>*/}
                 </div>
-                <Board />
+                <Board data={GameData.Board} />
                 <div className="game-info">
                     <div className="next-player"></div>
                 </div>
-            </div>
+            </>
         );
     }
 }
@@ -466,7 +467,10 @@ class Game extends React.Component<{}, { Data: _r.Game }> {
 
 function App() {
     return (
-        <Game />
+        <>
+            <div id="model-root" />
+            <Game />
+        </>
     );
 }
 
