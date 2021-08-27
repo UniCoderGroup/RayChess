@@ -1,4 +1,5 @@
 import React, { CSSProperties, Component } from 'react';
+import { Router, Route, BrowserRouter,  } from 'react-router-dom'
 import logo from './logo.svg';
 import './App.css';
 import * as _r from 'raychess-jscore';
@@ -9,10 +10,6 @@ import Konva from 'konva';
 let GameType = _r.TypeOfGame.Undefined;
 let GameData: _r.Game = new _r.Game();/*!!!*/
 
-let gridWidth = 30;
-let gridHeight = 30;
-let mirrorWidth = 3;
-let PointRadius = 4;
 
 GameData.InitBoard(6, 8);
 
@@ -219,13 +216,22 @@ class BoardOld extends React.Component {
     }
 }
 
-
-class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w: number, h: number }> {
-    constructor(props: { data: _r.Grid; x: number; y: number; } | Readonly<{ data: _r.Grid; x: number; y: number; }>) {
+class GridStyle {
+    constructor(Width: number, Height: number, MirrorWidth: number) {
+        this.width = Width;
+        this.height = Height;
+        this.mirrorWidth = MirrorWidth;
+    }
+    width: number;
+    height: number;
+    mirrorWidth: number;
+}
+class Grid extends React.Component<{ data: _r.Grid, x: number, y: number, style: GridStyle }, { w: number, h: number }> {
+    constructor(props: { data: _r.Grid, x: number, y: number, style: GridStyle } | Readonly<{ data: _r.Grid, x: number, y: number, style: GridStyle }>) {
         super(props);
         this.state = {
-            w: gridWidth,
-            h: gridHeight
+            w: this.props.style.width,
+            h: this.props.style.height
         };
     }
     click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
@@ -277,25 +283,25 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w:
                     y={t}
                     points={[0, 0, 0, h]}
                     stroke={ColorLeft}
-                    strokeWidth={mirrorWidth} />
+                    strokeWidth={this.props.style.mirrorWidth} />
                 <Line
                     x={r}
                     y={t}
                     points={[0, 0, 0, h]}
                     stroke={ColorRight}
-                    strokeWidth={mirrorWidth} />
+                    strokeWidth={this.props.style.mirrorWidth} />
                 <Line
                     x={l}
                     y={t}
                     points={[0, 0, w, 0]}
                     stroke={ColorTop}
-                    strokeWidth={mirrorWidth} />
+                    strokeWidth={this.props.style.mirrorWidth} />
                 <Line
                     x={l}
                     y={b}
                     points={[0, 0, w, 0]}
                     stroke={ColorBottom}
-                    strokeWidth={mirrorWidth} />
+                    strokeWidth={this.props.style.mirrorWidth} />
                 {
                     CrossType == _r.TypeOfCross.None ?
                         (<></>)
@@ -306,7 +312,7 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w:
                                 y={t}
                                 points={[0, 0, -w, h]}
                                 stroke={ColorCross}
-                                strokeWidth={mirrorWidth}
+                                strokeWidth={this.props.style.mirrorWidth}
                             />)
                             :
                             (<Line
@@ -314,7 +320,7 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w:
                                 y={t}
                                 points={[0, 0, w, h]}
                                 stroke={ColorCross}
-                                strokeWidth={mirrorWidth}
+                                strokeWidth={this.props.style.mirrorWidth}
                             />)
                         )
                 }
@@ -322,7 +328,13 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number }, { w:
         )
     }
 }
-class Point extends React.Component<{ x: number, y: number }> {
+class PointStyle {
+    constructor(Size: number) {
+        this.size = Size;
+    }
+    size: number;
+}
+class Point extends React.Component<{ x: number, y: number, style: PointStyle }> {
     click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
         let x = evt.evt.clientX - evt.currentTarget.x();
         let y = evt.evt.clientY - evt.currentTarget.y();
@@ -334,22 +346,30 @@ class Point extends React.Component<{ x: number, y: number }> {
                 x={this.props.x}
                 y={this.props.y}
                 onClick={this.click}
-                width={PointRadius}
-                height={PointRadius}
-                offsetX={PointRadius / 2}
-                offsetY={PointRadius / 2}
+                width={this.props.style.size}
+                height={this.props.style.size}
+                offsetX={this.props.style.size / 2}
+                offsetY={this.props.style.size / 2}
                 fill={PointColor} />
         );
     }
 }
-
-class Board extends React.Component<{ data: _r.Board }>{
+class BoardStyle {
+    constructor() {
+        this.grid = new GridStyle(30, 30, 3);
+        this.point = new PointStyle(4);
+    }
+    grid: GridStyle;
+    point: PointStyle;
+}
+class Board extends React.Component<{ data: _r.Board, style: BoardStyle }>{
     renderMirrorOne(grid: _r.Grid, y: number, x: number) {
         return (<Grid
             key={"Grid" + y * this.props.data.Nx + x}
             data={grid}
-            x={x * gridWidth}
-            y={y * gridHeight} />);
+            x={x * this.props.style.grid.width}
+            y={y * this.props.style.grid.height}
+            style={this.props.style.grid} />);
     }
     renderMirrorRow(y: number): JSX.Element[] {
         return this.props.data.Data[y].map((value, index) => {
@@ -366,8 +386,9 @@ class Board extends React.Component<{ data: _r.Board }>{
     renderPointOne(y: number, x: number) {
         return (<Point
             key={"Point" + y * this.props.data.Nx + x}
-            x={x * gridWidth}
-            y={y * gridHeight} />);
+            x={x * this.props.style.grid.width}
+            y={y * this.props.style.grid.height}
+            style={this.props.style.point} />);
     }
     renderPointRow(y: number): JSX.Element[] {
         let points: JSX.Element[] = [];
@@ -392,8 +413,8 @@ class Board extends React.Component<{ data: _r.Board }>{
             <div
                 style={{ margin: margin }}>
                 <Stage
-                    width={this.props.data.Nx * gridWidth  + innerMargin*2}
-                    height={this.props.data.Ny * gridHeight  + innerMargin*2}>
+                    width={this.props.data.Nx * this.props.style.grid.width + innerMargin * 2}
+                    height={this.props.data.Ny * this.props.style.grid.height + innerMargin * 2}>
                     <Layer>{/*Mirrors*/}
                         <Group
                             x={innerMargin}
@@ -455,7 +476,7 @@ class Game extends React.Component<{}, { data: _r.Game }> {
                     {/*    </g>*/}
                     {/*</svg>*/}
                 </div>
-                <Board data={GameData.Board} />
+                <Board data={GameData.Board} style={new BoardStyle} />
                 <div className="game-info">
                     <div className="next-player"></div>
                 </div>
@@ -467,12 +488,19 @@ class Game extends React.Component<{}, { data: _r.Game }> {
 
 function App() {
     return (
-        <>
-            <div id="model-root" />
-            <Game />
-        </>
+        <BrowserRouter>
+            <Route path="/" component={Game}>
+                {/*<Route path="*" component={NoMatch} />*/}
+            </Route>
+        </BrowserRouter>
     );
 }
+
+
+export default App;
+
+
+
 
 setTimeout(() => { }, 1000);
 let g = GameData;
@@ -483,5 +511,3 @@ g.AddHome(2, 2, _r.Player.P2);
 g.SetHomeDirection(2, 2, _r.Direction.Top);
 console.log(g.WhoWins());
 
-
-export default App;
