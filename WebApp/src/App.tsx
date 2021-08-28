@@ -1,11 +1,11 @@
-import React, { CSSProperties, Component } from 'react';
-import { Router, Route, BrowserRouter,  } from 'react-router-dom'
+import React, { CSSProperties } from 'react';
+import { BrowserRouter as Router, Route, Switch, Link, useLocation, } from 'react-router-dom'
 import logo from './logo.svg';
 import './App.css';
 import * as _r from 'raychess-jscore';
 import { Stage, Layer, Group, Line, Circle, Rect } from 'react-konva';
 import Konva from 'konva';
-
+import DocumentTitle from 'react-document-title';
 
 let GameType = _r.TypeOfGame.Undefined;
 let GameData: _r.Game = new _r.Game();/*!!!*/
@@ -21,7 +21,6 @@ const ColorOfPlayer = new Map<_r.Player, Color>([
     [_r.Player.P2, "red"],
     [_r.Player.None, "transparent"]
 ]);
-
 const StringOfPlayer = new Map<_r.Player, String>([
     [_r.Player.P1, "Player 1"],
     [_r.Player.P2, "Player 2"],
@@ -215,6 +214,24 @@ class BoardOld extends React.Component {
         );
     }
 }
+
+
+class App extends React.Component {
+    render() {
+        return (
+            <DocumentTitle title="RayChess">
+                <>
+                    <nav>
+                        Ray Chess
+                    </nav>
+                    <div>
+                        {this.props.children}
+                    </div>
+                </>
+            </DocumentTitle>);
+    }
+}
+
 
 class GridStyle {
     constructor(Width: number, Height: number, MirrorWidth: number) {
@@ -435,74 +452,66 @@ class Board extends React.Component<{ data: _r.Board, style: BoardStyle }>{
     }
 }
 
-class Game extends React.Component<{}, { data: _r.Game }> {
-    constructor(props: {} | Readonly<{}>) {
-        super(props);
-        GameData.OnChange = () => {
-            this.setState({
-                data: GameData
-            })
-        };
-        GameData.OnChange();
-    }
-
+class Game extends React.Component {
+    data = new _r.Game;
     render() {
-        let TextStyle: CSSProperties = {
-            fill: "none",
-            stroke: "black",
-            strokeDasharray: "7% 28%",
-            strokeWidth: "3px",
-            WebkitAnimation: "stroke-offset 9s infinite linear",
-            animation: "stroke-offset 9s infinite linear",
-        }
         return (
             <>
-                <div className="title">
-                    {/*<svg viewBox="0 0 300 50"*/}
-                    {/*    style={{*/}
-                    {/*        width: 300,*/}
-                    {/*        height:50*/}
-                    {/*    }}>*/}
-                    {/*    <symbol id="s-text">*/}
-                    {/*        <text text-anchor="middle" x="50%" y="35%"  >Ray</text>*/}
-                    {/*        <text text-anchor="middle" x="50%" y="68%" >Chess</text>*/}
-                    {/*    </symbol>*/}
-                    {/*    <g>*/}
-                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
-                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
-                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
-                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
-                    {/*        <use href="#s-text" style={TextStyle}></use>*/}
-                    {/*    </g>*/}
-                    {/*</svg>*/}
-                </div>
                 <Board data={GameData.Board} style={new BoardStyle} />
                 <div className="game-info">
-                    <div className="next-player"></div>
+                    <div className="next-player">
+                        Next Player:&nbsp;
+                        <span style={{ color: ColorOfPlayer.get(this.data.NextPlayer) }}>
+                            {StringOfPlayer.get(this.data.NextPlayer)}
+                        </span>
+                    </div>
                 </div>
             </>
         );
     }
 }
 
+function NoMatch() {
+    let loc = useLocation();
 
-function App() {
-    return (
-        <BrowserRouter>
-            <Route path="/" component={Game}>
-                {/*<Route path="*" component={NoMatch} />*/}
-            </Route>
-        </BrowserRouter>
-    );
+    return (<DocumentTitle title="404 | RayChess">
+        <>
+            <h1>
+                404 Not Found
+            </h1>
+            <p>
+                URL:<code>{loc.pathname}</code>
+            </p>
+            <Link to='/'>Back To HomePage</Link>
+        </>
+    </DocumentTitle>);
 }
 
 
-export default App;
+export default () => {
+    return (
+        <Router>
+            <App>
+                <Switch>
+                    {/*<Route path="/about">*/}
+                    {/*    <About />*/}
+                    {/*</Route>*/}
+                    <Route exact path="/">
+                        <Game />
+                    </Route>
+                    <Route path="*">
+                        <NoMatch />
+                    </Route>
+                </Switch>
+            </App>
+        </Router>
+    );
+};
 
 
 
 
-setTimeout(() => { }, 1000);
+/*setTimeout(() => { }, 1000);*/
 let g = GameData;
 g.AddHome(1, 1, _r.Player.P1);
 g.SetHomeDirection(1, 1, _r.Direction.Top);
