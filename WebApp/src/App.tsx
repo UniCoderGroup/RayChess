@@ -10,16 +10,58 @@ import DocumentTitle from 'react-document-title';
 
 type Color = string | undefined;
 
-const ColorOfPlayer = new Map<_r.Player, Color>([
-    [_r.Player.P1, "blue"],
-    [_r.Player.P2, "red"],
-    [_r.Player.None, "transparent"]
-]);
-const StringOfPlayer = new Map<_r.Player, String>([
-    [_r.Player.P1, "Player 1"],
-    [_r.Player.P2, "Player 2"],
-    [_r.Player.None, "<No Player>"]
-]);
+class GlobalStyle {
+    constructor() {
+        this.colorOfPlayer = new Map<_r.Player, Color>([
+            [_r.Player.P1, "blue"],
+            [_r.Player.P2, "red"],
+            [_r.Player.None, "transparent"]
+        ]);
+        this.stringOfPlayer = new Map<_r.Player, String>([
+            [_r.Player.P1, "Player 1"],
+            [_r.Player.P2, "Player 2"],
+            [_r.Player.None, "<No Player>"]
+        ]);
+    }
+    colorOfPlayer: Map<_r.Player, Color>;
+    stringOfPlayer: Map<_r.Player, String>;
+}
+class GridStyle {
+    constructor(Global = new GlobalStyle()) {
+        this.global = Global;
+    }
+    global: GlobalStyle;
+    width = 30;
+    height = 30;
+    mirrorWidth = 3;
+}
+class PointStyle {
+    constructor(Global = new GlobalStyle()) {
+        this.global = Global;
+    }
+    global: GlobalStyle;
+    size = 4;
+    color = "grey";
+}
+class BoardStyle {
+    constructor(Global = new GlobalStyle()) {
+        this.global = Global;
+        this.grid = new GridStyle(Global);
+        this.point = new PointStyle(Global);
+    }
+    global: GlobalStyle;
+    grid: GridStyle;
+    point: PointStyle;
+}
+class GameStyle {
+    constructor(Global = new GlobalStyle()) {
+        this.global = Global;
+        this.board = new BoardStyle(Global);
+    }
+    global: GlobalStyle;
+    board: BoardStyle;
+}
+
 
 
 //class BtnOld extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: _r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
@@ -219,17 +261,6 @@ class Frame extends React.Component {
     }
 }
 
-
-class GridStyle {
-    constructor(Width: number, Height: number, MirrorWidth: number) {
-        this.width = Width;
-        this.height = Height;
-        this.mirrorWidth = MirrorWidth;
-    }
-    width: number;
-    height: number;
-    mirrorWidth: number;
-}
 class Grid extends React.Component<{ data: _r.Grid, x: number, y: number, style: GridStyle }, { w: number, h: number }> {
     constructor(props: { data: _r.Grid, x: number, y: number, style: GridStyle } | Readonly<{ data: _r.Grid, x: number, y: number, style: GridStyle }>) {
         super(props);
@@ -245,11 +276,12 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number, style:
     }
     render() {
         let data = this.props.data;
+        let ColorOfPlayer = this.props.style.global.colorOfPlayer;
         let ColorLeft: any;
         let ColorRight: any;
         let ColorTop: any;
         let ColorBottom: any;
-        let CrossType: _r.TypeOfCross;
+        let CrossType = _r.TypeOfCross.None;
         let ColorCross: Color;
         switch (data.Type) {
             case _r.TypeOfGrid.Home:
@@ -332,14 +364,7 @@ class Grid extends React.Component<{ data: _r.Grid, x: number, y: number, style:
         )
     }
 }
-class PointStyle {
-    constructor(Size: number, Color: Color) {
-        this.size = Size;
-        this.color = Color;
-    }
-    size: number;
-    color: Color;
-}
+
 class Point extends React.Component<{ x: number, y: number, style: PointStyle }> {
     click(evt: Konva.KonvaEventObject<globalThis.MouseEvent>): void {
         let x = evt.evt.clientX - evt.currentTarget.x();
@@ -360,14 +385,7 @@ class Point extends React.Component<{ x: number, y: number, style: PointStyle }>
         );
     }
 }
-class BoardStyle {
-    constructor() {
-        this.grid = new GridStyle(30, 30, 3);
-        this.point = new PointStyle(4,"grey");
-    }
-    grid: GridStyle;
-    point: PointStyle;
-}
+
 class Board extends React.Component<{ data: _r.Board, style: BoardStyle }>{
     renderMirrorOne(grid: _r.Grid, y: number, x: number) {
         return (<Grid
@@ -438,35 +456,33 @@ class Board extends React.Component<{ data: _r.Board, style: BoardStyle }>{
         );
     }
 }
-
-class Game extends React.Component {
-    constructor(props: {} | Readonly<{}>) {
+class Game extends React.Component<{ style: GameStyle; }> {
+    constructor(props: { style: GameStyle; } | Readonly<{ style: GameStyle; }>) {
         super(props);
         this.type = _r.TypeOfGame.Undefined;
         this.data = new _r.Game();
-        this.data.InitBoard(6, 8);
+        this.data.InitBoard(6, 8, _r.Player.P1);
 
         // Main Test Part Begin
         let g = this.data;
-        g.AddHome(1, 1, _r.Player.P1);
-        g.SetHomeDirection(1, 1, _r.Direction.Top);
+        g.AddHome(1, 1, _r.Player.P1, _r.Direction.Top);
+        console.log(g.GetGrid(1, 1));
+        g.AddHome(2, 2, _r.Player.P2, _r.Direction.Top);
         g.AddMirror(2, 1, _r.TypeOfMirror.BackSlash, _r.Player.P1);
-        g.AddHome(2, 2, _r.Player.P2);
-        g.SetHomeDirection(2, 2, _r.Direction.Top);
         console.log(g.WhoWins());
         // Main Test Part End
     }
     type: _r.TypeOfGame;
-    data :_r.Game;
+    data: _r.Game;
     render() {
         return (
             <>
-                <Board data={this.data.Board} style={new BoardStyle()} />
+                <Board data={this.data.Board} style={this.props.style.board} />
                 <div className="game-info">
                     <div className="next-player">
                         Next Player:&nbsp;
-                        <span style={{ color: ColorOfPlayer.get(this.data.NextPlayer) }}>
-                            {StringOfPlayer.get(this.data.NextPlayer)}
+                        <span style={{ color: this.props.style.global.colorOfPlayer.get(this.data.NextPlayer) }}>
+                            {this.props.style.global.stringOfPlayer.get(this.data.NextPlayer)}
                         </span>
                     </div>
                 </div>
@@ -477,7 +493,6 @@ class Game extends React.Component {
 
 function NoMatch() {
     let loc = useLocation();
-
     return (<DocumentTitle title="404 | RayChess">
         <>
             <h1>
@@ -491,8 +506,7 @@ function NoMatch() {
     </DocumentTitle>);
 }
 
-
-function App(){
+function App() {
     return (
         <Router>
             <Frame>
@@ -501,7 +515,7 @@ function App(){
                     {/*    <About />*/}
                     {/*</Route>*/}
                     <Route exact path="/">
-                        <Game />
+                        <Game style={new GameStyle()} />
                     </Route>
                     <Route path="*">
                         <NoMatch />
