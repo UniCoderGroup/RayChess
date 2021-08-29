@@ -203,7 +203,7 @@ export class MirrorType {
 
 export abstract class Grid {
     protected readonly type: TypeOfGrid;
-    get Type(): TypeOfGrid { return this.type; }
+    get Type() { return this.type; }
 }
 
 export class GridHome extends Grid {
@@ -213,12 +213,12 @@ export class GridHome extends Grid {
     }
     public readonly type: TypeOfGrid = TypeOfGrid.Home;
     protected whose: Player;
-    get Whose(): Player { return this.whose; }
+    get Whose() { return this.whose; }
     protected outdir: Direction;
-    get Outdir(): Direction { return this.outdir; }
+    get Outdir() { return this.outdir; }
     set Outdir(Outdir: Direction) { this.outdir = Outdir; }
     protected outMirror = new BorderMirrorType;
-    get OutMirror(): BorderMirrorType { return this.outMirror; }
+    get OutMirror() { return this.outMirror; }
     set OutMirror(OutMirror: BorderMirrorType) { this.outMirror = OutMirror; }
 }
 
@@ -696,7 +696,7 @@ export class GridNormal extends Grid {
     }
     public readonly type: TypeOfGrid = TypeOfGrid.Normal;
     protected mirror = new MirrorType;
-    get Mirror(): MirrorType { return this.mirror }
+    get Mirror() { return this.mirror }
     public AddMirror(type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
         let mirrorExist: boolean = false;
         switch (type) {
@@ -794,12 +794,12 @@ namespace CheckIfWin {
             }
         }
         protected nx: number;
-        get Nx(): number { return this.nx };
+        get Nx() { return this.nx };
         protected ny: number;
-        get Ny(): number { return this.ny };
+        get Ny() { return this.ny };
         protected board: Board;
         protected data: RayData[][] = [];
-        get Board(): Board { return this.board; }
+        get Board() { return this.board; }
         TestSurrounding(x: number, y: number): RayData {
             let r: RayData = 0;
             if (!(x - 1 < 0)) {
@@ -824,13 +824,13 @@ namespace CheckIfWin {
 
 export class Board {
     protected data: Grid[][] = [];
-    get Data(): Grid[][] { return this.data; }
+    get Data() { return this.data; }
     protected nx: number;
-    get Nx(): number { return this.nx; }
+    get Nx() { return this.nx; }
     protected ny: number;
-    get Ny(): number { return this.ny; }
+    get Ny() { return this.ny; }
     protected onChange: () => void = () => { };
-    get OnChange(): () => void { return this.onChange; }
+    get OnChange() { return this.onChange; }
     set OnChange(OnChange: () => void) { this.onChange = OnChange; }
     public init(Nx: number, Ny: number): boolean {
         this.nx = Nx;
@@ -1081,13 +1081,13 @@ export class Board {
 
 export class Game {
     protected board: Board = new Board;
-    get Board(): Board { return this.board; }
-    get Nx(): number { return this.board.Nx; }
-    get Ny(): number { return this.board.Ny; }
+    get Board() { return this.board; }
+    get Nx() { return this.board.Nx; }
+    get Ny() { return this.board.Ny; }
     protected nextPlayer: Player = Player.None;
-    get NextPlayer(): Player { return this.nextPlayer; }
+    get NextPlayer() { return this.nextPlayer; }
     set NextPlayer(NextPlayer: Player) { this.nextPlayer = NextPlayer; this.board.OnChange(); }
-    get OnChange(): () => void { return this.board.OnChange; }
+    get OnChange() { return this.board.OnChange; }
     set OnChange(OnChange: () => void) { this.board.OnChange = OnChange; }
     public InitBoard(Nx: number, Ny: number): boolean {
         return this.board.init(Nx, Ny);
@@ -1156,6 +1156,80 @@ class LocalGame extends Game {
     //FUNCTION:     check if the route is right
     public ProcCheckRayRoute(route: RayRoute, p: Player): boolean {
         return this.CheckRayRoute(route, p, 0);
+    }
+}
+
+export enum GameRecordActionType {
+    Undefined,
+    AddMirror,
+    CheckRouteFailed,
+    Win
+}
+export type GameRecordActionUndefinedData = undefined;
+export class GameRecordActionAddMirrorData {
+    constructor(Coord: Coord, Type: TypeOfMirror) {
+        this.coord = Coord;
+        this.type = Type;
+    }
+    protected coord: Coord;
+    get Coord() { return this.coord; }
+    protected type: TypeOfMirror;
+    get Type() { return this.type; }
+}
+export type GameRecordActionCheckRouteFailedData = {};
+export class GameRecordActionWinData {
+    constructor(Route: RayRoute) {
+        this.route = Route;
+    }
+    protected route: RayRoute;
+    get Route() { return this.route; }
+}
+export type GameRecordActionData =
+    GameRecordActionUndefinedData |
+    GameRecordActionAddMirrorData |
+    GameRecordActionCheckRouteFailedData |
+    GameRecordActionWinData;
+export class GameRecordAction {
+    constructor(Who: Player, Type: GameRecordActionType, Data: GameRecordActionData) {
+        this.who = Who;
+        this.type = Type;
+        this.data = Data
+    }
+    protected who: Player;
+    get Who() { return this.who; }
+    protected type: GameRecordActionType;
+    get Type() { return this.type; }
+    protected data: GameRecordActionData;
+    get Data() { return this.data; }
+}
+
+export class GameRecord {
+    constructor() {
+        this.firstPlayer = Player.None;
+        this.actions = [];
+    }
+    protected firstPlayer: Player;
+    get FirstPlayer() { return this.firstPlayer; }
+    set FirstPlayer(FirstPlayer: Player) { this.firstPlayer = FirstPlayer; }
+    protected actions: GameRecordAction[];
+    get Actions() { return this.actions; }
+    get Winner() {
+        return this.actions[this.actions.length].Type === GameRecordActionType.Win ?
+            this.actions[this.actions.length].Who : Player.None;
+    }
+    get ActionNumber() {
+        return this.actions.length;
+    }
+    AddAction(Action: GameRecordAction) {
+        return this.actions.push(Action)
+    }
+    ImportJsonString(JsonString: string) {
+        let TmpThis: GameRecord = JSON.parse(JsonString);
+        this.firstPlayer = TmpThis.firstPlayer;
+        this.actions = TmpThis.actions;
+    }
+    ExportJsonString(): string {
+        return JSON.stringify(this);
     }
 }
 

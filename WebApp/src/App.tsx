@@ -21,13 +21,6 @@ const StringOfPlayer = new Map<_r.Player, String>([
     [_r.Player.None, "<No Player>"]
 ]);
 
-enum Corner {
-    LeftTop,
-    LeftBottom,
-    RightTop,
-    RightBottom
-}
-
 
 //class BtnOld extends React.Component<{ pos: Corner, colorLR: Color, colorTB: Color, crossType: _r.TypeOfCross, colorCross: Color } & React.DOMAttributes<HTMLButtonElement>> {
 //    render() {
@@ -210,7 +203,7 @@ enum Corner {
 //}
 
 
-class App extends React.Component {
+class Frame extends React.Component {
     render() {
         return (
             <DocumentTitle title="RayChess">
@@ -491,7 +484,7 @@ function NoMatch() {
                 404 Not Found
             </h1>
             <p>
-                URL:<code>{loc.pathname}</code>
+                URL:&nbsp;&nbsp;<code>{loc.pathname}</code>
             </p>
             <Link to='/'>Back To HomePage</Link>
         </>
@@ -499,10 +492,10 @@ function NoMatch() {
 }
 
 
-export default () => {
+function App(){
     return (
         <Router>
-            <App>
+            <Frame>
                 <Switch>
                     {/*<Route path="/about">*/}
                     {/*    <About />*/}
@@ -514,10 +507,9 @@ export default () => {
                         <NoMatch />
                     </Route>
                 </Switch>
-            </App>
+            </Frame>
         </Router>
     );
 };
 
-
-
+export default App;
