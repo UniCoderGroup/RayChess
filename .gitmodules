@@ -1,0 +1,9 @@
+[submodule "CppCore"]
+	path = CppCore
+	url = https://gitee.com/uni_coder/raychess-cppcore
+[submodule "WebApp"]
+	path = WebApp
+	url = https://gitee.com/uni_coder/raychess-webapp
+[submodule "Win32TestApp"]
+	path = Win32TestApp
+	url = https://gitee.com/uni_coder/raychess-win32testapp
