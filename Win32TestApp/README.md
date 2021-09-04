@@ -1,0 +1,1 @@
+Test win32app of RayChess

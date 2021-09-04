@@ -1,3 +1,3 @@
 # JsCore
 
-The Core of RayChess in tslang.
+Core of RayChess written in tslang.

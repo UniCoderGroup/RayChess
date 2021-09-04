@@ -1,0 +1,1 @@
+Core of RayChess written in C++
