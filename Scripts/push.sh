@@ -13,4 +13,6 @@ done
 git add .
 git commit -m $msg
 git push origin master
-read
+
+echo "END"
+pause
