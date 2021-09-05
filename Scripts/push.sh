@@ -7,7 +7,7 @@ do
 cd "./$repo"
 git add .
 git commit -m $msg
-git push origin master
+git push
 cd "../"
 done
 git add .

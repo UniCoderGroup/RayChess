@@ -1,12 +1,12 @@
 [submodule "CppCore"]
 	path = CppCore
-	url = https://gitee.com/uni_coder/raychess-cppcore
+	url = git@gitee.com:UniCoderGroup/raychess-cppcore.git
 [submodule "WebApp"]
 	path = WebApp
-	url = https://gitee.com/uni_coder/raychess-webapp
+	url = git@gitee.com:UniCoderGroup/raychess-webapp.git
 [submodule "Win32TestApp"]
 	path = Win32TestApp
 	url = git@gitee.com:UniCoderGroup/raychess-win32testapp.git
 [submodule "JsCore"]
 	path = JsCore
-	url = https://gitee.com/uni_coder/raychess-jscore
+	url = git@gitee.com:UniCoderGroup/raychess-jscore.git
