@@ -15,4 +15,4 @@ git commit -m "$msg"
 git push origin master
 
 echo "END"
-pause
+read
