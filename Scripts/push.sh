@@ -1,5 +1,4 @@
 echo "Enter Commit Message:"
-stty erase '^H'
 read msg
 
 cd "../"
