@@ -2,7 +2,7 @@ echo "Enter Commit Message:"
 read msg
 
 cd "../"
-for repo in {"CppCore","JsCore","WebApp","Win32TestApp"}
+for repo in {"JsCore","WebApp"}
 do
 cd "./$repo"
 git add .

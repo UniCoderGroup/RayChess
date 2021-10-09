@@ -12,21 +12,11 @@
 
 包含如下四个项目
 
-#### CppCore.vcxproj
-
-游戏内核的C++实现
-
-#### JsCore.vcxproj
+#### JsCore.njsproj
 
 游戏内核的TS实现，编译成JS
 
 基本保持与[CppCore](#CppCore)同步
-
-#### Win32TestApp.njsproj
-
-Win32测试应用，不可玩
-
-引用的库是[CppCore](#CppCore)
 
 #### WebApp.njsproj
 
@@ -38,11 +28,14 @@ Win32测试应用，不可玩
 
 ### 编译测试
 
-#### 运行WebApp预览
+#### 初始化
 
 1. 安装npm（node.js）
-2. 进入`WebApp`目录
-3. 命令行运行`npm install`
+2. 运行`Scripts`文件夹中的`init.sh`
+
+#### 运行WebApp预览
+
+3. 进入`WebApp`文件夹
 4. 命令行运行`npm start`
 5. 浏览器自动出现，看见网页
 

@@ -4,7 +4,7 @@ cd "../"
 git pull
 git submodule update
 
-for repo in {"CppCore","JsCore","WebApp","Win32TestApp"}
+for repo in {"JsCore","WebApp"}
 do
 cd "./$repo"
 git pull
