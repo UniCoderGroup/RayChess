@@ -6,4 +6,3 @@ npm install
 npm link
 cd "../WebApp"
 npm install
-npm run linkcore
