@@ -132,9 +132,25 @@ function exit() {
 let gdata = new Object;
 function getMain(ctx: Koa.Context) {
     if (ctx.request.path === '/') {
-        ctx.body = `Hello World. url = ${ctx.request.url}. db-name = ${ctx.sql.config.database}`;
+        ctx.set('Content-Type', 'text/html');
+        ctx.body =`<html>
+<head>
+</head>
+<body>
+<p>
+Hello World. url = ${ctx.request.url}. db-name = ${ctx.sql.config.database}
+</p>
+<img src="favicon.ico"/>
+</body>
+</html>`;
+    } else if (ctx.request.path === '/favicon.ico') {
+        //let img = connection.query('SELECT img FROM user_img_tbl WHERE user_id=1;');
+
+        //setTimeout(() => { log(img);}, 5000);
+        
+        //ctx.set('Content-Type', 'image/jpeg');
+        //ctx.body = img.values[0];
     } else if (ctx.request.path === '/value') {
-        logEvent(fieldServer, ctx.request.query.name, gdata[ctx.request.query.name as string]);
         ctx.body = gdata[ctx.request.query.name as string];
     }
 }
@@ -144,7 +160,6 @@ function postMain(ctx: Koa.Context, postData: unknown) {
         const data = qs.parse(postData as string);
         gdata[data.name as string] = data.value;
         ctx.body = `seted: (${ctx.request.url}) ${data.name}=${data.value}`;
-
     } else if (ctx.request.path === '/close') {
         ctx.body = 'server closed in 2s!'
         setTimeout(exit, 2000);

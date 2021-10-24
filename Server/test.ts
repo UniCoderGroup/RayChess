@@ -5,8 +5,8 @@ import { URL } from 'url';
 var isGet = true;
 var path = '/value';
 var data = {
-    name: "n",
-    value: "1"
+    name: "a",
+    value: "2"
 };
 var content = qs.stringify(data);
 
