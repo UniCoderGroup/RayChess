@@ -5,6 +5,13 @@ import qs from 'querystring';
 
 
 const log = console.log;
+class LogSymbols  {
+    info = chalk.blue('\u2139');
+    success = chalk.green('\u2714');
+    warning = chalk.yellow('\u26A0');
+    error = chalk.red('\u2716');
+};
+const logSymbols = new LogSymbols;
 class LogField {
     constructor(chalk: chalk.Chalk, name: string) {
         this.chalk = chalk;
@@ -22,19 +29,19 @@ const fieldSql = new LogField(chalk.blue, "SQL");
 const fieldTest = new LogField(chalk.yellow, "Test");
 const fieldServer = new LogField(chalk.rgb(45, 175, 190), "Server");
 const logStarting = (field: LogField, ...text: unknown[]) => {
-    log(field.str, chalk.green(...text));
+    log(field.str, logSymbols.info, chalk.green(...text));
 }
 const logOK = (field: LogField, ...text: unknown[]) => {
-    log(field.str, chalk.greenBright(...text));
+    log(field.str, logSymbols.success, chalk.greenBright(...text));
 }
 const logError = (field: LogField, ...text: unknown[]) => {
-    log(field.str, chalk.red(...text));
+    log(field.str, logSymbols.error, chalk.red(...text));
 }
 const logEvent = (field: LogField, ...text: unknown[]) => {
-    log(field.str, chalk.rgb(245, 245, 245)(...text));
+    log(field.str, logSymbols.info, chalk.rgb(245, 245, 245)(...text));
 }
 const logClose = (field: LogField, ...text: unknown[]) => {
-    log(field.str, chalk.rgb(255, 204, 0)(...text));
+    log(field.str, logSymbols.warning, chalk.rgb(255, 204, 0)(...text));
 }
 
 logStarting(fieldApp, "Starting...");

@@ -9,6 +9,8 @@ Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "WebApp", "WebApp\WebApp.njs
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Server", "Server\Server.njsproj", "{7BF0EC29-D16C-44CB-9B77-82C74DF4BAD4}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "VueApp", "VueApp\VueApp.njsproj", "{9A60E445-B243-42E3-A631-FBFFCE7E1080}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{7BF0EC29-D16C-44CB-9B77-82C74DF4BAD4}.Release|x64.Build.0 = Release|Any CPU
 		{7BF0EC29-D16C-44CB-9B77-82C74DF4BAD4}.Release|x86.ActiveCfg = Release|Any CPU
 		{7BF0EC29-D16C-44CB-9B77-82C74DF4BAD4}.Release|x86.Build.0 = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|x64.Build.0 = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|x64.ActiveCfg = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|x64.Build.0 = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A60E445-B243-42E3-A631-FBFFCE7E1080}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
