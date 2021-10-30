@@ -10,12 +10,10 @@
   "dependencies": {
     "@types/lodash": "^4.14.176",
     "core-js": "^3.8.3",
-    "konva": "^8.2.3",
     "lodash": "^4.17.21",
     "vue": "^3.2.6",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.3",
-    "vue3-konva": "^2.1.7",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
