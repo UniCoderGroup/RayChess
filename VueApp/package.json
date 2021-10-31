@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.176",
+    "axios": "^0.24.0",
     "core-js": "^3.8.3",
+    "konva": "^8.2.3",
     "lodash": "^4.17.21",
     "vue": "^3.2.6",
     "vue-class-component": "^8.0.0-0",
@@ -17,8 +19,8 @@
     "vuex": "^4.0.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.15.1",
-    "@typescript-eslint/parser": "^4.15.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
     "@vue/cli-plugin-babel": "~5.0.0-beta.7",
     "@vue/cli-plugin-eslint": "~5.0.0-beta.7",
     "@vue/cli-plugin-router": "~5.0.0-beta.7",

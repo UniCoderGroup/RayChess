@@ -77,7 +77,7 @@ export function GetOppositeDirection(d: Direction): Direction {
 }
 
 export class Coord {
-    constructor(X: number = -1, Y: number = -1) {
+    constructor(X = -1, Y = -1) {
         this.x = X;
         this.y = Y;
     }
@@ -97,7 +97,7 @@ export function IsCoordEqual(c1: Coord, c2: Coord): boolean {
  * @param xMin 注：取到
  * @param yMin 注：取到
  */
-export function IsCoordInRange(c: Coord, xMax: number, yMax: number, xMin: number = 0, yMin: number = 0) {
+export function IsCoordInRange(c: Coord, xMax: number, yMax: number, xMin = 0, yMin = 0): boolean {
     return xMin <= c.x && c.x < xMax
         && yMin <= c.y && c.y < yMax;
 }
@@ -122,7 +122,7 @@ export function GetSurroundingCoord(c: Coord, d: Direction): Coord {
  * @param xMax 注：取不到
  * @param yMax 注：取不到
  */
-export function HasSurroundingCoord(c: Coord, d: Direction, xMax: number, yMax: number, xMin: number = 0, yMin: number = 0) {
+export function HasSurroundingCoord(c: Coord, d: Direction, xMax: number, yMax: number, xMin = 0, yMin = 0): boolean {
     return IsCoordInRange(GetSurroundingCoord(c, d), xMax, yMax, xMin, yMin);
 }
 
@@ -130,7 +130,7 @@ export type RayData = number;
 
 export type RayRoute = Coord[];
 
-export let WriteLog = console.log;
+export const WriteLog = console.log;
 
 export function GetDirectionFromTo(from: Coord, to: Coord): Direction {
     let ret = Direction.Undefined;
@@ -225,8 +225,8 @@ export class BorderMirrorType {
         this.whose = Whose;
     }
     protected whose: Player;
-    get Whose() { return this.whose }
-    set Whose(Whose) { this.whose = Whose; }
+    get Whose(): Player { return this.whose }
+    set Whose(Whose: Player) { this.whose = Whose; }
 }
 
 export class CrossMirrorType {
@@ -235,11 +235,11 @@ export class CrossMirrorType {
         this.whose = Whose;
     }
     protected type: TypeOfCross;
-    get Type() { return this.type }
-    set Type(Type) { this.type = Type; }
+    get Type(): TypeOfCross { return this.type }
+    set Type(Type: TypeOfCross) { this.type = Type; }
     protected whose: Player;
-    get Whose() { return this.whose }
-    set Whose(Whose) { this.whose = Whose; }
+    get Whose(): Player { return this.whose }
+    set Whose(Whose: Player) { this.whose = Whose; }
 }
 
 export class MirrorType {
@@ -270,7 +270,7 @@ export class MirrorType {
 
 export abstract class Grid {
     protected readonly type: TypeOfGrid = TypeOfGrid.Undefined;
-    get Type() { return this.type; }
+    get Type(): TypeOfGrid { return this.type; }
 }
 
 export class GridHome extends Grid {
@@ -280,15 +280,16 @@ export class GridHome extends Grid {
     }
     public readonly type: TypeOfGrid = TypeOfGrid.Home;
     protected whose: Player;
-    get Whose() { return this.whose; }
+    get Whose(): Player { return this.whose; }
     protected outdir = Direction.Undefined;
-    get Outdir() { return this.outdir; }
+    get Outdir(): Direction { return this.outdir; }
     set Outdir(Outdir: Direction) { this.outdir = Outdir; }
     protected outMirror = new BorderMirrorType();
-    get OutMirror() { return this.outMirror; }
+    get OutMirror(): BorderMirrorType { return this.outMirror; }
     set OutMirror(OutMirror: BorderMirrorType) { this.outMirror = OutMirror; }
 }
 
+/* eslint-disable @typescript-eslint/no-namespace*/
 namespace TestOutput {
     class TestMirror {
         constructor(Data: TestData, Whose: RelativePlayer) {
@@ -520,8 +521,8 @@ namespace TestOutput {
             this.data = Data;
         }
         protected data: TestData;
-        protected in: boolean = false;
-        protected out: boolean = false;
+        protected in = false;
+        protected out = false;
         public abstract Inward(): boolean;
         public abstract Outward(): boolean;
     }
@@ -720,9 +721,9 @@ namespace TestOutput {
 export class GridNormal extends Grid {
     public readonly type: TypeOfGrid = TypeOfGrid.Normal;
     protected mirror = new MirrorType();
-    get Mirror() { return this.mirror }
-    public AddMirror(type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
-        let mirrorExist: boolean = false;
+    get Mirror(): MirrorType { return this.mirror }
+    public AddMirror(type: TypeOfMirror, whose: Player, checkExist = true): boolean {
+        let mirrorExist = false;
         switch (type) {
             case TypeOfMirror.Left:
                 if (this.mirror.Left.Whose !== Player.None) {
@@ -780,7 +781,7 @@ export class GridNormal extends Grid {
     }
 
     public TestOutput(d: Direction, p: Player): RayData {
-        let t: TestOutput.TestData = new TestOutput.TestData(p, this.mirror);
+        const t = new TestOutput.TestData(p, this.mirror);
         switch (d) {
             case Direction.Left:
                 t.RightIn();
@@ -818,12 +819,12 @@ namespace CheckIfWin {
             }
         }
         protected nx: number;
-        get Nx() { return this.nx };
+        get Nx(): number { return this.nx }
         protected ny: number;
-        get Ny() { return this.ny };
+        get Ny(): number { return this.ny }
         protected board: Board;
         protected data: RayData[][] = [];
-        get Board() { return this.board; }
+        get Board(): Board { return this.board; }
         TestSurrounding(x: number, y: number): RayData {
             let r: RayData = 0;
             if (!(x - 1 < 0)) {
@@ -843,7 +844,7 @@ namespace CheckIfWin {
         GetRayData(x: number, y: number): RayData {
             return this.data[y][x];
         }
-        SetRayData(x: number, y: number, r: RayData) {
+        SetRayData(x: number, y: number, r: RayData): void {
             this.data[y][x] = r;
         }
     }
@@ -851,13 +852,13 @@ namespace CheckIfWin {
 
 export class Board {
     protected data: Grid[][] = [];
-    get Data() { return this.data; }
-    protected nx: number = -1;
-    get Nx() { return this.nx; }
-    protected ny: number = -1;
-    get Ny() { return this.ny; }
-    protected onChange: () => void = () => { };
-    get OnChange() { return this.onChange; }
+    get Data(): Grid[][] { return this.data; }
+    protected nx = -1;
+    get Nx(): number { return this.nx; }
+    protected ny = -1;
+    get Ny(): number { return this.ny; }
+    protected onChange: () => void = () => { return; };
+    get OnChange(): () => void { return this.onChange; }
     set OnChange(OnChange: () => void) { this.onChange = OnChange; }
     public init(Nx: number, Ny: number, BorderReflect: boolean): boolean {
         this.nx = Nx;
@@ -892,7 +893,7 @@ export class Board {
     public GetRow(y: number): Grid[] {
         return this.data[y];
     }
-    public IsOnBorder(x: number, y: number) {
+    public IsOnBorder(x: number, y: number): boolean {
         return x === 0 || x === this.nx - 1 || y === 0 || y === this.ny - 1;
     }
 
@@ -901,7 +902,7 @@ export class Board {
         if (!IsCoordEqual(this.GetHomeCoord(whose), InvalidCoord)) {
             throw new Error("There has been a grid of this player's home!");
         }
-        let g = this.GetGrid(x, y);
+        const g = this.GetGrid(x, y);
         if (g.Type === TypeOfGrid.Home) {
             throw new Error("This grid has been one player's home!");
         }
@@ -910,8 +911,8 @@ export class Board {
         }
         AllDirections.forEach((d) => {
             if (HasSurroundingCoord({ x, y }, d, this.Nx, this.Ny)) {
-                let sc = GetSurroundingCoord({ x, y }, d);
-                let gs = this.GetGrid(sc.x, sc.y);
+                const sc = GetSurroundingCoord({ x, y }, d);
+                const gs = this.GetGrid(sc.x, sc.y);
                 if (gs.Type === TypeOfGrid.Home) {
                     throw new Error("Cannot place home next to another home");
                 }
@@ -919,13 +920,13 @@ export class Board {
         });
 
         this.SetGrid(x, y, new GridHome(whose));
-        let h = this.GetGrid(x, y) as GridHome;
+        const h = this.GetGrid(x, y) as GridHome;
         let ret = true;
         AllDirections.forEach((d) => {
             if (d !== outDir) {
                 if (HasSurroundingCoord({ x, y }, d, this.Nx, this.Ny)) {
-                    let sc = GetSurroundingCoord({ x, y }, d);
-                    let gsn = this.GetGrid(sc.x, sc.y) as GridNormal;
+                    const sc = GetSurroundingCoord({ x, y }, d);
+                    const gsn = this.GetGrid(sc.x, sc.y) as GridNormal;
                     ret = ret && gsn.AddMirror(Direction2TypeOfMirror(GetOppositeDirection(d)), h.Whose, false);
                 }
             }
@@ -935,13 +936,13 @@ export class Board {
     }
 
     GetHomeCoord(whose: Player): Coord {
-        let c = new Coord();
+        const c = new Coord();
         c.y = this.data.findIndex(
             (value) => {
                 c.x = value.findIndex(
                     (value) => {
                         if (value.Type === TypeOfGrid.Home) {
-                            let home: GridHome = value as GridHome;
+                            const home: GridHome = value as GridHome;
                             if (home.Whose === whose) {
                                 return true;
                             }
@@ -958,50 +959,54 @@ export class Board {
         );
         return c;
     }
-    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
-        let g = this.GetGrid(x, y);
+    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player, checkExist = true): boolean {
+        const g = this.GetGrid(x, y);
         switch (g.Type) {
             case TypeOfGrid.Normal:
-                let gn = g as GridNormal;
-                let d = TypeOfMirror2Direction(type);
-                if (d !== Direction.Undefined) {
-                    if (IsCoordInRange({ x, y }, this.Nx, this.Ny)) {
-                        if (HasSurroundingCoord({ x, y }, d, this.Nx, this.Ny)) {
-                            let cs = GetSurroundingCoord({ x, y }, d)
-                            let gs = this.GetGrid(cs.x, cs.y);
-                            let ret = true;
-                            switch (gs.Type) {
-                                case TypeOfGrid.Home:
-                                    let gsh = gs as GridHome;
-                                    if (gsh.Outdir === GetOppositeDirection(d)) {
-                                        gsh.OutMirror.Whose = whose;
+                {
+                    const gn = g as GridNormal;
+                    const d = TypeOfMirror2Direction(type);
+                    if (d !== Direction.Undefined) {
+                        if (IsCoordInRange({ x, y }, this.Nx, this.Ny)) {
+                            if (HasSurroundingCoord({ x, y }, d, this.Nx, this.Ny)) {
+                                const cs = GetSurroundingCoord({ x, y }, d)
+                                const gs = this.GetGrid(cs.x, cs.y);
+                                let ret = true;
+                                switch (gs.Type) {
+                                    case TypeOfGrid.Home: {
+                                        const gsh = gs as GridHome;
+                                        if (gsh.Outdir === GetOppositeDirection(d)) {
+                                            gsh.OutMirror.Whose = whose;
+                                        }
+                                        break;
                                     }
-                                    break;
-                                case TypeOfGrid.Normal:
-                                    let gsn = gs as GridNormal;
-                                    ret = ret && gsn.AddMirror(Direction2TypeOfMirror(GetOppositeDirection(d)), whose, false);
-                                    break;
+                                    case TypeOfGrid.Normal: {
+                                        const gsn = gs as GridNormal;
+                                        ret = ret && gsn.AddMirror(Direction2TypeOfMirror(GetOppositeDirection(d)), whose, false);
+                                        break;
+                                    }
+                                }
+                                return ret && gn.AddMirror(type, whose, checkExist);
+                            } else {
+                                return gn.AddMirror(type, whose, checkExist);
                             }
-                            return ret && gn.AddMirror(type, whose, checkExist);
                         } else {
-                            return gn.AddMirror(type, whose, checkExist);
+                            throw new Error("Out of range!");
                         }
-                    } else {
-                        throw new Error("Out of range!");
                     }
-                }
-                else {
-                    return gn.AddMirror(type, whose, checkExist);
+                    else {
+                        return gn.AddMirror(type, whose, checkExist);
+                    }
                 }
             default:
                 throw new Error("Can not place mirror on this grid!");
         }
     }
     protected CheckNode(s: CheckIfWin.SearchData, x: number, y: number, p: Player, d: Direction): boolean {
-        let g = this.GetGrid(x, y);
+        const g = this.GetGrid(x, y);
         if (g.Type === TypeOfGrid.Home) {
-            let gh = g as GridHome;
-            let wh = gh.Whose;
+            const gh = g as GridHome;
+            const wh = gh.Whose;
             if (wh === p || wh === Player.None) {
                 return false;
             }
@@ -1012,20 +1017,20 @@ export class Board {
             }
         }
         else if (g.Type === TypeOfGrid.Normal) {
-            let gn = g as GridNormal;
-            let b = s.TestSurrounding(x, y);
-            let o = gn.TestOutput(d, p);
-            let r = s.GetRayData(x, y);
+            const gn = g as GridNormal;
+            const b = s.TestSurrounding(x, y);
+            const o = gn.TestOutput(d, p);
+            const r = s.GetRayData(x, y);
             AllDirections.forEach((d) => {
-                let iftest =
+                const iftest =
                     (d & o) &&
                     (d & b) &&
                     !(d & r);
                 if (iftest) {
-                    let ray = s.GetRayData(x, y);
+                    const ray = s.GetRayData(x, y);
                     s.SetRayData(x, y, ray | d);
-                    let c = new Coord(x, y);
-                    let sc = GetSurroundingCoord(c, d);
+                    const c = new Coord(x, y);
+                    const sc = GetSurroundingCoord(c, d);
                     if (this.CheckNode(s, sc.x, sc.y, p, d)) {
                         return true;
                     }
@@ -1036,11 +1041,11 @@ export class Board {
         return false;
     }
     protected CheckIfWin(p: Player): boolean {
-        let cHome: Coord = this.GetHomeCoord(p);
-        let s = new CheckIfWin.SearchData(this);
-        let x = cHome.x;
-        let y = cHome.y;
-        let b: RayData = s.TestSurrounding(x, y);
+        const cHome = this.GetHomeCoord(p);
+        const s = new CheckIfWin.SearchData(this);
+        const x = cHome.x;
+        const y = cHome.y;
+        const b: RayData = s.TestSurrounding(x, y);
         if (b & Direction.Left) {
             if (this.CheckNode(s, x - 1, y, p, Direction.Left)) {
                 return true;
@@ -1077,11 +1082,11 @@ export class Board {
         }
         return Player.None;
     }
-    public CheckRayRoute(route: RayRoute, p: Player, n: number = 0): boolean {
-        let g = this.GetGrid(route[n].x, route[n].y);
-        let d = GetDirectionFromTo(route[n - 1], route[n]);
+    public CheckRayRoute(route: RayRoute, p: Player, n = 0): boolean {
+        const g = this.GetGrid(route[n].x, route[n].y);
+        const d = GetDirectionFromTo(route[n - 1], route[n]);
         if (g.Type === TypeOfGrid.Home) {
-            let gh = g as GridHome;
+            const gh = g as GridHome;
             if (gh.Whose === p) {
                 if (n === 0) {
                     return this.CheckRayRoute(route, p, n + 1);
@@ -1105,8 +1110,8 @@ export class Board {
                 return false;
             }
         } else if (g.Type === TypeOfGrid.Normal) {
-            let gn = g as GridNormal;
-            let o = gn.TestOutput(d, p);
+            const gn = g as GridNormal;
+            const o = gn.TestOutput(d, p);
             if (d & o) {
                 if (n + 1 < route.length) {
                     return this.CheckRayRoute(route, p, n + 1);
@@ -1141,8 +1146,8 @@ export namespace GameRecord {
         who: Player,
         type: ActionType
     }
-    export interface ActionNullData extends ActionData { }
-    export interface ActionUndefinedData extends ActionData { }
+    export type ActionNullData = ActionData;
+    export type ActionUndefinedData = ActionData;
     export interface ActionAddHomeData extends ActionData {
         coord: Coord,
         outDir: Direction
@@ -1151,7 +1156,7 @@ export namespace GameRecord {
         coord: Coord,
         mirrorType: TypeOfMirror
     }
-    export interface ActionCheckRouteFailedData extends ActionData { };
+    export type ActionCheckRouteFailedData = ActionData;
     export interface ActionWinData extends ActionData {
         route: RayRoute
     }
@@ -1160,42 +1165,42 @@ export namespace GameRecord {
             this.actions = [];
         }
         protected actions: ActionData[];
-        get Actions() { return this.actions; }
-        get FirstPlayer() {
+        get Actions(): ActionData[] { return this.actions; }
+        get FirstPlayer(): Player {
             return this.actions[0].type === ActionType.AddHome ?
                 this.actions[0].who : Player.None;
         }
-        get Winner() {
+        get Winner(): Player {
             return this.actions[this.actions.length - 1].type === ActionType.Win ?
                 this.actions[this.actions.length - 1].who : Player.None;
         }
-        get ActionNumber() {
+        get ActionNumber(): number {
             return this.actions.length;
         }
-        AddAction(Action: ActionData) {
-            return this.actions.push(Action)
+        AddAction(Action: ActionData): number {
+            return this.actions.push(Action);
         }
         Store(): string {
             return JSON.stringify(this.actions);
         }
-        Load(s: string) {
+        Load(s: string): void {
             this.actions = JSON.parse(s);
         }
     }
 }
 
 export class Game {
-    protected board= new Board();
-    get Board() { return this.board; }
-    get Nx() { return this.board.Nx; }
-    get Ny() { return this.board.Ny; }
+    protected board = new Board();
+    get Board(): Board { return this.board; }
+    get Nx(): number { return this.board.Nx; }
+    get Ny(): number { return this.board.Ny; }
     protected currentPlayer: Player = Player.None;
-    get CurrentPlayer() { return this.currentPlayer; }
+    get CurrentPlayer(): Player { return this.currentPlayer; }
     set CurrentPlayer(CurrentPlayer: Player) { this.currentPlayer = CurrentPlayer; this.board.OnChange(); }
-    get OnChange() { return this.board.OnChange; }
+    get OnChange(): () => void { return this.board.OnChange; }
     set OnChange(OnChange: () => void) { this.board.OnChange = OnChange; }
     protected record = new GameRecord.Record();
-    get Record() { return this.record; }
+    get Record(): GameRecord.Record { return this.record; }
     public InitBoard(Nx: number, Ny: number, FirstPlayer: Player, BorderReflect: boolean): boolean {
         this.CurrentPlayer = FirstPlayer;
         return this.board.init(Nx, Ny, BorderReflect);
@@ -1206,11 +1211,11 @@ export class Game {
     public GetRow(y: number): Grid[] {
         return this.board.GetRow(y);
     }
-    public NextPlayer() {
+    public NextPlayer(): void {
         this.CurrentPlayer = GetAnotherPlayer(this.CurrentPlayer);
     }
     public AddHome(x: number, y: number, whose: Player, outDir: Direction): boolean {
-        let data: GameRecord.ActionAddHomeData = {
+        const data: GameRecord.ActionAddHomeData = {
             who: whose,
             type: GameRecord.ActionType.AddHome,
             coord: new Coord(x, y),
@@ -1219,12 +1224,12 @@ export class Game {
         this.record.AddAction(data);
         return this.board.AddHome(x, y, whose, outDir);
     }
-    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player, checkExist: boolean = true): boolean {
-        let data: GameRecord.ActionAddMirrorData = {
+    public AddMirror(x: number, y: number, type: TypeOfMirror, whose: Player, checkExist = true): boolean {
+        const data: GameRecord.ActionAddMirrorData = {
             who: whose,
             type: GameRecord.ActionType.AddMirror,
             coord: new Coord(x, y),
-            mirrorType:type
+            mirrorType: type
         }
         this.record.AddAction(data);
         return this.board.AddMirror(x, y, type, whose, checkExist);
@@ -1233,16 +1238,16 @@ export class Game {
         return this.board.WhoWins();
     }
     public CheckRayRoute(route: RayRoute, p: Player): boolean {
-        let result = this.board.CheckRayRoute(route, p);
+        const result = this.board.CheckRayRoute(route, p);
         if (result) {
-            let data: GameRecord.ActionWinData = {
+            const data: GameRecord.ActionWinData = {
                 who: p,
                 type: GameRecord.ActionType.Win,
-                route:route
+                route: route
             }
             this.record.AddAction(data);
         } else {
-            let data: GameRecord.ActionCheckRouteFailedData = {
+            const data: GameRecord.ActionCheckRouteFailedData = {
                 who: p,
                 type: GameRecord.ActionType.CheckRouteFailed
             }
@@ -1302,3 +1307,12 @@ export enum TypeOfGame {
 //    //Game end
 
 //    //////////////////////////////////////////////////
+
+// Front-end
+
+export interface MirrorStyle {
+    width: number,
+    height: number,
+    strokeWidth: number,
+}
+

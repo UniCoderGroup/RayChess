@@ -5,7 +5,7 @@ import qs from 'querystring';
 
 
 const log = console.log;
-class LogSymbols  {
+class LogSymbols {
     info = chalk.blue('\u2139');
     success = chalk.green('\u2714');
     warning = chalk.yellow('\u26A0');
@@ -78,7 +78,7 @@ app.use(async (ctx, next) => {
     await next();
     const rt = ctx.response.get('X-Response-Time');
     logEvent(fieldServer,
-        chalk`{rgb(134,165,85) {bgRgb(245,245,245) ${ctx.method}}}{rgb(90,90,90) {bgRgb(252,252,252)  ${ctx.url}}}`,
+        chalk`{rgb(45,175,190) RecvReq:} {rgb(134,165,85) {bgRgb(220,220,220) ${ctx.method}${" ".repeat(6 - ctx.method.length)}}}{rgb(90,90,90) {bgRgb(252,252,252)  ${ctx.url}}}`,
         chalk`- {yellow ${rt}}`);
 });
 
@@ -88,6 +88,13 @@ app.use(async (ctx, next) => {
     await next();
     const ms = Date.now() - start;
     ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+// Allow CORS
+app.use(async (ctx, next) => {
+    ctx.set('Access-Control-Allow-Origin', 'http://localhost:8080');
+    ctx.set('Access-Control-Allow-Credentials', "true");
+    await next();
 });
 
 // response
@@ -115,6 +122,12 @@ app.use(async ctx => {
             let postData = await paresPostData(ctx);
             postMain(ctx, postData);
             break;
+        case "OPTIONS":
+            ctx.set('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE');
+            ctx.set('Access-Control-Allow-Headers', 'x-requested-with, accept, origin, content-type');
+            ctx.set('Access-Control-Max-Age', '1728000');
+            ctx.body = "";
+            break;
         default:
             throw new Error();
     }
@@ -122,7 +135,8 @@ app.use(async ctx => {
 
 // error
 app.on('error', (err, ctx) => {
-    logError(fieldServer, 'Server error:', err, 'context:', ctx)
+    logError(fieldServer, 'Server error:', (err as Error).message, 'context:', ctx);
+    log(ctx);
 });
 
 logStarting(fieldApp, chalk`Start listening on {whiteBright {underline http://localhost:1234}}.`);
@@ -140,7 +154,7 @@ let gdata = new Object;
 function getMain(ctx: Koa.Context) {
     if (ctx.request.path === '/') {
         ctx.set('Content-Type', 'text/html');
-        ctx.body =`<html>
+        ctx.body = `<html>
 <head>
 </head>
 <body>
@@ -154,7 +168,7 @@ Hello World. url = ${ctx.request.url}. db-name = ${ctx.sql.config.database}
         //let img = connection.query('SELECT img FROM user_img_tbl WHERE user_id=1;');
 
         //setTimeout(() => { log(img);}, 5000);
-        
+
         //ctx.set('Content-Type', 'image/jpeg');
         //ctx.body = img.values[0];
     } else if (ctx.request.path === '/value') {
@@ -168,7 +182,9 @@ function postMain(ctx: Koa.Context, postData: unknown) {
         gdata[data.name as string] = data.value;
         ctx.body = `seted: (${ctx.request.url}) ${data.name}=${data.value}`;
     } else if (ctx.request.path === '/close') {
-        ctx.body = 'server closed in 2s!'
+        ctx.body = 'server will be closed in 2s!'
         setTimeout(exit, 2000);
+    } else if (ctx.request.path.match(/\/room\/[0-9,a-z,A-Z]+\/chat/g).length > 0) {
+        ctx.body = "Received";
     }
 }
