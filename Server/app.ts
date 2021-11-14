@@ -1,17 +1,22 @@
 import Koa from 'koa'
 import mysql from 'mysql'
 import chalk from 'chalk'
-import qs from 'querystring';
+import qs from 'querystring'
+import { isString } from 'util';
 
 
 const log = console.log;
-class LogSymbols {
-    info = chalk.blue('\u2139');
-    success = chalk.green('\u2714');
-    warning = chalk.yellow('\u26A0');
-    error = chalk.red('\u2716');
+const logSymbols = {
+    info: chalk.blue('\u2139'),
+    success: chalk.green('\u2714'),
+    warning: chalk.yellow('\u26A0'),
+    error: chalk.red('\u2716')
 };
-const logSymbols = new LogSymbols;
+const logTableChar = {
+    LT: '\u250C',
+    L: '\u2502',
+    LB: '\u2514'
+};
 class LogField {
     constructor(chalk: chalk.Chalk, name: string) {
         this.chalk = chalk;
@@ -24,24 +29,32 @@ class LogField {
         return "[" + chalk.rgb(0, 122, 204).italic("RayChess") + "][" + this.chalk(this.name) + "]" + " ".repeat(n);
     }
 }
+let logStack: string[] = [];
+function getStack(): string {
+    let stack = "";
+    for (let str of logStack) {
+        stack += str;
+    }
+    return stack;
+}
 const fieldApp = new LogField(chalk.blueBright, "App");
 const fieldSql = new LogField(chalk.blue, "SQL");
 const fieldTest = new LogField(chalk.yellow, "Test");
 const fieldServer = new LogField(chalk.rgb(45, 175, 190), "Server");
 const logStarting = (field: LogField, ...text: unknown[]) => {
-    log(field.str, logSymbols.info, chalk.green(...text));
+    log(field.str, logSymbols.info, getStack(), chalk.green(...text));
 }
 const logOK = (field: LogField, ...text: unknown[]) => {
-    log(field.str, logSymbols.success, chalk.greenBright(...text));
+    log(field.str, logSymbols.success, getStack(), chalk.greenBright(...text));
 }
 const logError = (field: LogField, ...text: unknown[]) => {
-    log(field.str, logSymbols.error, chalk.red(...text));
+    log(field.str, logSymbols.error, getStack(), chalk.bgYellow.red("ERR!"), chalk.redBright(...text));
 }
 const logEvent = (field: LogField, ...text: unknown[]) => {
-    log(field.str, logSymbols.info, chalk.rgb(245, 245, 245)(...text));
+    log(field.str, logSymbols.info, getStack(), chalk.rgb(245, 245, 245)(...text));
 }
 const logClose = (field: LogField, ...text: unknown[]) => {
-    log(field.str, logSymbols.warning, chalk.rgb(255, 204, 0)(...text));
+    log(field.str, logSymbols.warning, getStack(), chalk.rgb(255, 204, 0)(...text));
 }
 
 logStarting(fieldApp, "Starting...");
@@ -54,7 +67,7 @@ var connection = mysql.createConnection({
     password: 'xy323000',
     database: 'raychess_test'
 });
-connection.connect({}, (err, args) => {
+connection.connect({}, (err) => {
     if (err !== null) logError(fieldSql, "Connect error:", err);
 });
 
@@ -73,13 +86,18 @@ const app = new Koa<Koa.DefaultState, {
 
 app.context.sql = connection;
 
+
 // logger
+let nReq = 0;
 app.use(async (ctx, next) => {
+    nReq++;
+    logEvent(fieldServer, chalk`{rgb(45,175,190) ${logTableChar.LT}Req#${nReq}} START`,
+        chalk`{rgb(134,165,85) {bgRgb(220,220,220) ${ctx.method}${" ".repeat(7 - ctx.method.length)}}}{rgb(90,90,90) {bgRgb(252,252,252) ${ctx.url}}}`)
+    logStack.push(chalk` {rgb(45,175,190) ${logTableChar.L}}`);
     await next();
     const rt = ctx.response.get('X-Response-Time');
-    logEvent(fieldServer,
-        chalk`{rgb(45,175,190) RecvReq:} {rgb(134,165,85) {bgRgb(220,220,220) ${ctx.method}${" ".repeat(6 - ctx.method.length)}}}{rgb(90,90,90) {bgRgb(252,252,252)  ${ctx.url}}}`,
-        chalk`- {yellow ${rt}}`);
+    logStack.pop();
+    logEvent(fieldServer, chalk`{rgb(45,175,190) ${logTableChar.LB}Req#${nReq}} END - {yellow ${rt}}`);
 });
 
 // x-response-time
@@ -123,7 +141,7 @@ app.use(async ctx => {
             postMain(ctx, postData);
             break;
         case "OPTIONS":
-            ctx.set('Access-Control-Allow-Methods', 'OPTIONS, GET, PUT, POST, DELETE');
+            ctx.set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
             ctx.set('Access-Control-Allow-Headers', 'x-requested-with, accept, origin, content-type');
             ctx.set('Access-Control-Max-Age', '1728000');
             ctx.body = "";
@@ -135,7 +153,8 @@ app.use(async ctx => {
 
 // error
 app.on('error', (err, ctx) => {
-    logError(fieldServer, 'Server error:', (err as Error).message, 'context:', ctx);
+    logStack = [];
+    logError(fieldServer, 'Server error:', (err as Error).name, (err as Error).message, 'stack:', (err as Error).stack);
     log(ctx);
 });
 
@@ -150,9 +169,22 @@ function exit() {
     logClose(fieldApp, "Closed.");
 }
 
+// example: "/1234/foo/bar" -> "1234"
+function solveRoomId(path: string): string {
+    path = path.substring(1);
+    let roomId = "";
+    for (let c of path) {
+        if (c === '/') break;
+        else roomId += c;
+    }
+    logEvent(fieldServer, chalk`RoomId solved: {rgb(0,122,204) #${roomId}}`);
+    return roomId;
+}
+
 let gdata = new Object;
 function getMain(ctx: Koa.Context) {
-    if (ctx.request.path === '/') {
+    let path = ctx.request.path;
+    if (path === '/') {
         ctx.set('Content-Type', 'text/html');
         ctx.body = `<html>
 <head>
@@ -164,27 +196,83 @@ Hello World. url = ${ctx.request.url}. db-name = ${ctx.sql.config.database}
 <img src="favicon.ico"/>
 </body>
 </html>`;
-    } else if (ctx.request.path === '/favicon.ico') {
+    } else if (path === '/favicon.ico') {
         //let img = connection.query('SELECT img FROM user_img_tbl WHERE user_id=1;');
 
         //setTimeout(() => { log(img);}, 5000);
 
         //ctx.set('Content-Type', 'image/jpeg');
         //ctx.body = img.values[0];
-    } else if (ctx.request.path === '/value') {
+    } else if (path === '/value') {
         ctx.body = gdata[ctx.request.query.name as string];
+    } else if (path.startsWith('/room')) {
+        path = path.substring('/room'.length);
+        let roomId = solveRoomId(path);
+        logEvent(fieldServer, chalk`{rgb(0,122,204) ${logTableChar.LT}Room#${roomId}} START`);
+        logStack.push(chalk`{rgb(0,122,204)  ${logTableChar.L}}`);
+        path = path.substring(roomId.length + 1);
+        if (path.startsWith('/chat')) {
+            path = path.substring('/chat'.length);
+            if (path.startsWith('/all')) {
+                if (!roomData.has(roomId)) {
+                    roomData.set(roomId, {
+                        chatMessages: []
+                    });
+                    logEvent(fieldServer, `Generate data for Room#${roomId}.`);
+                }
+                ctx.body = roomData.get(roomId).chatMessages;
+                logEvent(fieldServer, `Get chat messages.`);
+            }
+        }
+        logStack.pop();
+        logEvent(fieldServer, chalk`{rgb(0,122,204) ${logTableChar.LB}Room#${roomId}} END`);
     }
 }
 
+interface Room {
+    chatMessages: {
+        from: string,
+        content: string
+    }[]
+}
+let roomData = new Map<string, Room>();
+
 function postMain(ctx: Koa.Context, postData: unknown) {
-    if (ctx.request.path === '/value') {
+    let path = ctx.request.path;
+    if (path === '/value') {
         const data = qs.parse(postData as string);
         gdata[data.name as string] = data.value;
         ctx.body = `seted: (${ctx.request.url}) ${data.name}=${data.value}`;
-    } else if (ctx.request.path === '/close') {
+    } else if (path === '/close') {
         ctx.body = 'server will be closed in 2s!'
         setTimeout(exit, 2000);
-    } else if (ctx.request.path.match(/\/room\/[0-9,a-z,A-Z]+\/chat/g).length > 0) {
-        ctx.body = "Received";
+    } else if (path.startsWith('/room')) {
+        path = path.substring('/room'.length);
+        let roomId = solveRoomId(path);
+        logEvent(fieldServer, chalk`{rgb(0,122,204) ${logTableChar.LT}Room#${roomId}} START`);
+        logStack.push(chalk`{rgb(0,122,204)  ${logTableChar.L}}`);
+        path = path.substring(roomId.length + 1);
+        if (path.startsWith('/chat')) {
+            path = path.substring('/chat'.length);
+            if (path.startsWith('/add')) {
+                if (!roomData.has(roomId)) {
+                    logError(fieldServer, `No data for room#${roomId}.`);
+                    ctx.status = 404;
+                    ctx.body = "No data.";
+                } else {
+                    let data = JSON.parse(postData as string);
+                    roomData.get(roomId).chatMessages.push({
+                        from: "unknown",
+                        content: data["content"]
+                    });
+                    let maxContent = 30;
+                    let displayContent = data["content"].length > maxContent ? data["content"].substring(0, maxContent - 3) + chalk.white("...") : data["content"];
+                    logEvent(fieldServer, chalk`Add chat message: {bgGray \"${displayContent}\"}.`);
+                    ctx.body = "Received.";
+                }
+            }
+        }
+        logStack.pop();
+        logEvent(fieldServer, chalk`{rgb(0,122,204) ${logTableChar.LB}Room#${roomId}} END`);
     }
 }
