@@ -11,7 +11,7 @@
     "@types/lodash": "4.14.176",
     "axios": "0.24.0",
     "core-js": "3.19.0",
-    "konva": "8.2.3",
+    "konva": "8.4.3",
     "lodash": "4.17.21",
     "vue": "3.2.20",
     "vue-class-component": "8.0.0-rc.1",
