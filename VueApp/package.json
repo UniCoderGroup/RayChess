@@ -13,7 +13,7 @@
     "core-js": "3.19.0",
     "konva": "8.2.3",
     "lodash": "4.17.21",
-    "vue": "3.2.20",
+    "vue": "3.3.4",
     "vue-class-component": "8.0.0-rc.1",
     "vue-router": "4.0.12",
     "vuex": "4.0.2"
@@ -27,7 +27,7 @@
     "@vue/cli-plugin-typescript": "5.0.0-beta.7",
     "@vue/cli-plugin-vuex": "5.0.0-beta.7",
     "@vue/cli-service": "5.0.0-beta.7",
-    "@vue/compiler-sfc": "3.2.20",
+    "@vue/compiler-sfc": "3.3.4",
     "@vue/eslint-config-typescript": "7.0.0",
     "eslint": "8.6.0",
     "eslint-plugin-vue": "7.20.0",
